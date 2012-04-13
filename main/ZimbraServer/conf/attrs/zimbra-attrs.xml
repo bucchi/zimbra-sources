@@ -6837,7 +6837,7 @@ TODO: delete them permanently from here
   </desc>
 </attr>
 
-<attr id="1373" name="zimbraFeatureExternalFeedbackEnabled" type="boolean" cardinality="single" optionalIn="account,cos" flags="accountInfo,accountInherited"  since="8.0.0">
+<attr id="1373" name="zimbraFeatureExternalFeedbackEnabled" type="boolean" cardinality="single" optionalIn="account,cos" flags="accountInfo,accountInherited,octopus"  since="8.0.0">
   <defaultCOSValue>FALSE</defaultCOSValue>
   <desc>whether external feedback feature is enabled</desc>
 </attr>
@@ -6875,7 +6875,7 @@ TODO: delete them permanently from here
   <desc>Specifies whether the http server should bound to localhost or not. This is an immutable property and is generated based on zimbraMailMode and zimbraMailBindAddress.</desc>
 </attr>
 
-<attr id="1381" name="zimbraFeatureCrocodocEnabled" type="boolean" cardinality="single" optionalIn="account,cos" flags="accountInfo,accountInherited"  since="8.0.0">
+<attr id="1381" name="zimbraFeatureCrocodocEnabled" type="boolean" cardinality="single" optionalIn="account,cos" flags="accountInfo,accountInherited,octopus"  since="8.0.0">
   <defaultCOSValue>FALSE</defaultCOSValue>
   <desc>whether Crocodoc feature is enabled in the web client</desc>
 </attr>
@@ -6978,5 +6978,9 @@ TODO: delete them permanently from here
   <desc>For native apps - whether to lock device when inactive.</desc>
 </attr>
 
+<attr id="1400" name="zimbraDeviceFileOpenWithEnabled" type="boolean" cardinality="single" optionalIn="account,cos" flags="accountInherited,accountInfo,octopus" since="8.0.0">
+  <defaultCOSValue>TRUE</defaultCOSValue>
+  <desc>Whether OpenWith feature is enabled on devices.</desc>
+</attr>
 
 </attrs>

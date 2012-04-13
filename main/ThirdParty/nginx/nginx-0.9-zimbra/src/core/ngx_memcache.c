@@ -193,7 +193,9 @@ static char *ngx_memcache_init_conf(ngx_cycle_t *cycle, void *conf)
     ngx_conf_init_msec_value(mcf->timeout, 5000);
     ngx_conf_init_msec_value(mcf->reconnect, 60000);
     ngx_conf_init_msec_value(mcf->ttl, 0);
-    ngx_str_set(&mcf->ttl_text, "0");
+    if (mcf->ttl_text.len == 0) {
+        ngx_str_set(&mcf->ttl_text, "0");
+    }
     ngx_conf_init_value(mcf->allow_unqualified, 0);
 
     ngx_log_error(NGX_LOG_DEBUG_CORE,cycle->log, 0,

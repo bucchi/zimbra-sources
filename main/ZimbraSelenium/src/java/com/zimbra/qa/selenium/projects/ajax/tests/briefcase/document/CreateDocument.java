@@ -304,6 +304,8 @@ public class CreateDocument extends AjaxCommonTest {
 		app.zPageBriefcase.sMouseOver(TreeBriefcase.Locators.briefcaseListView);
 		app.zPageBriefcase.sFocus(TreeBriefcase.Locators.briefcaseListView);
 		
+		//ZAssert.assertStringContains("ccc", "vvv","Testing failure");
+				
 		// Open new document page
 		DocumentBriefcaseNew documentBriefcaseNew = (DocumentBriefcaseNew) app.zPageBriefcase
 				.zToolbarPressButton(Button.B_NEW, docItem);
@@ -336,6 +338,9 @@ public class CreateDocument extends AjaxCommonTest {
 
 		// Click on created document
 		app.zPageBriefcase.zListItem(Action.A_LEFTCLICK, docItem);
+		
+		// Mark a check box on the selected document
+		app.zPageBriefcase.zListItem(Action.A_BRIEFCASE_CHECKBOX, docItem);
 
 		// Click on open in a separate window icon in toolbar
 		DocumentBriefcaseOpen documentBriefcaseOpen;
