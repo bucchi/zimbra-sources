@@ -2,50 +2,17 @@ package com.zimbra.qa.selenium.projects.octopus.tests.history;
 
 import org.testng.annotations.*;
 
-import com.zimbra.qa.selenium.framework.items.FolderMountpointItem;
 import com.zimbra.qa.selenium.framework.util.*;
-import com.zimbra.qa.selenium.projects.octopus.ui.PageHistory;
 import com.zimbra.qa.selenium.projects.octopus.ui.PageHistory.*;
 
 public class RefineNewVersion extends HistoryCommonTest {
-    private String fileInMyFolderName =null;
-    private String fileInReadWriteFolderName =null;
-    private String fileInAdminFolderName =null;
-
+    
 	public RefineNewVersion() {
 		super();
 		logger.info("New " + RefineNewVersion.class.getCanonicalName());
 	}
 
 	
-	@BeforeMethod(groups = { "always" })
-	protected void setup() 
-	    throws HarnessException
-	{
-	   super.setup();
-	   
-	   if (fileInMyFolderName == null) {
-		   fileInMyFolderName =PPT_FILE;
-		   	   
-		   //upload file to folder
-		   uploadFileViaSoap(app.zGetActiveAccount(),fileInMyFolderName, folder);    	 	  	
-	   }
-	
-	   if (fileInReadWriteFolderName == null) {
-		   fileInReadWriteFolderName = EXCEL_FILE;
-		   
-		   uploadFileViaSoap(app.zGetActiveAccount(),fileInReadWriteFolderName, 
-			             FolderMountpointItem.importFromSOAP(app.zGetActiveAccount(),mountReadWriteFolderName));    	 	  	
-	   }
-	
-	   if (fileInAdminFolderName == null) {	  
-		   fileInAdminFolderName = LOG_FILE;
-		   
-		   uploadFileViaSoap(app.zGetActiveAccount(),fileInAdminFolderName, 
-			             FolderMountpointItem.importFromSOAP(app.zGetActiveAccount(),mountAdminFolderName));    	 	  	
-	   }
-	   
-	}
 			
 	@Test(description = "Verify check 'new version' checkbox", groups = { "functional" })
 	public void RefineCheckNewVersion() throws HarnessException {
@@ -55,13 +22,23 @@ public class RefineNewVersion extends HistoryCommonTest {
 				GetText.newVersion(fileName));
 	}
 		
-	@Test(description = "Verify check 'new version' checkbox for file in subfolder", groups = { "functional" })
-	public void RefineCheckNewVersionFileInSubFolder() throws HarnessException {
+	@Test(description = "Verify check 'new version' checkbox for file in folder & subfolder", groups = { "functional" })
+	public void RefineCheckNewVersionFileInFolder() throws HarnessException {
 
 		verifyCheckAction(Locators.zHistoryFilterNewVersion.locator,
-				GetText.newVersion(fileInMyFolderName));
+				GetText.newVersion(fileInFolderName));
+
+		verifyCheckAction(Locators.zHistoryFilterNewVersion.locator,
+				GetText.newVersion(fileInSubFolderName));
+
 	}
 		
+	@Test(description = "Verify check 'new version' checkbox for file in read share folder", groups = { "functional" })
+	public void RefineCheckNewVersionFileInReadShareFolder() throws HarnessException {
+
+		verifyCheckAction(Locators.zHistoryFilterNewVersion.locator,
+				GetText.newVersion(fileInReadFolderName, readGranter.getPref("displayName")));
+	}
 
 	@Test(description = "Verify check 'new version' checkbox for file in read writeshare folder", groups = { "functional" })
 	public void RefineCheckNewVersionFileInReadWriteShareFolder() throws HarnessException {
@@ -83,16 +60,26 @@ public class RefineNewVersion extends HistoryCommonTest {
 										
 		// verify uncheck action for 'new version' 
 		verifyUnCheckAction(Locators.zHistoryFilterNewVersion.locator,
-				GetText.newVersion(fileName), PageHistory.GetText.REGEXP.NEWVERSION);
+				GetText.newVersion(fileName));
 	}
 
-	@Test(description = "Verify uncheck 'new version' checkbox for file in subfolder", groups = { "smoke" })
-	public void RefineUnCheckNewVersionFileInSubFolder() throws HarnessException {
+	@Test(description = "Verify uncheck 'new version' checkbox for file in folder & subfolder", groups = { "smoke" })
+	public void RefineUnCheckNewVersionFileInFolder() throws HarnessException {
 
 		verifyUnCheckAction(Locators.zHistoryFilterNewVersion.locator,
-				GetText.newVersion(fileInMyFolderName));
+				GetText.newVersion(fileInFolderName));
+		verifyUnCheckAction(Locators.zHistoryFilterNewVersion.locator,
+				GetText.newVersion(fileInSubFolderName));
+
 	}
-	
+
+	@Test(description = "Verify uncheck 'new version' checkbox for file in read shared folder", groups = { "smoke" })
+	public void RefineUnCheckNewVersionFileInReadShareFolder() throws HarnessException {
+
+		verifyUnCheckAction(Locators.zHistoryFilterNewVersion.locator,
+				GetText.newVersion(fileInReadFolderName, readGranter.getPref("displayName")));
+	}
+
 	@Test(description = "Verify uncheck 'new version' checkbox for file in readwrite shared folder", groups = { "smoke" })
 	public void RefineUnCheckNewVersionFileInReadWriteShareFolder() throws HarnessException {
 

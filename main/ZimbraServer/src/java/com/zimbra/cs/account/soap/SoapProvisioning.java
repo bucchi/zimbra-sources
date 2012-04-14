@@ -42,7 +42,7 @@ import com.zimbra.common.account.Key.IdentityBy;
 import com.zimbra.common.account.Key.ServerBy;
 import com.zimbra.common.account.Key.ShareLocatorBy;
 import com.zimbra.common.account.Key.SignatureBy;
-import com.zimbra.common.account.Key.UCServerBy;
+import com.zimbra.common.account.Key.UCServiceBy;
 import com.zimbra.common.account.Key.XMPPComponentBy;
 import com.zimbra.common.auth.ZAuthToken;
 import com.zimbra.common.localconfig.LC;
@@ -76,7 +76,7 @@ import com.zimbra.cs.account.GlobalGrant;
 import com.zimbra.cs.account.Group;
 import com.zimbra.cs.account.Identity;
 import com.zimbra.cs.account.NamedEntry;
-import com.zimbra.cs.account.UCServer;
+import com.zimbra.cs.account.UCService;
 import com.zimbra.cs.account.NamedEntry.Visitor;
 import com.zimbra.cs.account.Provisioning;
 import com.zimbra.cs.account.SearchDirectoryOptions;
@@ -139,6 +139,8 @@ import com.zimbra.soap.admin.type.ReindexProgressInfo;
 import com.zimbra.soap.admin.type.RightInfo;
 import com.zimbra.soap.admin.type.ServerInfo;
 import com.zimbra.soap.admin.type.ServerSelector;
+import com.zimbra.soap.admin.type.UCServiceInfo;
+import com.zimbra.soap.admin.type.UCServiceSelector;
 import com.zimbra.soap.type.AccountSelector;
 import com.zimbra.soap.type.GalSearchType;
 import com.zimbra.soap.type.GranteeType;
@@ -2588,26 +2590,42 @@ public class SoapProvisioning extends Provisioning {
     }
 
     @Override
-    public UCServer createUCServer(String name, Map<String, Object> attrs)
+    public UCService createUCService(String name, Map<String, Object> attrs)
             throws ServiceException {
-        throw new UnsupportedOperationException();
+        CreateUCServiceResponse resp = invokeJaxb(new CreateUCServiceRequest(name, attrs));
+        return new SoapUCService(resp.getUCService(), this);
     }
 
     @Override
-    public void deleteUCServer(String zimbraId) throws ServiceException {
-        throw new UnsupportedOperationException();
+    public void deleteUCService(String zimbraId) throws ServiceException {
+        invokeJaxb(new DeleteUCServiceRequest(zimbraId));
     }
 
     @Override
-    public UCServer get(UCServerBy keyName, String key) throws ServiceException {
-        throw new UnsupportedOperationException();
+    public UCService get(UCServiceBy keyType, String key) throws ServiceException {
+        UCServiceSelector sel =
+            new UCServiceSelector(SoapProvisioning.toJaxb(keyType), key);
+        try {
+            GetUCServiceResponse resp =
+                invokeJaxb(new GetUCServiceRequest(sel));
+            return new SoapUCService(resp.getUCService(), this);
+        } catch (ServiceException e) {
+            if (e.getCode().equals(AccountServiceException.NO_SUCH_UC_SERVICE))
+                return null;
+            else
+                throw e;
+        }
     }
 
     @Override
-    public List<UCServer> getAllUCServers() throws ServiceException {
-        throw new UnsupportedOperationException();
+    public List<UCService> getAllUCServices() throws ServiceException {
+        ArrayList<UCService> result = new ArrayList<UCService>();
+        GetAllUCServicesResponse resp = invokeJaxb(new GetAllUCServicesRequest());
+        for (UCServiceInfo ucServiceInfo : resp.getUCServiceList()) {
+            result.add(new SoapUCService(ucServiceInfo, this));
+        }
+        return result;
     }
-    
 
     /* Convert to equivalent JAXB object */
     private static CalendarResourceSelector.CalendarResourceBy toJaxb(
@@ -2631,8 +2649,15 @@ public class SoapProvisioning extends Provisioning {
     }
 
     /* Convert to equivalent JAXB object */
-    private static ServerSelector.ServerBy toJaxb(Key.ServerBy provServerBy) throws ServiceException {
+    private static ServerSelector.ServerBy toJaxb(Key.ServerBy provServerBy) 
+    throws ServiceException {
         return ServerSelector.ServerBy.fromString(provServerBy.toString());
+    }
+    
+    /* Convert to equivalent JAXB object */
+    private static UCServiceSelector.UCServiceBy toJaxb(Key.UCServiceBy provUCServiceBy) 
+    throws ServiceException {
+        return UCServiceSelector.UCServiceBy.fromString(provUCServiceBy.toString());
     }
 
     /* Convert to equivalent JAXB object */

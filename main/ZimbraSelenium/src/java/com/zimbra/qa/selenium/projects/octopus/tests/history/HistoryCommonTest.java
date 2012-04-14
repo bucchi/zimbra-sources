@@ -13,11 +13,26 @@ import java.util.ArrayList;
 
 public class HistoryCommonTest extends OctopusCommonTest {
 	protected static String fileName=JPG_FILE;
+	protected static String fileInFolderName = PPT_FILE;
+	protected static String fileInSubFolderName = TEXT_FILE;    
+	protected static String fileInReadFolderName = WORD_FILE;
+	protected static String fileInReadWriteFolderName = EXCEL_FILE;
+	protected static String fileInAdminFolderName = LOG_FILE;
+
+
 	protected static String fileId  = null;
+	protected static String fileIdInFolder  = null;
+	protected static String fileIdInSubFolder  = null;
+	protected static String fileIdInReadFolder  = null;
+	protected static String fileIdInReadWriteFolder  = null;
+	protected static String fileIdInAdminFolder  = null;
+
 	protected static String comment = null;
 	protected static String newName = null;
 	protected static FolderItem folder = null; 
 	protected static FolderItem mainFolder = null;
+	protected static FolderItem subFolder = null;
+
 	
 	protected static FolderItem readFolder = null;
 	protected static FolderItem readWriteFolder = null;	
@@ -27,6 +42,8 @@ public class HistoryCommonTest extends OctopusCommonTest {
 	protected static String mountReadWriteFolderName = null;
 	protected static String mountAdminFolderName = null;
 	
+    
+    
 	protected static String[] checkboxes = {
 		PageHistory.Locators.zHistoryFilterAllTypes.locator,
 		PageHistory.Locators.zHistoryFilterFavorites.locator,
@@ -91,11 +108,16 @@ public class HistoryCommonTest extends OctopusCommonTest {
 		// before running test
 		if (fileId == null) {		 
 	 	   fileId = uploadFileViaSoap(app.zGetActiveAccount(),fileName);    	 	  	
-           folder = createFolderViaSoap(app.zGetActiveAccount());	 	  	            		
+	 	   SleepUtil.sleepSmall();
+   	   
+	 	   folder = createFolderViaSoap(app.zGetActiveAccount());	 	  	            		
+           SleepUtil.sleepSmall();
+    	   
            mainFolder = FolderItem.importFromSOAP(
         		   app.zGetActiveAccount(), SystemFolder.Briefcase);
            
-		           comment = "Comment " + ZimbraSeleniumProperties.getUniqueString();
+           SleepUtil.sleepSmall();
+    	   comment = "Comment " + ZimbraSeleniumProperties.getUniqueString();
     	   newName = "New Name " + ZimbraSeleniumProperties.getUniqueString() 
            		   + fileName.substring(fileName.indexOf("."),fileName.length());
 
@@ -117,7 +139,22 @@ public class HistoryCommonTest extends OctopusCommonTest {
 		   renameViaSoap(app.zGetActiveAccount(), fileId, newName);
 		   SleepUtil.sleepSmall();
 		   
-		   //shere revoke
+		   //create the sub folder
+		   subFolder = createFolderViaSoap(app.zGetActiveAccount(),folder);	 	  	            		
+		   SleepUtil.sleepSmall();
+	           	   
+		   //upload file to subfolder
+		   fileIdInSubFolder=uploadFileViaSoap(app.zGetActiveAccount(),fileInSubFolderName,subFolder);    	 	  	
+		   SleepUtil.sleepSmall();
+	           
+		      	   
+		   //upload file to folder
+		   fileIdInFolder =uploadFileViaSoap(app.zGetActiveAccount(),fileInFolderName, folder);    	 	  	
+		   SleepUtil.sleepSmall();
+		   
+		
+
+		   //share revoke
 		   setUpShareRevoke();
 		   
 		   //setup mount point
@@ -148,9 +185,9 @@ public class HistoryCommonTest extends OctopusCommonTest {
        readWriteFolder = createFolderViaSoap(readWriteGranter);	 	  	            		
        adminFolder = createFolderViaSoap(adminGranter);	 	  	            		
 
-	   mountReadFolderName = "mount read " + ZimbraSeleniumProperties.getUniqueString();
-	   mountReadWriteFolderName = "mount read write " + ZimbraSeleniumProperties.getUniqueString();
-	   mountAdminFolderName = "mount admin " + ZimbraSeleniumProperties.getUniqueString();
+	   mountReadFolderName = "Mount Read " + ZimbraSeleniumProperties.getUniqueString();
+	   mountReadWriteFolderName = "Mount Read Write " + ZimbraSeleniumProperties.getUniqueString();
+	   mountAdminFolderName = "Mount Admin " + ZimbraSeleniumProperties.getUniqueString();
 
 	   mountFolderViaSoap(readGranter, app.zGetActiveAccount(), readFolder, SHARE_AS_READ, mainFolder, mountReadFolderName);
 	   SleepUtil.sleepSmall();
@@ -159,6 +196,27 @@ public class HistoryCommonTest extends OctopusCommonTest {
 	   SleepUtil.sleepSmall();
 	   
 	   mountFolderViaSoap(adminGranter, app.zGetActiveAccount(), adminFolder, SHARE_AS_ADMIN, mainFolder, mountAdminFolderName);
+	   SleepUtil.sleepSmall();
+	   
+	   
+	   //upload file to read folder		      
+	   fileIdInReadFolder = uploadFileViaSoap(readGranter,fileInReadFolderName, 
+			             FolderItem.importFromSOAP(readGranter,readFolder.getName()));    	 	  	
+	   SleepUtil.sleepSmall();
+	  
+	   
+	   //upload file to read write folder		      
+	   fileIdInReadWriteFolder = uploadFileViaSoap(app.zGetActiveAccount(),fileInReadWriteFolderName, 
+			                 FolderMountpointItem.importFromSOAP(app.zGetActiveAccount(),mountReadWriteFolderName));    	 	  	
+	   SleepUtil.sleepSmall();
+	  
+	   
+	  //upload file to Admin folder		      		   
+	   fileIdInAdminFolder = uploadFileViaSoap(app.zGetActiveAccount(),fileInAdminFolderName, 
+			             FolderMountpointItem.importFromSOAP(app.zGetActiveAccount(),mountAdminFolderName));    	 	  	
+	   SleepUtil.sleepSmall();
+	   
+
 	   app.zPageOctopus.zRefresh();   
 	   
 	}
@@ -181,35 +239,21 @@ public class HistoryCommonTest extends OctopusCommonTest {
 
 
 	}
-	protected void verifyCheckAction(String locator, String historyText, String... regExpArray) 
-	    throws HarnessException
-	{		
-		String historyRegexp = historyText;
-		if (regExpArray.length > 0) {
-			historyRegexp = regExpArray[0];
-		}
 	
-		
-		
-		// Make a check
-		app.zPageHistory.zToolbarCheckMark(locator, true);
-		
-		
-        
-		//get current history items
-		ArrayList<HistoryItem> currHistoryArray = app.zPageHistory.zListItem();
-		
+	
+	private boolean isHistoryTextPresent(ArrayList<HistoryItem> currHistoryArray, String historyText) 
+	throws HarnessException
+	{
 		
 		boolean found = false;
-	
-		
+			
+		// checking all history records in the stream
 		// verify if and only if the corresponding history text present
 		for (HistoryItem item:currHistoryArray) {
 			
 			logger.info(item.getHistoryText());
 			boolean isMatched = false;
 	        
-			// Verify only history texts associated with check boxes present
 			// not check for "all types"
 			for (int i=1; i<checkboxes.length; i++) {
 				
@@ -218,45 +262,62 @@ public class HistoryCommonTest extends OctopusCommonTest {
 					 isMatched |= item.getHistoryText().matches(historyRegexps[i]);					 					 
 				}
 			}
-							
-			 ZAssert.assertTrue(isMatched , "Verify " +  item.getHistoryText() + " displayed");
 	
-			 if (item.getHistoryText().equals(historyText)) {
+		   ZAssert.assertTrue(isMatched , "Verify " +  item.getHistoryText() + " is displayed if associated checkbox is checked");
+	
+		   if (item.getHistoryText().equals(historyText)) {
 				 found = true; 
-			 }					 
-	
-			
+		   }					 			
 		}			
-		
-		ZAssert.assertTrue(found, "Verify " + historyText + " is displayed");
+	
+		return found;
 	}
 	
-	protected void verifyUnCheckAction(String locator, String historyText, String... regExpArray) 
+	
+	protected void verifyCheckAction(String locator, String historyText) 
+	    throws HarnessException
+	{		
+		// Make a check
+		app.zPageHistory.zToolbarCheckMark(locator, true);
+	     	
+		
+		ZAssert.assertTrue(isHistoryTextPresent(app.zPageHistory.zListItem(), historyText)
+				        , "Verify " + historyText + " is displayed");
+	}
+	
+	protected void verifyUnCheckAction(String locator, String historyText) 
 	    throws HarnessException
 	{					
-		String historyRegexp = historyText;
-		if (regExpArray.length > 0) {
-			historyRegexp = regExpArray[0];
-		}
-				
 		// UnCheck the check box
 		app.zPageHistory.zToolbarCheckMark(locator, false);
-	
-		//get current history items
+
 		ArrayList<HistoryItem> currHistoryArray = app.zPageHistory.zListItem();
 
-		//count the associated history texts
-		int total=0;
-		for (HistoryItem item:currHistoryArray) {
-			if (item.getHistoryText().matches(historyRegexp)) 
-				total++;					 
+        boolean allNotChecked=true;
+		for (int i=0; i<checkboxes.length; i++) {
+			allNotChecked &= (!app.zPageHistory.sIsChecked(checkboxes[i]));
 		}
-					
-		// verification 		
-		ZAssert.assertGreaterThan(total,0, "Verify " + historyText + " present");
-		ZAssert.assertGreaterThanEqualTo( currHistoryArray.size(), total, 
-				             "Verify " +  historyRegexp + " not refined");		
+
+
+		//if all checkboxes not checked, the history text should present
+		if (allNotChecked) {
+            boolean found=false;
+			for (int i=0; i< currHistoryArray.size()& !found; i++) {
+				HistoryItem item = currHistoryArray.get(i);
+			
+				logger.info(item.getHistoryText());
+	        
+				found = item.getHistoryText().equals(historyText); 			
+			}			
+
+			ZAssert.assertTrue(found, "Verify " + historyText + " is displayed");
+		} 
 		
+  		//otherwise, refine is active, the text should not be present
+		else {
+			ZAssert.assertFalse(isHistoryTextPresent(currHistoryArray, historyText)
+					    , "Verify " + historyText + " should not be displayed");
+		}
 	}
 	
 	protected void verifyCheckUnCheckAction(String locator, String historyText) 
