@@ -477,6 +477,16 @@ public final class AdminConstants {
     public static final String E_DELETE_SYSTEM_RETENTION_POLICY_REQUEST = "DeleteSystemRetentionPolicyRequest";
     public static final String E_DELETE_SYSTEM_RETENTION_POLICY_RESPONSE = "DeleteSystemRetentionPolicyResponse";
     
+    // StoreManager verification utility
+    public static final String E_VERIFY_STORE_MANAGER_REQUEST = "VerifyStoreManagerRequest";
+    public static final String E_VERIFY_STORE_MANAGER_RESPONSE = "VerifyStoreManagerResponse";
+    
+    // Skins
+    // Skins
+    public static final String E_GET_ALL_SKINS_REQUEST = "GetAllSkinsRequest";
+    public static final String E_GET_ALL_SKINS_RESPONSE = "GetAllSkinsResponse";
+    
+
     public static final QName PING_REQUEST = QName.get(E_PING_REQUEST, NAMESPACE);
     public static final QName PING_RESPONSE = QName.get(E_PING_RESPONSE, NAMESPACE);
     public static final QName CHECK_HEALTH_REQUEST = QName.get(E_CHECK_HEALTH_REQUEST, NAMESPACE);
@@ -927,6 +937,14 @@ public final class AdminConstants {
     public static final QName MODIFY_SYSTEM_RETENTION_POLICY_REQUEST = QName.get(E_MODIFY_SYSTEM_RETENTION_POLICY_REQUEST, NAMESPACE);
     public static final QName DELETE_SYSTEM_RETENTION_POLICY_REQUEST = QName.get(E_DELETE_SYSTEM_RETENTION_POLICY_REQUEST, NAMESPACE);
     
+    // Store Manager Verifier
+    public static final QName VERIFY_STORE_MANAGER_REQUEST = QName.get(E_VERIFY_STORE_MANAGER_REQUEST, NAMESPACE);
+    public static final QName VERIFY_STORE_MANAGER_RESPONSE = QName.get(E_VERIFY_STORE_MANAGER_RESPONSE, NAMESPACE);
+    
+    // Skins
+    public static final QName GET_ALL_SKINS_REQUEST = QName.get(E_GET_ALL_SKINS_REQUEST, NAMESPACE);
+    public static final QName GET_ALL_SKINS_RESPONSE = QName.get(E_GET_ALL_SKINS_RESPONSE, NAMESPACE);
+
     // DumpSessions
     public static final String E_SESSION = "session";
     public static final String A_ZIMBRA_ID = "zid";
@@ -1012,6 +1030,7 @@ public final class AdminConstants {
     public static final String E_ENTRY = "entry";
     public static final String E_KEY = "key";
     public static final String E_PRINCIPAL = "principal";
+    public static final String E_SKIN = "skin";
     
     public static final String A_ACCOUNT = "account";
     public static final String A_CALENDAR_RESOURCE = "calresource";
@@ -1323,4 +1342,7 @@ public final class AdminConstants {
     public static final String E_KEEP = "keep";
     public static final String E_PURGE = "purge";
     public static final String E_POLICY = "policy";
+
+    //StoreManager verification
+    public static final String A_CHECK_BLOBS = "checkBlobs";
 }

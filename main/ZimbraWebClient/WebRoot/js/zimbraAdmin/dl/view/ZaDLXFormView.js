@@ -1168,7 +1168,7 @@ ZaDLXFormView.myXFormModifier = function(xFormObject, entry) {
 		this.tabChoices.push({value:_tab2, label:ZaMsg.DLXV_TabNotes});	
 	}
 
-	if(ZaTabView.isTAB_ENABLED(entry,ZaDLXFormView.MEMBEROF_TAB_ATTRS, ZaDLXFormView.MEMBEROF_TAB_RIGHTS)) {
+	if(ZaTabView.isTAB_ENABLED(entry,ZaDLXFormView.MEMBEROF_TAB_ATTRS, ZaDLXFormView.MEMBEROF_TAB_RIGHTS)  && (!entry.dynamic)) {
 		_tab3 = ++this.TAB_INDEX;
 		this.tabChoices.push({value:_tab3, label:ZaMsg.TABT_MemberOf});	
 	}
@@ -1202,15 +1202,15 @@ ZaDLXFormView.myXFormModifier = function(xFormObject, entry) {
 	var hMsgMemberNum, hMemberList, wMemberList, hMemberPool, wMemberPool, wRightPanel;
 	if (AjxEnv.isWebKitBased || AjxEnv.isFirefox ) {
 		hMsgMemberNum = 30;
-		hMemberList = 305;
+		hMemberList = 310;
 		wMemberList = "99%";
-		hMemberPool = 330;
+		hMemberPool = 342;
 		wMemberPool = "99%";
 	} else /* if (AjxEnv.isIE || others... ) */ {
 		hMsgMemberNum = 25;
 		hMemberList = 308;
 		wMemberList = "100%";
-		hMemberPool = 335;
+		hMemberPool = 338;
 		wMemberPool = "100%";
 	}
 	wRightPanel = (appNewUI) ? "100%" : "98%";

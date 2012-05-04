@@ -792,6 +792,7 @@ DIV.ZaSearchBuilderOptionRemoveAll TABLE  {
 	@TreeItem@
 	@RightClickBg@
 	@ImagePadding@
+	padding-top:2px;
 }
 
 /* text style for a tree item when dragged over */
@@ -870,4 +871,14 @@ DIV.ZaSearchBuilderOptionRemoveAll TABLE  {
 
 .ZaToastBG {	@ToastContainer@	}
 
+#IFNDEF  MSIE
 TABLE {	border-collapse:separate;	}
+#ENDIF
+
+.oselect_display {
+	white-space:normal;
+}
+
+.oselect_display_disabled {
+	white-space:normal;
+}

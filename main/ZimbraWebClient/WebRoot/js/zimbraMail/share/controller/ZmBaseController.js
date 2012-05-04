@@ -380,7 +380,8 @@ function(view) {
  *        controller	[ZmController]	controller responsible for this view
  *        isAppView		[boolean]*		this view is a top-level app view
  *        clear			[boolean]*		if true, clear the hidden stack of views
- *        pushOnly		[boolean]*		don't reset the view's data, just swap the view in
+ *        pushOnly		[boolean]*		if true, don't reset the view's data, just swap the view in
+ *        noPush		[boolean]*		if true, don't push the view, just set its contents
  *        isTransient	[boolean]*		this view doesn't go on the hidden stack
  *        stageView		[boolean]*		stage the view rather than push it
  *        tabParams		[hash]*			button params; view is opened in app tab instead of being stacked
@@ -417,7 +418,7 @@ function(params) {
 	// push the view
 	if (params.stageView) {
 		this._app.stageView(view);
-	} else {
+	} else if (!params.noPush) {
 		return (params.clear ? this._app.setView(view) : this._app.pushView(view));
 	}
 };
@@ -928,9 +929,9 @@ function(items, folder, attrs, isShiftKey, noUndo) {
 			activityStreamDialog.popup();
 		}
 		else if (items.length == 1 && folder.id == ZmFolder.ID_INBOX) {
+			list.moveItems(params);
 			var fromFolder = appCtxt.getById(items[0].folderId);
 			if (fromFolder && fromFolder.id == appCtxt.get(ZmSetting.MAIL_ACTIVITYSTREAM_FOLDER)) { 
-				list.moveItems(params);
 				var activityStreamDialog = appCtxt.getActivityToInboxFilterDialog();
 				activityStreamDialog.setFields(items[0]);
 				activityStreamDialog.popup();

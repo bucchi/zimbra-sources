@@ -14,8 +14,6 @@
  */
 package com.zimbra.cs.service.mail;
 
-import java.net.URL;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -31,7 +29,6 @@ import com.google.common.collect.Maps;
 import com.zimbra.common.account.Key;
 import com.zimbra.common.soap.Element;
 import com.zimbra.common.soap.MailConstants;
-import com.zimbra.common.soap.SoapProtocol;
 import com.zimbra.cs.account.Account;
 import com.zimbra.cs.account.Provisioning;
 import com.zimbra.cs.mailbox.ACL;
@@ -41,12 +38,6 @@ import com.zimbra.cs.mailbox.Mailbox;
 import com.zimbra.cs.mailbox.MailboxManager;
 import com.zimbra.cs.mailbox.MailboxTestUtil;
 import com.zimbra.cs.mailbox.Mountpoint;
-import com.zimbra.cs.service.AuthProvider;
-import com.zimbra.cs.service.MockHttpServletRequest;
-import com.zimbra.soap.MockSoapEngine;
-import com.zimbra.soap.SoapEngine;
-import com.zimbra.soap.SoapServlet;
-import com.zimbra.soap.ZimbraSoapContext;
 
 public class GetFolderTest {
     @BeforeClass
@@ -67,28 +58,16 @@ public class GetFolderTest {
         MailboxTestUtil.clearData();
     }
 
-    public static Map<String, Object> getRequestContext(Account acct) throws Exception {
-        return getRequestContext(acct, acct);
-    }
-
-    public static Map<String, Object> getRequestContext(Account authAcct, Account targetAcct) throws Exception {
-        Map<String, Object> context = new HashMap<String, Object>();
-        context.put(SoapEngine.ZIMBRA_CONTEXT, new ZimbraSoapContext(AuthProvider.getAuthToken(authAcct), targetAcct.getId(), SoapProtocol.Soap12, SoapProtocol.Soap12));
-        context.put(SoapServlet.SERVLET_REQUEST, new MockHttpServletRequest("test".getBytes("UTF-8"), new URL("http://localhost:7070/service/FooRequest"), ""));
-        context.put(SoapEngine.ZIMBRA_ENGINE, new MockSoapEngine(new MailService()));
-        return context;
-    }
-
     @Test
     public void depth() throws Exception {
         Account acct = Provisioning.getInstance().get(Key.AccountBy.name, "test@zimbra.com");
         Mailbox mbox = MailboxManager.getInstance().getMailboxByAccount(acct);
 
-        mbox.createFolder(null, "Inbox/foo/bar/baz", (byte) 0, MailItem.Type.DOCUMENT);
+        mbox.createFolder(null, "Inbox/foo/bar/baz", new Folder.FolderOptions().setDefaultView(MailItem.Type.DOCUMENT));
 
         // first, test the default setup (full tree)
         Element request = new Element.XMLElement(MailConstants.GET_FOLDER_REQUEST);
-        Element response = new GetFolder().handle(request, getRequestContext(acct));
+        Element response = new GetFolder().handle(request, ServiceTestUtil.getRequestContext(acct));
 
         Element folder = response.getOptionalElement(MailConstants.E_FOLDER);
         Assert.assertNotNull("top-level folder is listed", folder);
@@ -110,7 +89,7 @@ public class GetFolderTest {
 
         // next, test constraining to a single level of subfolders
         request.addAttribute(MailConstants.A_FOLDER_DEPTH, 1);
-        response = new GetFolder().handle(request, getRequestContext(acct));
+        response = new GetFolder().handle(request, ServiceTestUtil.getRequestContext(acct));
 
         folder = response.getOptionalElement(MailConstants.E_FOLDER);
         Assert.assertNotNull("top-level folder is listed", folder);
@@ -127,12 +106,13 @@ public class GetFolderTest {
         Account acct = Provisioning.getInstance().get(Key.AccountBy.name, "test@zimbra.com");
         Mailbox mbox = MailboxManager.getInstance().getMailboxByAccount(acct);
 
-        mbox.createFolder(null, "foo", (byte) 0, MailItem.Type.DOCUMENT);
-        mbox.createFolder(null, "bar/baz", (byte) 0, MailItem.Type.DOCUMENT);
-        mbox.createFolder(null, "Inbox/woot", (byte) 0, MailItem.Type.DOCUMENT);
+        Folder.FolderOptions fopt = new Folder.FolderOptions().setDefaultView(MailItem.Type.DOCUMENT);
+        mbox.createFolder(null, "foo", fopt);
+        mbox.createFolder(null, "bar/baz", fopt);
+        mbox.createFolder(null, "Inbox/woot", fopt);
 
         Element request = new Element.XMLElement(MailConstants.GET_FOLDER_REQUEST).addAttribute(MailConstants.A_DEFAULT_VIEW, MailItem.Type.DOCUMENT.toString());
-        Element response = new GetFolder().handle(request, getRequestContext(acct));
+        Element response = new GetFolder().handle(request, ServiceTestUtil.getRequestContext(acct));
 
         Element root = response.getOptionalElement(MailConstants.E_FOLDER);
         Assert.assertNotNull("top-level folder is listed", root);
@@ -162,9 +142,10 @@ public class GetFolderTest {
         Mailbox mbox = MailboxManager.getInstance().getMailboxByAccount(acct);
         Mailbox mbox2 = MailboxManager.getInstance().getMailboxByAccount(acct2);
 
-        int folderId = mbox2.createFolder(null, "foo", (byte) 0, MailItem.Type.DOCUMENT).getId();
+        Folder.FolderOptions fopt = new Folder.FolderOptions().setDefaultView(MailItem.Type.DOCUMENT);
+        int folderId = mbox2.createFolder(null, "foo", fopt).getId();
         Folder folder = mbox2.getFolderById(null, folderId);
-        mbox2.createFolder(null, "bar", folderId, MailItem.Type.DOCUMENT, 0, (byte) 0, null);
+        mbox2.createFolder(null, "bar", folderId, fopt);
         mbox2.grantAccess(null, folderId, acct.getId(), ACL.GRANTEE_USER, (short) (ACL.RIGHT_READ | ACL.RIGHT_WRITE), null);
 
         Mountpoint mpt = mbox.createMountpoint(null, Mailbox.ID_FOLDER_USER_ROOT, "remote", acct2.getId(), folderId, folder.getUuid(), MailItem.Type.DOCUMENT, 0, (byte) 2, false);
@@ -172,7 +153,7 @@ public class GetFolderTest {
         // fetch the mountpoint directly
         Element request = new Element.XMLElement(MailConstants.GET_FOLDER_REQUEST);
         request.addElement(MailConstants.E_FOLDER).addAttribute(MailConstants.A_FOLDER, mpt.getId());
-        Element response = new GetFolder().handle(request, getRequestContext(acct));
+        Element response = new GetFolder().handle(request, ServiceTestUtil.getRequestContext(acct));
 
         Element root = response.getOptionalElement(MailConstants.E_MOUNT);
         Assert.assertNotNull("top-level mountpoint is listed", root);
@@ -185,7 +166,7 @@ public class GetFolderTest {
 
         // fetch the entire tree (does not recurse through mountpoint)
         request = new Element.XMLElement(MailConstants.GET_FOLDER_REQUEST);
-        response = new GetFolder().handle(request, getRequestContext(acct));
+        response = new GetFolder().handle(request, ServiceTestUtil.getRequestContext(acct));
 
         root = response.getOptionalElement(MailConstants.E_FOLDER);
         Assert.assertNotNull("top-level folder is listed", root);
@@ -200,7 +181,7 @@ public class GetFolderTest {
 
         // fetch the entire tree, traversing mountpoints
         request.addAttribute(MailConstants.A_TRAVERSE, true);
-        response = new GetFolder().handle(request, getRequestContext(acct));
+        response = new GetFolder().handle(request, ServiceTestUtil.getRequestContext(acct));
 
         root = response.getOptionalElement(MailConstants.E_FOLDER);
         Assert.assertNotNull("top-level folder is listed", root);
@@ -216,7 +197,7 @@ public class GetFolderTest {
 
         // fetch the tree to a depth of 1, traversing mountpoints
         request.addAttribute(MailConstants.A_TRAVERSE, true).addAttribute(MailConstants.A_FOLDER_DEPTH, 1);
-        response = new GetFolder().handle(request, getRequestContext(acct));
+        response = new GetFolder().handle(request, ServiceTestUtil.getRequestContext(acct));
 
         root = response.getOptionalElement(MailConstants.E_FOLDER);
         Assert.assertNotNull("top-level folder is listed", root);
@@ -232,7 +213,7 @@ public class GetFolderTest {
         // broken link
         mbox2.delete(null, folderId, MailItem.Type.FOLDER);
 
-        response = new GetFolder().handle(request, getRequestContext(acct));
+        response = new GetFolder().handle(request, ServiceTestUtil.getRequestContext(acct));
 
         root = response.getOptionalElement(MailConstants.E_FOLDER);
         Assert.assertNotNull("top-level folder is listed", root);

@@ -792,14 +792,16 @@ TD.gridGroupBodyLabel {
 
 .rootOverviewHeader, 
 .rootOverviewHeader-selected, 
-.rootOverviewHeader-selected-focused {
+.rootOverviewHeader-selected-focused,
+.rootOverviewHeader-actioned {
 	background-color:#2B5480;
 	padding:2px 0 3px 5px;
 }
 
 .homeRootOverviewHeader, 
 .homeRootOverviewHeader-selected, 
-.homeRootOverviewHeader-selected-focused {
+.homeRootOverviewHeader-selected-focused,
+.homeRootOverviewHeader-actioned {
 	background-color:#C1DFFE;
 	padding:2px 0 3px 5px;
 }
@@ -1123,6 +1125,36 @@ TD.gridGroupBodyLabel {
 	margin-left:3px;
 	padding:1px 3px;
 	@roundCorners(4px)@;
+}
+
+.ZaHelpViewGroupBorder {
+    border: none;
+    border-right: solid 2px black !important;
+    padding-right: 10px;
+}
+
+.ZaHelpViewGroupNoneBorder {
+    border: none;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+.ZaHelpViewGroupLabel {
+    display: none;
+}
+
+.ZaHelpAskCommunityContainer {
+    padding:12px;
+}
+
+.ZaHelpAskCommunityPanel{
+    background-color:#F3F7FB;
+    border:1px solid #E7ECF2;
+    @roundCorners(10px)@
+}
+
+.ZaHelpAskCommunityContent {
+    padding:12px;
 }
 
 

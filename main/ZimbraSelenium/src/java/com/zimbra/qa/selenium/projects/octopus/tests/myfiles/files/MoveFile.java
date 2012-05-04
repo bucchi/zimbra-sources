@@ -34,7 +34,7 @@ public class MoveFile extends OctopusCommonTest {
 		_fileAttached = false;
 	}
 
-	@Test(description = "Move file using soap - verify file is moved", groups = { "sanity" })
+	@Test(description = "Move file using soap - verify file is moved", groups = { "functional" })
 	public void MoveFile_01() throws HarnessException {
 		ZimbraAccount account = app.zGetActiveAccount();
 
@@ -103,7 +103,7 @@ public class MoveFile extends OctopusCommonTest {
 				"Verify the file was moved to the destination folder");				
 	}
 
-	@Test(description = "Move file using context menu - verify file is moved", groups = { "smoke" })
+	@Test(description = "Move file using context menu - verify file is moved", groups = { "sanity" })
 	public void MoveFile_02() throws HarnessException {
 		ZimbraAccount account = app.zGetActiveAccount();
 

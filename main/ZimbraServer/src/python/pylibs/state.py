@@ -76,6 +76,7 @@ class State:
 								"config"     : {},
 								# "restarts"   : {}, Don't need this, I think
 								"postconf"   : {},
+								"postconfd"   : {},
 								"services"   : {},
 								"ldap"       : {},
 								"proxygen"   : False # 0|1
@@ -85,6 +86,7 @@ class State:
 								"config"     : {},
 								"restarts"   : {},
 								"postconf"   : {},
+								"postconfd"   : {},
 								"services"   : {},
 								"ldap"       : {},
 								"proxygen"   : False # 0|1
@@ -141,6 +143,18 @@ class State:
 		except Exception:
 			return
 
+	def clearPostconfd(self):
+		try:
+			self.current["postconfd"] = {}
+		except Exception:
+			return
+
+	def delPostconfd(self, service):
+		try:
+			del self.current["postconfd"][service]
+		except Exception:
+			return
+
 	def delRewrite(self, service):
 		try:
 			del self.current["rewrites"][service]
@@ -194,6 +208,21 @@ class State:
 			except Exception, e:
 				return None
 		return self.current["postconf"]
+
+	def curPostconfd(self, key=None, val=None):
+		if key is not None:
+			if val is not None:
+				if val == True:
+					val = "yes"
+				elif val == False:
+					val = "no"
+				Log.logMsg(5, "Adding postconfd %s = %s" % (key, val))
+				self.current["postconfd"][key] = val.replace('\n', ' ')
+			try:
+				return self.current["postconfd"][key]
+			except Exception, e:
+				return None
+		return self.current["postconfd"]
 
 	def curServices(self, service=None, state=None):
 		if service is not None:
@@ -493,6 +522,10 @@ class State:
 				for postconf in section.postconf():
 					self.curPostconf(postconf, section.postconf(postconf))
 
+				Log.logMsg(5, "Section %s changed compiling postconfd" % (section.name,))
+				for postconfd in section.postconfd():
+					self.curPostconfd(postconfd, section.postconfd(postconfd))
+
 				if section.name == "proxy":
 					Log.logMsg(5, "Section %s changed compiling proxygen" % (section.name,))
 					self.proxygen(True)
@@ -545,6 +578,18 @@ class State:
 			return rc
 		return 0
 
+	def doPostconfd(self):
+		if self.curPostconfd():
+			c = commands.commands["postconfd"]
+			for (postconfd, val) in self.curPostconfd().items():
+				try:
+					rc = c.execute("%s" % postconfd)
+				except Exception, e:
+					return rc
+			self.clearPostconfd()
+			return rc
+		return 0
+
 	def runProxygen(self):
 		if self.proxygen():
 			if not self.doProxygen():
@@ -566,6 +611,7 @@ class State:
 		th.append(threading.Thread(target=State.runProxygen,args=(self,),name="proxygen"))
 		th.append(threading.Thread(target=State.doRewrites,args=(self,),name="rewrites"))
 		th.append(threading.Thread(target=State.doPostconf,args=(self,),name="postconf"))
+		th.append(threading.Thread(target=State.doPostconfd,args=(self,),name="postconfd"))
 		th.append(threading.Thread(target=State.runLdap,args=(self,),name="ldap"))
 
 		[t.start() for t in th]
@@ -740,6 +786,18 @@ class State:
 	#  SERVER:key - use command gs with zimbra_server_hostname, get value of key
 	#
 
+	def xformConfigVariable(self, match):
+		sr = match.group(1)
+		val = None
+		val = self.lookUpConfig("VAR", sr)
+		if val is None:
+			val = self.lookUpConfig("LOCAL", sr)
+
+		# Requires a string return for re.sub()
+		if val is None:
+			val = ""
+		return str(val)
+
 	def xformConfig(self, match):
 		sr = match.group(1)
 		val = None
@@ -898,6 +956,17 @@ class State:
 
 	def transform(self, line):
 		line = re.sub(r"@@([^@]+)@@", self.xformLocalConfig, line)
+
+		# If the line begins and ends with %%, then we are asking a special action be done
+		# Howewver, before we do that action, we need to do variable substitution in the line
+		# and then evaluate the action
+		line = line.rstrip()
+		if(line.startswith("%%") and line.endswith("%%")):
+			line = line.strip("%%")
+			line = re.sub(r"%%([^%]+)%%", self.xformConfigVariable, line)
+			line = line + "%%"
+			line = "%%" + line
+		line = line + '\n'
 		line = re.sub(r"%%([^%]+)%%", self.xformConfig, line)
 		return line
 

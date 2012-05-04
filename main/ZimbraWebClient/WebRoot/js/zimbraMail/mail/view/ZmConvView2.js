@@ -43,6 +43,7 @@ ZmConvView2 = function(params) {
 	}
 
 	this.addControlListener(this._scheduleResize.bind(this));
+	this._setAllowSelection();
 };
 
 ZmConvView2.prototype = new ZmMailItemView;
@@ -248,7 +249,6 @@ function(noClear) {
 
 	if (this._initialized) {
 		this._subjectSpan.innerHTML = this._infoSpan.innerHTML = "";
-		this._messagesDiv.innerHTML = "";
 		Dwt.setVisible(this._headerDiv, noClear);
 	}
 	
@@ -267,7 +267,7 @@ function(scrollMsgView) {
 	
 	var ctlr = this._controller, container;
 	if (this._isStandalone()) {
-		container = this; 
+		container = this;
 	}
 	else {
 		// height of list view more reliable for reading pane on right
@@ -278,12 +278,10 @@ function(scrollMsgView) {
 	DBG.println("cv2", "cv2 height = " + myHeight);
 	var headerSize = Dwt.getSize(document.getElementById(this._convHeaderId));
 	DBG.println("cv2", "header height = " + headerSize.y);
-	var replyHeight = this._replyView ? this._replyView.getSize().y : 0;
-	DBG.println("cv2", "reply view height = " + replyHeight);
-	var messagesHeight = myHeight - headerSize.y - replyHeight - 1;
+	var messagesHeight = myHeight - headerSize.y - 1;
 	DBG.println("cv2", "set message area height to " + messagesHeight);
 	Dwt.setSize(this._messagesDiv, Dwt.DEFAULT, messagesHeight);
-	
+
 	// widen msg views if needed
 	if (this._msgViewList && this._msgViewList.length) {
 		for (var i = 0; i < this._msgViewList.length; i++) {
@@ -297,7 +295,7 @@ function(scrollMsgView) {
 			}
 		}
 	}
-	
+
 	// see if we need to scroll to top or a particular msg view
 	if (scrollMsgView) {
 		if (scrollMsgView === true) {
@@ -440,6 +438,7 @@ function() {
 	var val = this._replyView.getValue();
 	if (val) {
 		var params = {
+			action:			this._replyView.action,
 			sendNow:		true,
 			inNewWindow:	false
 		};
@@ -602,7 +601,9 @@ function(msgView) {
 	return null;
 };
 
-
+ZmConvView2.prototype.getController = function() {
+    return this._controller;
+};
 
 ZmConvReplyView = function(params) {
 
@@ -621,8 +622,9 @@ ZmConvReplyView.prototype.toString = function() { return "ZmConvReplyView"; };
 
 
 ZmConvReplyView.prototype.TEMPLATE = "mail.Message#Conv2Reply";
-ZmConvReplyView.prototype.ROW_TEMPLATE = "mail.Message#Conv2MsgAddressRow";
+ZmConvReplyView.prototype.TABLE_TEMPLATE = "mail.Message#Conv2ReplyTable";
 
+ZmConvReplyView.ADDR_TYPES = [AjxEmailAddress.TO, AjxEmailAddress.CC];
 
 /**
  * Opens up the quick reply area below the given msg view. Addresses are set as
@@ -636,19 +638,18 @@ ZmConvReplyView.prototype.set =
 function(msg, msgView, op) {
 
 	appCtxt.notifyZimlet("com_zimbra_email", "onFindMsgObjects");
+	this.action = op;
 	var ai = this._getReplyAddressInfo(msg, msgView, op);
 
 	if (!this._initialized) {
-		var subs = { addresses: ai.participants };
-		subs.replyToTableId = this._htmlElId + "_replyToTable";
+		var subs = ai;
+		subs.replyToDivId = this._htmlElId + "_replyToDiv";
 		subs.replyCcDivId = this._htmlElId + "_replyCcDiv";
-		subs.replyCcTableId = this._htmlElId + "_replyCcTable";
 		subs.replyInputId = this._htmlElId + "_replyInput";
 		this._createHtmlFromTemplate(this.TEMPLATE, subs);
 		this._initializeToolbar();
-		this._replyToTable = document.getElementById(subs.replyToTableId);
+		this._replyToDiv = document.getElementById(subs.replyToDivId);
 		this._replyCcDiv = document.getElementById(subs.replyCcDivId);
-		this._replyCcTable = document.getElementById(subs.replyCcTableId);
 		this._input = document.getElementById(subs.replyInputId);
 		this._initialized = true;
 	}
@@ -656,9 +657,9 @@ function(msg, msgView, op) {
 		this.reset();
 	}
 	this._msg = msg;
-	var gotCc = (op == ZmOperation.REPLY_ALL && ai.participants.length > 1);
-	this._replyToTable.innerHTML = AjxTemplate.expand(this.ROW_TEMPLATE, ai.participants[0]);
-	this._replyCcTable.innerHTML = gotCc ? AjxTemplate.expand(this.ROW_TEMPLATE, ai.participants[1]) : "";
+	var gotCc = (op == ZmOperation.REPLY_ALL && ai.participants[AjxEmailAddress.CC]);
+	this._replyToDiv.innerHTML = AjxTemplate.expand(this.TABLE_TEMPLATE, ai.participants[AjxEmailAddress.TO]);
+	this._replyCcDiv.innerHTML = gotCc ? AjxTemplate.expand(this.TABLE_TEMPLATE, ai.participants[AjxEmailAddress.CC]) : "";
 	Dwt.setVisible(this._replyCcDiv, gotCc);
 
 	var index = this._convView.getMsgViewIndex(msgView);
@@ -730,6 +731,7 @@ function() {
 ZmConvReplyView.prototype._moreOptions =
 function() {
 	this._convView._compose({msg:this._msg});
+	this.reset();
 };
 
 // Returns lists of To: and Cc: addresses to reply to, based on the msg
@@ -754,6 +756,10 @@ function(msg, msgView, op) {
 	addresses[AjxEmailAddress.TO] = [];
 	var addrVec = msg.isSent ? msg.getAddresses(AjxEmailAddress.TO) : msg.getReplyAddresses(op);
 	this._addAddresses(addresses, AjxEmailAddress.TO, addrVec, used);
+	if (addresses[AjxEmailAddress.TO].length == 0) {
+		// try again without dropping user's address(es)
+		this._addAddresses(addresses, AjxEmailAddress.TO, addrVec);
+	}
 
 	if (op == ZmOperation.REPLY_ALL) {
 		addresses[AjxEmailAddress.CC] = [];
@@ -771,13 +777,15 @@ function(msg, msgView, op) {
 	options.shortAddress = appCtxt.get(ZmSetting.SHORT_ADDRESS);
 
 	var showMoreIds = {};
-	var participants = [];
-	for (var type in addresses) {
+	var addressTypes = [], participants = {};
+	for (var i = 0; i < ZmConvReplyView.ADDR_TYPES.length; i++) {
+		var type = ZmConvReplyView.ADDR_TYPES[i];
 		var addrs = addresses[type];
 		if (addrs && addrs.length > 0) {
+			addressTypes.push(type);
 			var prefix = AjxStringUtil.htmlEncode(ZmMsg[AjxEmailAddress.TYPE_STRING[type]]);
 			var addressInfo = msgView.getAddressesFieldInfo(addrs, options, type);
-			participants.push({ prefix: prefix, partStr: addressInfo.html });
+			participants[type] = { prefix: prefix, partStr: addressInfo.html };
 			if (addressInfo.showMoreLinkId) {
 			    showMoreIds[addressInfo.showMoreLinkId] = true;
 			}
@@ -785,6 +793,7 @@ function(msg, msgView, op) {
 	}
 	
 	return {
+		addressTypes:	addressTypes,
 		participants:	participants,
         showMoreIds:    showMoreIds
 	}
@@ -799,7 +808,9 @@ function(addresses, type, addrs, used) {
 			if (!used || !used[addr.address]) {
 				addresses[type].push(addr);
 			}
-			used[addr.address] = true;
+			if (used) {
+				used[addr.address] = true;
+			}
 		}
 	}
 };
@@ -1024,19 +1035,23 @@ function(msg, container, callback, index) {
 		}
 	}
 
-	var attachmentsCount = this._msg.getAttachmentLinks(true, !appCtxt.get(ZmSetting.VIEW_AS_HTML), true).length;
-	if (attachmentsCount > 0) {
-		var div = document.createElement("DIV");
-		div.id = this._attLinksId;
-		div.className = "attachments";
-		this.getHtmlElement().appendChild(div);
-	}
-	
+
 	var isCalendarInvite = this._isCalendarInvite = appCtxt.get(ZmSetting.CALENDAR_ENABLED) && msg.invite && !msg.invite.isEmpty();
 	var isShareInvite = this._isShareInvite = (appCtxt.get(ZmSetting.SHARING_ENABLED) &&
 												msg.share && msg.folderId != ZmFolder.ID_TRASH &&
 												appCtxt.getActiveAccount().id != msg.share.grantor.id);
 	var isSubscribeReq = msg.subscribeReq && msg.folderId != ZmFolder.ID_TRASH;
+
+    if (!isCalendarInvite) {
+        var attachmentsCount = this._msg.getAttachmentLinks(true, !appCtxt.get(ZmSetting.VIEW_AS_HTML), true).length;
+        if (attachmentsCount > 0) {
+            var div = document.createElement("DIV");
+            div.id = this._attLinksId;
+            div.className = "attachments";
+            this.getHtmlElement().appendChild(div);
+        }
+    }
+
 	if (isCalendarInvite || isShareInvite || isSubscribeReq) {
 		ZmMailMsgView.prototype._renderMessageHeader.apply(this, arguments);
 	}
@@ -1182,28 +1197,24 @@ function(id) {
 ZmMailMsgCapsuleView.prototype._linkClicked =
 function(id, op, ev) {
 
-	this._resetLinks();
+	this._resetLinks(op);
 	var info = this._linkInfo && id && this._linkInfo[id];
-	var link = info && document.getElementById(info.linkId);
-	if (link) {
-		link.className = this._linkFollowedClass;
-	}
-	
-	var handler = info && !info.disabled ? info.handler : null;
+	var handler = (info && !info.disabled) ? info.handler : null;
 	if (handler) {
 		handler.apply(this, [id, info.op, ev]);
 	}
 };
 
 ZmMailMsgCapsuleView.prototype._resetLinks =
-function() {
+function(op) {
 	var links = [ZmOperation.REPLY, ZmOperation.REPLY_ALL];
 	for (var i = 0; i < links.length; i++) {
+		var id = links[i];
 		var info = this._linkInfo && this._linkInfo[id];
         if (info && info.disabled) { continue; }
 		var link = info && document.getElementById(info.linkId);
 		if (link) {
-			link.className = this._linkClass;
+			link.className = (op == id) ? this._followedLinkClass : this._linkClass;
 		}
 	}
 };
@@ -1357,6 +1368,11 @@ function() {
 			}
 		}
 	}
+
+	if (this._expanded)
+		// create bubbles
+		this._notifyZimletsNewMsg(this._msg);
+
 	this._resetIframeHeightOnTimer();
 };
 
@@ -1549,7 +1565,12 @@ function(state, force) {
 	this._folderCellId = id + "_folderCell";
 	this._idToAddr = {};
 
-	var dateString = AjxDateUtil.computeDateStr(this._convView._now || new Date(), msg.sentDate || msg.date);
+	this._dateCellId = id + "_dateCell";
+	var date = msg.sentDate || msg.date;
+	var dateString = AjxDateUtil.computeDateStr(this._convView._now || new Date(), date);
+	var dateFormatter = AjxDateFormat.getDateTimeInstance(AjxDateFormat.LONG, AjxDateFormat.SHORT);
+	this._fullDateString = dateFormatter.format(new Date(date));
+	var dateTooltip = this._browserToolTip ? this._fullDateString : "";
 	
 	this._readIconId = id + "_read";
 	var attrs = "id='" + this._readIconId + "' noToggle=1";
@@ -1564,7 +1585,9 @@ function(state, force) {
 			from:			ai.from,
 			fromId:			fromId,
 			fragment:		this._getFragment(),
-			date:			dateString
+			date:			dateString,
+			dateCellId:		this._dateCellId,
+			dateTooltip:	dateTooltip
 		};
 		html = AjxTemplate.expand("mail.Message#Conv2MsgHeader-collapsed", subs);
 	}
@@ -1600,7 +1623,9 @@ function(state, force) {
 			bwoAddr:		ai.bwoAddr,
 			addressTypes:	ai.addressTypes,
 			participants:	ai.participants,
-			date:			dateString
+			date:			dateString,
+			dateCellId:		this._dateCellId,
+			dateTooltip:	dateTooltip
 		};
 		html = AjxTemplate.expand("mail.Message#Conv2MsgHeader-expanded", subs);
 	}
@@ -1617,10 +1642,6 @@ function(state, force) {
 		if (showMoreLink) {
 			showMoreLink.notoggle = 1;
 		}
-	}
-	
-	if (beenHere && state == ZmMailMsgCapsuleViewHeader.EXPANDED) {
-		this._msgView._notifyZimletsNewMsg(msg);	// create bubbles
 	}
 };
 
@@ -1639,6 +1660,9 @@ function(ev) {
 		if (id == this._folderCellId) {
 			var folder = this._msg.folderId && appCtxt.getById(this._msg.folderId);
 			return folder && folder.getName();
+		}
+		else if (id == this._dateCellId) {
+			return this._fullDateString;
 		}
 		else {
 			var addr = this._idToAddr[id];

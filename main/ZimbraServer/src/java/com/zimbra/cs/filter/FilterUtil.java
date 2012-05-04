@@ -198,7 +198,7 @@ public final class FilterUtil {
                 // Only part of the folder path matched.  Auto-create the remaining path.
                 ZimbraLog.filter.info("Could not find folder %s.  Automatically creating it.",
                     folderPath);
-                folder = mbox.createFolder(octxt, folderPath, (byte) 0, MailItem.Type.MESSAGE);
+                folder = mbox.createFolder(octxt, folderPath, new Folder.FolderOptions().setDefaultView(MailItem.Type.MESSAGE));
             }
             try {
                 DeliveryOptions dopt = new DeliveryOptions().setFolderId(folder).setNoICal(noICal);
@@ -290,6 +290,7 @@ public final class FilterUtil {
                     sender.setEnvelopeFrom(address);
                 }
             }
+            sender.setDsnNotifyOptions(MailSender.DsnNotifyOption.NEVER);
             sender.setRecipients(destinationAddress);
             sender.sendMimeMessage(octxt, sourceMbox, outgoingMsg);
         } catch (MessagingException e) {
@@ -324,7 +325,7 @@ public final class FilterUtil {
             throw ServiceException.FAILURE(error, null);
         }
         if (isDeliveryStatusNotification(mimeMessage)) {
-            ZimbraLog.filter.debug("Not auto-relying to a DSN message");
+            ZimbraLog.filter.debug("Not auto-replying to a DSN message");
             return;
         }
 
@@ -361,6 +362,7 @@ public final class FilterUtil {
 
         MailSender mailSender = mailbox.getMailSender();
         mailSender.setReplyType(MailSender.MSGTYPE_REPLY);
+        mailSender.setDsnNotifyOptions(MailSender.DsnNotifyOption.NEVER);
         mailSender.sendMimeMessage(octxt, mailbox, replyMsg);
     }
 
@@ -430,6 +432,7 @@ public final class FilterUtil {
         } else {
             mailSender.setEnvelopeFrom(account.getName());
         }
+        mailSender.setDsnNotifyOptions(MailSender.DsnNotifyOption.NEVER);
         mailSender.sendMimeMessage(octxt, mailbox, notification);
     }
 

@@ -183,9 +183,14 @@ function(view, force, initialized, stageView) {
 
 		this._setView({ view:		view,
 						viewType:	this._currentViewType,
+						noPush:		this.isSearchResults,
 						elements:	elements,
 						isAppView:	true,
 						stageView:	stageView});
+		if (this.isSearchResults) {
+			// if we are switching views, make sure app view mgr is up to date on search view's components
+			appCtxt.getAppViewMgr().setViewComponents(this.searchResultsController.getCurrentViewId(), elements, true);
+		}
 		this._resetNavToolBarButtons();
 
 		// HACK: reset search toolbar icon (its a hack we're willing to live with)
@@ -817,7 +822,7 @@ function(parent, num) {
 			var isInTrash = folder && folder.isInTrash();
 			var canEdit = (folder == null || !folder.isReadOnly());
 
-			parent.enable([ZmOperation.CONTACTGROUP_MENU], (num > 0 && !appCtxt.isExternalAccount()));
+			parent.enable([ZmOperation.CONTACTGROUP_MENU, ZmOperation.NEW_MESSAGE], (num > 0 && !appCtxt.isExternalAccount()));
 			parent.enable([ZmOperation.TAG_MENU], canEdit && num > 0);
 			parent.enable([ZmOperation.DELETE, ZmOperation.MOVE, ZmOperation.MOVE_MENU], canEdit && num > 0);
 			parent.enable([ZmOperation.EDIT, ZmOperation.CONTACT], canEdit && num == 1 && !isInTrash);
@@ -838,7 +843,7 @@ function(parent, num) {
 	} else {
 		// gal contacts cannot be tagged/moved/deleted
 		parent.enableAll(false);
-		parent.enable([ZmOperation.CONTACTGROUP_MENU], (num > 0 && !appCtxt.isExternalAccount()));
+		parent.enable([ZmOperation.CONTACTGROUP_MENU, ZmOperation.NEW_MESSAGE], (num > 0 && !appCtxt.isExternalAccount()));
 		parent.enable([ZmOperation.SEARCH_MENU, ZmOperation.BROWSE, ZmOperation.NEW_MENU, ZmOperation.VIEW_MENU], true);
 		parent.enable(ZmOperation.NEW_MESSAGE, num > 0);
 		parent.enable(ZmOperation.CONTACT, num == 1);

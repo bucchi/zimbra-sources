@@ -40,7 +40,7 @@
 								<td>
 									<table align=right>
 										<tr>
-											<td valign=top id='${expandHeaderId}' class='arrowbtn'></td>
+											<td>&nbsp;</td>
 											<td class='LabelColName'><$= ZmMsg.fromLabel $></td>
 										</tr>
 									</table>
@@ -543,6 +543,9 @@
                <$ var spanId = Dwt.getNextId(data.rowId)$>
 
                <span  id='<$= spanId $>' class="AttachmentLoading attachmentBubble AttachmentSpan">
+                    <span>
+                          <input type="hidden" value='<$=message.id$>' name='<$= data.fwdFieldName $>' >
+                    </span>
                    <a style="color:#336699; cursor:pointer; text-decoration:none;" > <$= (message ? AjxStringUtil.htmlEncode(message.subject) : null) || AjxStringUtil.htmlEncode(ZmMsg.noSubject) $></a>
                    (<$= AjxUtil.formatSize(message.size, false, 1) $>)
                    <span onclick="window.appCtxt.getCurrentView()._removeAttachedMessage('<$= spanId $>' ,'<$= message.id $>')" class="ImgBubbleDelete AttachmentClose"></span>
@@ -700,23 +703,15 @@
 </template>
 
 <template id='mail.Message#Conv2Reply'>
-	<div>
-		<table id="${replyToTableId}">
-		</table>
-	</div>
-	<div id="${replyCcDivId}" style="display:none;">
-		<table id="${replyCcTableId}">
-		</table>
-	</div>
+	<div id="${replyToDivId}"></div>
+	<div id="${replyCcDivId}" style="display:none;"></div>
 	<textarea id="${replyInputId}" class="ReplyTextarea"></textarea>
 	<div id="${replyToolbarId}"></div>
 </template>
 
 <template id='mail.Message#Conv2ReplyTable'>
-	<table id="${replyTableId}">
-		<$ for (var i = 0; i < data.participants.length; i++) { $>
-			<$= AjxTemplate.expand("#Conv2MsgAddressRow", data.participants[i]) $>
-		<$ } $>
+	<table>
+		<$= AjxTemplate.expand("#Conv2MsgAddressRow", data) $>
 	</table>
 </template>
 	
@@ -733,7 +728,7 @@
 		<span id='${fromId}'>${from}</span>
 		<span class='ZmConvListFragment'><$= data.fragment $></span>
 	</span>
-	<span class='date' id='${msgDateId}'>${date}</span>
+	<span class='date' id='${dateCellId}' title='${dateTooltip}'>${date}</span>
 </template>
 
 <template id='mail.Message#Conv2MsgHeader-expanded'>
@@ -758,7 +753,7 @@
 					<span class='LabelColValue' colspan=10><$= data.bwo $></span>
 				<$ } $>
 			</td>
-			<td style='white-space:nowrap;'>${date}</td>
+			<td style='white-space:nowrap;' id='${dateCellId}' title='${dateTooltip}'>${date}</td>
 		</tr>
 
 		<$ for (var i = 0; i < data.addressTypes.length; i++) { $>
@@ -770,17 +765,17 @@
 <template id='mail.Message#Conv2MsgAddressRow'>
 	<tr>
 		<$ if (!data.isReply) { $>
-		<td>&nbsp;</td>
+		<td></td>
 		<$ } $>
 		<td class='LabelColName'>
-			<$= data.prefix ? AjxMessageFormat.format(ZmMsg.makeLabel, data.prefix) : "&nbsp;" $>
+			<$= data.prefix ? AjxMessageFormat.format(ZmMsg.makeLabel, data.prefix) : "" $>
 		</td>
 		<td class='LabelColValue'><$= data.partStr $></td>
 		<$ if (!data.isReply) { $>
 			<$ if (data.folderIcon) { $>
 		<td align="right" id='${folderCellId}'><$= data.folderIcon $></td>
 			<$ } else { $>
-		<td align="right">&nbsp;</td>
+		<td align="right"></td>
 			<$ } $>
 		<$ } $>
 	</tr>

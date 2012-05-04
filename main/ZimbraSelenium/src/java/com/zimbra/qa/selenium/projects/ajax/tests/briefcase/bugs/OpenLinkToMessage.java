@@ -97,13 +97,13 @@ public class OpenLinkToMessage extends AjaxCommonTest {
 		app.zPageBriefcase
 				.zWaitForElementPresent(locator);
 
-		app.zPageBriefcase.zClickAt(locator, "0,0");
+		app.zPageBriefcase.sClickAt(locator,"");
 				
 		SleepUtil.sleepVerySmall();
 		
 		ZAssert
 				.assertTrue(app.zPageBriefcase
-						.sIsElementPresent(PageMail.Locators.cssTVRowsLocator),
+						.zWaitForElementPresent(PageMail.Locators.cssTVRowsLocator,"5000"),
 						"Verify List View Rows are displayed after message pane is closed");
 	}
 

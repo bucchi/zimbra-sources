@@ -819,7 +819,7 @@ ZaDistributionList.prototype.getMemberQueryParams = function(callbackQuery, offs
 			skipCallbackIfCancelled: true
 		}
 
-		queryParams = {
+		var queryParams = {
 			reqCtrlParams: reqCtrlParams,
 			reqMgrParams: reqMgrParams
 		}
@@ -841,14 +841,19 @@ ZaDistributionList.prototype.getAllMembers = function ( params ) {
 
 		try {
 			var ajxCallbackWhenCompleted = new AjxCallback(view, ZaDLXFormView.prototype.updateMemberList);
-
+            var updateTreeWhenCompleted = new AjxCallback(this, this.updateTree);
 			var queryParams = ZaDistributionList.prototype.getMemberQueryParams.call( this, callbackQuery, offset, 
-																	limit, controller, ajxCallbackWhenCompleted );
+																	limit, controller, [ajxCallbackWhenCompleted, updateTreeWhenCompleted] );
 			ZaRequestMgr.invoke(queryParams.reqCtrlParams, queryParams.reqMgrParams);
 		} catch (ex) {
 			ZaApp.getInstance().getCurrentController()._handleException(ex, "ZaDistributionList.prototype.getAllMembers", null, false);
 		}
 	}
+}
+
+ZaDistributionList.prototype.updateTree = function () {
+    var treeCtrl = ZaZimbraAdmin.getInstance().getOverviewPanelController();
+    treeCtrl.refreshRelatedTree(this, true, true);
 }
 
 ZaDistributionList.prototype.getAllMembersCallback = function ( params, resp ) {
@@ -866,11 +871,11 @@ ZaDistributionList.prototype.getAllMembersCallback = function ( params, resp ) {
 				!resp._data.Body.GetDistributionListResponse ) {
 				return;
 			}
-			dlBody = resp._data.Body.GetDistributionListResponse;
+			var dlBody = resp._data.Body.GetDistributionListResponse;
 			if (!dlBody.dl || !(dlBody.dl[0]) ) {
 				return;
 			}
-			dlResp = dlBody.dl[0];
+			var dlResp = dlBody.dl[0];
 
 			//whether is dynamic group
 			if (dlResp.dynamic === true) {
@@ -923,11 +928,14 @@ ZaDistributionList.prototype.getAllMembersCallback = function ( params, resp ) {
 				}
 			}
 
-			//run the CallBack finally
+			//run the CallBack finall
 			var ajxCallbackWhenCompleted = params.ajxCallbackWhenCompleted || null;
-			if (ajxCallbackWhenCompleted != null) {
-				ajxCallbackWhenCompleted.run1([this])
-			}
+			if (ajxCallbackWhenCompleted instanceof Array) {
+                for (var i = 0; i < ajxCallbackWhenCompleted.length; i++)
+				    ajxCallbackWhenCompleted[i].run1([this])
+			} else if (ajxCallbackWhenCompleted instanceof AjxCallback) {
+                ajxCallbackWhenCompleted.run1([this])
+            }
 
 		}
 
@@ -1204,6 +1212,7 @@ function (dl) {
 	this.attrs[ZaAccount.A_zimbraMailAlias] = new Array();
 	this.name = dl.name;
 	this.id = dl.id;
+    this.dynamic = dl.dynamic;
 	var len = dl.a.length;
 
 	for(var ix = 0; ix < len; ix++) {
@@ -1320,7 +1329,7 @@ ZaDistributionList.myXModel = {
 		{id:ZaDistributionList.A2_members, type:_LIST_},
 		ZaItem.descriptionModelItem,
 		{id:ZaItem.A_zimbraId, type:_STRING_, ref:"attrs/" + ZaItem.A_zimbraId},
-        {id:ZaDistributionList.A_memberOfURL, ref:"attrs/" + ZaDistributionList.A_memberOfURL, type:_STRING_},
+        {id:ZaDistributionList.A_memberOfURL, ref:"attrs/" + ZaDistributionList.A_memberOfURL, type:_STRING_, required: true},
         {id:ZaDistributionList.A_zimbraIsACLGroup, ref:"attrs/"+ZaDistributionList.A_zimbraIsACLGroup, type:_ENUM_, choices:ZaModel.BOOLEAN_CHOICES},
 		{id:ZaItem.A_zimbraCreateTimestamp, ref:"attrs/" + ZaItem.A_zimbraCreateTimestamp},
         {id:ZaAccount.A_zimbraHideInGal, type:_ENUM_, ref:"attrs/"+ZaAccount.A_zimbraHideInGal, choices:ZaModel.BOOLEAN_CHOICES},

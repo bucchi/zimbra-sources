@@ -1776,41 +1776,41 @@ public class Mailbox {
         try {
             byte hidden = Folder.FOLDER_IS_IMMUTABLE | Folder.FOLDER_DONT_TRACK_COUNTS;
             Folder root = Folder.create(ID_FOLDER_ROOT, UUIDUtil.generateUUID(), this, null, "ROOT", hidden, MailItem.Type.UNKNOWN,
-                    0, MailItem.DEFAULT_COLOR_RGB, null, null);
+                    0, MailItem.DEFAULT_COLOR_RGB, null, null, null);
             Folder.create(ID_FOLDER_TAGS, UUIDUtil.generateUUID(), this, root, "Tags", hidden, MailItem.Type.TAG,
-                    0, MailItem.DEFAULT_COLOR_RGB, null, null);
+                    0, MailItem.DEFAULT_COLOR_RGB, null, null, null);
             Folder.create(ID_FOLDER_CONVERSATIONS, UUIDUtil.generateUUID(), this, root, "Conversations", hidden, MailItem.Type.CONVERSATION,
-                    0, MailItem.DEFAULT_COLOR_RGB, null, null);
+                    0, MailItem.DEFAULT_COLOR_RGB, null, null, null);
             Folder.create(ID_FOLDER_COMMENTS, UUIDUtil.generateUUID(), this, root, "Comments", hidden, MailItem.Type.COMMENT,
-                    0, MailItem.DEFAULT_COLOR_RGB, null, null);
+                    0, MailItem.DEFAULT_COLOR_RGB, null, null, null);
             Folder.create(ID_FOLDER_PROFILE, UUIDUtil.generateUUID(), this, root, "Profile", hidden, MailItem.Type.DOCUMENT,
-                    0, MailItem.DEFAULT_COLOR_RGB, null, null);
+                    0, MailItem.DEFAULT_COLOR_RGB, null, null, null);
 
             byte system = Folder.FOLDER_IS_IMMUTABLE;
             Folder userRoot = Folder.create(ID_FOLDER_USER_ROOT, UUIDUtil.generateUUID(), this, root, "USER_ROOT", system, MailItem.Type.UNKNOWN,
-                    0, MailItem.DEFAULT_COLOR_RGB, null, null);
+                    0, MailItem.DEFAULT_COLOR_RGB, null, null, null);
             Folder.create(ID_FOLDER_INBOX, UUIDUtil.generateUUID(), this, userRoot, "Inbox", system, MailItem.Type.MESSAGE,
-                    0, MailItem.DEFAULT_COLOR_RGB, null, null);
+                    0, MailItem.DEFAULT_COLOR_RGB, null, null, null);
             Folder.create(ID_FOLDER_TRASH, UUIDUtil.generateUUID(), this, userRoot, "Trash", system, MailItem.Type.UNKNOWN,
-                    0, MailItem.DEFAULT_COLOR_RGB, null, null);
+                    0, MailItem.DEFAULT_COLOR_RGB, null, null, null);
             Folder.create(ID_FOLDER_SPAM, UUIDUtil.generateUUID(), this, userRoot, "Junk", system, MailItem.Type.MESSAGE,
-                    0, MailItem.DEFAULT_COLOR_RGB, null, null);
+                    0, MailItem.DEFAULT_COLOR_RGB, null, null, null);
             Folder.create(ID_FOLDER_SENT, UUIDUtil.generateUUID(), this, userRoot, "Sent", system, MailItem.Type.MESSAGE,
-                    0, MailItem.DEFAULT_COLOR_RGB, null, null);
+                    0, MailItem.DEFAULT_COLOR_RGB, null, null, null);
             Folder.create(ID_FOLDER_DRAFTS, UUIDUtil.generateUUID(), this, userRoot, "Drafts", system, MailItem.Type.MESSAGE,
-                    0, MailItem.DEFAULT_COLOR_RGB, null, null);
+                    0, MailItem.DEFAULT_COLOR_RGB, null, null, null);
             Folder.create(ID_FOLDER_CONTACTS, UUIDUtil.generateUUID(), this, userRoot, "Contacts", system, MailItem.Type.CONTACT,
-                    0, MailItem.DEFAULT_COLOR_RGB, null, null);
+                    0, MailItem.DEFAULT_COLOR_RGB, null, null, null);
             Folder.create(ID_FOLDER_CALENDAR, UUIDUtil.generateUUID(), this, userRoot, "Calendar", system, MailItem.Type.APPOINTMENT,
-                    Flag.BITMASK_CHECKED, MailItem.DEFAULT_COLOR_RGB, null, null);
+                    Flag.BITMASK_CHECKED, MailItem.DEFAULT_COLOR_RGB, null, null, null);
             Folder.create(ID_FOLDER_TASKS, UUIDUtil.generateUUID(), this, userRoot, "Tasks", system, MailItem.Type.TASK,
-                    Flag.BITMASK_CHECKED, MailItem.DEFAULT_COLOR_RGB, null, null);
+                    Flag.BITMASK_CHECKED, MailItem.DEFAULT_COLOR_RGB, null, null, null);
             Folder.create(ID_FOLDER_AUTO_CONTACTS, UUIDUtil.generateUUID(), this, userRoot, "Emailed Contacts", system, MailItem.Type.CONTACT,
-                    0, MailItem.DEFAULT_COLOR_RGB, null, null);
+                    0, MailItem.DEFAULT_COLOR_RGB, null, null, null);
             Folder.create(ID_FOLDER_IM_LOGS,  UUIDUtil.generateUUID(), this, userRoot, "Chats", system, MailItem.Type.MESSAGE,
-                    0, MailItem.DEFAULT_COLOR_RGB, null, null);
+                    0, MailItem.DEFAULT_COLOR_RGB, null, null, null);
             Folder.create(ID_FOLDER_BRIEFCASE, UUIDUtil.generateUUID(), this, userRoot, "Briefcase", system, MailItem.Type.DOCUMENT,
-                    0, MailItem.DEFAULT_COLOR_RGB, null, null);
+                    0, MailItem.DEFAULT_COLOR_RGB, null, null, null);
         } finally {
             lock.release();
         }
@@ -4432,7 +4432,7 @@ public class Mailbox {
             // calls to processNewInvite() because it'll delete all existing Invites and we'll lose
             // old invId information.
             if (!scidList.isEmpty()) {
-                calItem = getCalendarItemByUid(scidList.get(0).invite.getUid());
+                calItem = getCalendarItemByUid(octxt, scidList.get(0).invite.getUid());
                 for (SetCalendarItemData scid : scidList) {
                     int idBeingSet = scid.invite.getMailItemId();
                     if (idBeingSet <= 0) {
@@ -4827,7 +4827,7 @@ public class Mailbox {
                 inv.setInviteId(getNextItemId(currId));
             }
 
-            CalendarItem calItem = getCalendarItemByUid(inv.getUid());
+            CalendarItem calItem = getCalendarItemByUid(octxt, inv.getUid());
             boolean processed = true;
             if (calItem == null) {
                 // ONLY create an calendar item if this is a REQUEST method...otherwise don't.
@@ -4872,10 +4872,6 @@ public class Mailbox {
         }
     }
 
-    public CalendarItem getCalendarItemByUid(String uid) throws ServiceException {
-        return getCalendarItemByUid(null, uid);
-    }
-
     public CalendarItem getCalendarItemByUid(OperationContext octxt, String uid) throws ServiceException {
         boolean success = false;
         try {
@@ -4890,7 +4886,7 @@ public class Mailbox {
     }
 
     public Map<String, CalendarItem> getCalendarItemsByUid(OperationContext octxt, List<String> uids)
-            throws ServiceException {
+    throws ServiceException {
         boolean success = false;
         try {
             beginTransaction("getCalendarItemsByUid", octxt);
@@ -4961,7 +4957,7 @@ public class Mailbox {
         try {
             beginTransaction("iCalReply", octxt, redoRecorder);
             String uid = inv.getUid();
-            CalendarItem calItem = getCalendarItemByUid(uid);
+            CalendarItem calItem = getCalendarItemByUid(octxt, uid);
             if (calItem == null) {
                 ZimbraLog.calendar.warn("Unknown calendar item UID %s", uid);
                 return;
@@ -5100,7 +5096,7 @@ public class Mailbox {
                 in = validator;
             }
 
-            blob = StoreManager.getInstance().storeIncoming(in, null);
+            blob = StoreManager.getInstance().storeIncoming(in);
 
             if (validator != null && !validator.isValid()) {
                 StoreManager.getInstance().delete(blob);
@@ -5178,7 +5174,7 @@ public class Mailbox {
             InputStream in = null;
             try {
                 in = pm.getRawInputStream();
-                blob = sm.storeIncoming(in, null);
+                blob = sm.storeIncoming(in);
             } finally {
                 ByteUtil.closeStream(in);
             }
@@ -5620,7 +5616,7 @@ public class Mailbox {
         StagedBlob staged;
         InputStream is = pm.getRawInputStream();
         try {
-            staged = sm.stage(is, null, this);
+            staged = sm.stage(is, this);
         } finally {
             ByteUtil.closeStream(is);
         }
@@ -5650,23 +5646,23 @@ public class Mailbox {
 
             msg.setDraftAutoSendTime(autoSendTime);
 
-                if (dinfo != null) {
-                    if (replyType != null) {
-                        msg.setDraftReplyType(replyType);
-                    }
-                    if (origId != null) {
-                        msg.setDraftOrigId(origId);
-                    }
-                    if (identityId != null) {
-                        msg.setDraftIdentityId(identityId);
-                    }
-                    if (accountId != null) {
-                        msg.setDraftAccountId(accountId);
-                    }
-                    if (autoSendTime != 0) {
-                        msg.setDraftAutoSendTime(autoSendTime);
-                    }
+            if (dinfo != null) {
+                if (replyType != null) {
+                    msg.setDraftReplyType(replyType);
                 }
+                if (origId != null) {
+                    msg.setDraftOrigId(origId);
+                }
+                if (identityId != null) {
+                    msg.setDraftIdentityId(identityId);
+                }
+                if (accountId != null) {
+                    msg.setDraftAccountId(accountId);
+                }
+                if (autoSendTime != 0) {
+                    msg.setDraftAutoSendTime(autoSendTime);
+                }
+            }
 
             // update the content and increment the revision number
             msg.setContent(staged, pm);
@@ -5786,7 +5782,7 @@ public class Mailbox {
     }
 
     public void setCustomData(OperationContext octxt, int itemId, MailItem.Type type, CustomMetadata custom)
-            throws ServiceException {
+    throws ServiceException {
         String key = custom.getSectionKey();
         if (MetadataCallback.isSectionRegistered(key)) {
             throw ServiceException.PERM_DENIED("custom metadata section '" + key + "' may only be calculated, not set");
@@ -5877,7 +5873,7 @@ public class Mailbox {
                     success = true;
                     return;
                 }
-                tag = getTagByName(octxt, ntags.getTags()[0]);
+                tag = getTagByName(ntags.getTags()[0]);
             }
 
             alterTag(itemIds, type, tag, addTag);
@@ -6436,7 +6432,7 @@ public class Mailbox {
                 String subfolderUuid = playerParentUuids == null ? UUIDUtil.generateUUID() : playerParentUuids[i];
                 Folder subfolder = parent.findSubfolder(name);
                 if (subfolder == null) {
-                    subfolder = Folder.create(getNextItemId(subfolderId), subfolderUuid, this, parent, name);
+                    subfolder = Folder.create(getNextItemId(subfolderId), subfolderUuid, this, parent, name, (byte) 0, MailItem.Type.UNKNOWN, 0, null, null, null, null);
                 } else if (subfolderId != ID_AUTO_INCREMENT && subfolderId != subfolder.getId()) {
                     throw ServiceException.FAILURE("parent folder id changed since operation was recorded", null);
                 } else if (!subfolder.getName().equals(name) && subfolder.isMutable()) {
@@ -6778,7 +6774,7 @@ public class Mailbox {
             // write the contact content directly to the mailbox's blob staging area
             InputStream is = null;
             try {
-                staged = sm.stage(is = pc.getContentStream(), (int) pc.getSize(), null, this);
+                staged = sm.stage(is = pc.getContentStream(), (int) pc.getSize(), this);
             } catch (IOException ioe) {
                 throw ServiceException.FAILURE("could not save contact blob", ioe);
             } finally {
@@ -6830,7 +6826,7 @@ public class Mailbox {
             // write the contact content directly to the mailbox's blob staging area
             InputStream is = null;
             try {
-                staged = sm.stage(is = pc.getContentStream(), pc.getSize(), null, this);
+                staged = sm.stage(is = pc.getContentStream(), pc.getSize(), this);
             } catch (IOException ioe) {
                 throw ServiceException.FAILURE("could not save contact blob", ioe);
             } finally {
@@ -6916,39 +6912,50 @@ public class Mailbox {
         return newAddrs;
     }
 
+    @Deprecated
     public Folder createFolder(OperationContext octxt, String name, int parentId, MailItem.Type defaultView, int flags,
             byte color, String url)
     throws ServiceException {
-        return createFolder(octxt, name, parentId, (byte)0, defaultView, flags, color, url);
+        return createFolder(octxt, name, parentId, (byte) 0, defaultView, flags, color, url);
     }
 
+    @Deprecated
     public Folder createFolder(OperationContext octxt, String name, int parentId, byte attrs, MailItem.Type defaultView,
             int flags, byte color, String url)
     throws ServiceException {
         return createFolder(octxt, name, parentId, attrs, defaultView, flags, new Color(color), url);
     }
 
+    @Deprecated
     public Folder createFolder(OperationContext octxt, String name, int parentId, byte attrs, MailItem.Type defaultView,
             int flags, Color color, String url)
     throws ServiceException {
-        return createFolder(octxt, name, parentId, attrs, defaultView, flags, color, url, null);
+        Folder.FolderOptions fopt = new Folder.FolderOptions();
+        fopt.setAttributes(attrs).setDefaultView(defaultView).setFlags(flags).setColor(color).setUrl(url);
+        return createFolder(octxt, name, parentId, fopt);
     }
 
-    public Folder createFolder(OperationContext octxt, String name, int parentId, byte attrs, MailItem.Type defaultView,
-            int flags, Color color, String url, Long date)
+    public Folder createFolder(OperationContext octxt, String name, int parentId, Folder.FolderOptions fopt)
     throws ServiceException {
-        CreateFolder redoRecorder = new CreateFolder(mId, name, parentId, attrs, defaultView, flags, color, url, date);
+        CreateFolder redoRecorder = new CreateFolder(mId, name, parentId, fopt);
 
         boolean success = false;
         try {
             beginTransaction("createFolder", octxt, redoRecorder);
             CreateFolder redoPlayer = (CreateFolder) currentChange.getRedoPlayer();
 
-            int folderId = getNextItemId(redoPlayer == null ? ID_AUTO_INCREMENT : redoPlayer.getFolderId());
-            String uuid = redoPlayer == null ? UUIDUtil.generateUUID() : redoPlayer.getFolderUuid();
+            int folderId;
+            String uuid;
+            if (redoPlayer == null) {
+                folderId = getNextItemId(ID_AUTO_INCREMENT);
+                uuid = Strings.emptyToNull(fopt.getUuid()) == null ? UUIDUtil.generateUUID() : fopt.getUuid();
+            } else {
+                folderId = getNextItemId(redoPlayer.getFolderId());
+                uuid = redoPlayer.getFolderUuid();
+            }
 
-            Folder folder = Folder.create(folderId, uuid, this, getFolderById(parentId), name, attrs,
-                    defaultView, flags, color, date, url, null);
+            Folder folder = Folder.create(folderId, uuid, this, getFolderById(parentId), name, fopt.getAttributes(),
+                    fopt.getDefaultView(), fopt.getFlags(), fopt.getColor(), fopt.getDate(), fopt.getUrl(), fopt.getCustomMetadata());
 
             redoRecorder.setFolderIdAndUuid(folder.getId(), folder.getUuid());
             success = true;
@@ -6957,11 +6964,6 @@ public class Mailbox {
         } finally {
             endTransaction(success);
         }
-    }
-
-    public Folder createFolder(OperationContext octxt, String path, byte attrs, MailItem.Type defaultView)
-    throws ServiceException {
-        return createFolder(octxt, path, attrs, defaultView, 0, MailItem.DEFAULT_COLOR, null);
     }
 
     /**
@@ -6981,14 +6983,7 @@ public class Mailbox {
      *
      * @throws ServiceException if the folder creation fails
      */
-    public Folder createFolder(OperationContext octxt, String path, byte attrs, MailItem.Type defaultView,
-            int flags, byte color, String url)
-    throws ServiceException {
-        return createFolder(octxt, path, attrs, defaultView, flags, new Color(color), url);
-    }
-
-    public Folder createFolder(OperationContext octxt, String path, byte attrs, MailItem.Type defaultView,
-            int flags, Color color, String url)
+    public Folder createFolder(OperationContext octxt, String path, Folder.FolderOptions fopt)
     throws ServiceException {
         if (path == null) {
             throw ServiceException.FAILURE("null path passed to Mailbox.createFolderPath", null);
@@ -6999,7 +6994,7 @@ public class Mailbox {
         if (path.endsWith("/") && path.length() > 1) {
             path = path.substring(0, path.length() - 1);
         }
-        CreateFolderPath redoRecorder = new CreateFolderPath(mId, path, attrs, defaultView, flags, color, url);
+        CreateFolderPath redoRecorder = new CreateFolderPath(mId, path, fopt);
 
         boolean success = false;
         try {
@@ -7010,6 +7005,7 @@ public class Mailbox {
             if (parts.length == 0) {
                 throw MailServiceException.ALREADY_EXISTS(path);
             }
+
             int[] recorderFolderIds = new int[parts.length];
             String[] recorderFolderUuids = new String[parts.length];
             int[] playerFolderIds = redoPlayer == null ? null : redoPlayer.getFolderIds();
@@ -7020,25 +7016,31 @@ public class Mailbox {
             if (playerFolderUuids != null && playerFolderUuids.length != recorderFolderUuids.length) {
                 throw ServiceException.FAILURE("incorrect number of path segment uuids in redo player", null);
             }
+
             Folder folder = getFolderById(ID_FOLDER_USER_ROOT);
             for (int i = 0; i < parts.length; i++) {
                 boolean last = i == parts.length - 1;
                 int folderId = playerFolderIds == null ? ID_AUTO_INCREMENT : playerFolderIds[i];
                 String folderUuid = playerFolderUuids == null ? UUIDUtil.generateUUID() : playerFolderUuids[i];
+
                 Folder subfolder = folder.findSubfolder(parts[i]);
                 if (subfolder == null) {
-                    subfolder = Folder.create(getNextItemId(folderId), folderUuid, this, folder, parts[i], (byte) 0,
-                            last ? defaultView : MailItem.Type.UNKNOWN, flags, color, last ? url : null, null);
+                    subfolder = Folder.create(getNextItemId(folderId), folderUuid, this, folder, parts[i],
+                            fopt.getAttributes(), last ? fopt.getDefaultView() : MailItem.Type.UNKNOWN,
+                            fopt.getFlags(), fopt.getColor(), fopt.getDate(), last ? fopt.getUrl() : null,
+                            fopt.getCustomMetadata());
                 } else if (folderId != ID_AUTO_INCREMENT && folderId != subfolder.getId()) {
                     throw ServiceException.FAILURE("parent folder id changed since operation was recorded", null);
                 } else if (last) {
                     throw MailServiceException.ALREADY_EXISTS(path);
                 }
+
                 recorderFolderIds[i] = subfolder.getId();
                 recorderFolderUuids[i] = subfolder.getUuid();
                 folder = subfolder;
             }
             redoRecorder.setFolderIdsAndUuids(recorderFolderIds, recorderFolderUuids);
+
             success = true;
             return folder;
         } finally {
@@ -7052,12 +7054,14 @@ public class Mailbox {
     }
 
     public ACL.Grant grantAccess(OperationContext octxt, int itemId, String grantee, byte granteeType, short rights,
-            String args) throws ServiceException {
+            String args)
+    throws ServiceException {
          return grantAccess(octxt, itemId, grantee, granteeType, rights, args, 0);
     }
 
     public ACL.Grant grantAccess(OperationContext octxt, int itemId, String grantee, byte granteeType, short rights,
-            String args, long expiry) throws ServiceException {
+            String args, long expiry)
+    throws ServiceException {
         GrantAccess redoPlayer = new GrantAccess(mId, itemId, grantee, granteeType, rights, args, expiry);
 
         boolean success = false;
@@ -7080,7 +7084,7 @@ public class Mailbox {
     }
 
     public void revokeAccess(OperationContext octxt, boolean dueToExpiry, int itemId, String grantee)
-            throws ServiceException {
+    throws ServiceException {
         RevokeAccess redoPlayer = new RevokeAccess(dueToExpiry, mId, itemId, grantee);
 
         boolean success = false;
@@ -7275,7 +7279,8 @@ public class Mailbox {
     }
 
     private void importFeedInternal(OperationContext octxt, Folder folder, boolean subscription,
-            FeedManager.SubscriptionData<?> sdata) throws ServiceException {
+            FeedManager.SubscriptionData<?> sdata)
+    throws ServiceException {
         assert(lock.isLocked());
         // If syncing a folder with calendar items, remember the current items.  After applying the new
         // appointments/tasks, we need to remove ones that were not updated because they are apparently
@@ -7331,7 +7336,7 @@ public class Mailbox {
                     }
                     try {
                         boolean importIt;
-                        CalendarItem calItem = getCalendarItemByUid(uid);
+                        CalendarItem calItem = getCalendarItemByUid(octxtNoConflicts, uid);
                         if (calItem == null) {
                             // New appointment.  Import it.
                             importIt = true;
@@ -7369,8 +7374,9 @@ public class Mailbox {
                                 importIt = sameFolder && changed;
                             }
                         }
-                        if (importIt)
+                        if (importIt) {
                             addInvite(octxtNoConflicts, inv, folder.getId(), true, addRevision);
+                        }
                     } catch (ServiceException e) {
                         ZimbraLog.calendar.warn("Skipping bad iCalendar object during import: uid=" + inv.getUid(), e);
                     }
@@ -8055,7 +8061,7 @@ public class Mailbox {
         StagedBlob staged;
         InputStream is = pm.getRawInputStream();
         try {
-            staged = sm.stage(is, null, this);
+            staged = sm.stage(is, this);
         } finally {
             ByteUtil.closeStream(is);
         }
@@ -8102,7 +8108,7 @@ public class Mailbox {
         StagedBlob staged;
         InputStream is = pm.getRawInputStream();
         try {
-            staged = sm.stage(is, null, this);
+            staged = sm.stage(is, this);
         } finally {
             ByteUtil.closeStream(is);
         }

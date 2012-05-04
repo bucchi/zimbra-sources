@@ -137,7 +137,8 @@ if(ZaAccount) {
 	ZaAccount.A_zimbraFileVersioningEnabled = "zimbraFileVersioningEnabled";
 	ZaAccount.A_zimbraFileVersionLifetime = "zimbraFileVersionLifetime";
 	ZaAccount.A_zimbraDeviceAutoLockInteral = "zimbraDeviceAutoLockInteral";
-	
+	//feature
+    ZaAccount.A_zimbraFeatureCrocodocEnabled = "zimbraFeatureCrocodocEnabled";
 	if(ZaItem.modelExtensions["ZaAccount"]) {
 		ZaItem.modelExtensions["ZaAccount"].push("octopus");
 	}	
@@ -166,6 +167,9 @@ if(ZaAccount) {
 		
 		//security
 		ZaAccount.myXModel.items.push({id:ZaAccount.A_zimbraDeviceAutoLockInteral, type:_COS_MLIFETIME_, ref:"attrs/"+ZaAccount.A_zimbraDeviceAutoLockInteral});
+
+        // feature
+        ZaAccount.myXModel.items.push({id:ZaAccount.A_zimbraFeatureCrocodocEnabled, type:_COS_ENUM_, ref:"attrs/" + ZaAccount.A_zimbraFeatureCrocodocEnabled, choices:ZaModel.BOOLEAN_CHOICES});
 	}
 }
 
@@ -188,7 +192,10 @@ if(ZaCos) {
 	ZaCos.A_zimbraFileVersioningEnabled = "zimbraFileVersioningEnabled";
 	ZaCos.A_zimbraFileVersionLifetime = "zimbraFileVersionLifetime";
 	ZaCos.A_zimbraDeviceAutoLockInteral = "zimbraDeviceAutoLockInteral";
-	
+
+    //feature
+    ZaCos.A_zimbraFeatureCrocodocEnabled = "zimbraFeatureCrocodocEnabled";
+    ZaCos.A_zimbraFeatureExternalFeedbackEnabled = "zimbraFeatureExternalFeedbackEnabled";
 	if(ZaCos.myXModel) {
 		ZaCos.myXModel.items.push({id:ZaAccount.A_zimbraFileUploadMaxSizePerFile, type:_NUMBER_, ref:"attrs/"+ZaCos.A_zimbraFileUploadMaxSizePerFile, maxInclusive:2147483648, minInclusive:0});
 		ZaCos.myXModel.items.push({id:ZaAccount.A_zimbraPrefFileSharingApplication, type:_ENUM_, ref:"attrs/"+ZaCos.A_zimbraPrefFileSharingApplication, choices:ZaOctopus.fileSharingAppChoices});
@@ -211,6 +218,11 @@ if(ZaCos) {
 		
 		//security
 		ZaCos.myXModel.items.push({id:ZaCos.A_zimbraDeviceAutoLockInteral, type:_MLIFETIME_, ref:"attrs/"+ZaCos.A_zimbraDeviceAutoLockInteral});
+
+        // feature
+        ZaCos.myXModel.items.push({id:ZaCos.A_zimbraFeatureCrocodocEnabled, choices:ZaModel.BOOLEAN_CHOICES, ref:"attrs/"+ZaCos.A_zimbraFeatureCrocodocEnabled, type:_ENUM_});
+        ZaCos.myXModel.items.push({id:ZaCos.A_zimbraFeatureExternalFeedbackEnabled , choices:ZaModel.BOOLEAN_CHOICES, ref:"attrs/"+ZaCos.A_zimbraFeatureExternalFeedbackEnabled, type:_ENUM_});
+
 	}
 	
 }
@@ -337,10 +349,11 @@ if(ZaTabView.XFormModifiers["ZaCosXFormView"]) {
 		}
 		cnt = switchObj.items.length;
 		for(var i = 0; i <cnt; i++) {
-			/*if(switchObj.items[i].id=="cos_form_features_tab") {
+			if(switchObj.items[i].id=="cos_form_features_tab") {
 				var tmpItems = switchObj.items[i].items;
 				var cnt2 = tmpItems.length;
 				for(var j=0; j<cnt2; j++) {
+                    /*
 					if(tmpItems[j].id=="cos_form_features_major" && tmpItems[j].items) {
 						var majorFeatureItems = tmpItems[j].items;
 						for(var l=0;l<majorFeatureItems.length;l++) {
@@ -360,9 +373,29 @@ if(ZaTabView.XFormModifiers["ZaCosXFormView"]) {
 							}
 						}
 						break;
+					}*/
+                    if(tmpItems[j].id=="cos_form_features_general" && tmpItems[j].items) {
+                        tmpItems[j].visibilityChecks[0][1].push(ZaCos.A_zimbraFeatureCrocodocEnabled);
+                        tmpItems[j].visibilityChecks[0][1].push(ZaCos.A_zimbraFeatureExternalFeedbackEnabled);
+						var genernalFeatureItems = tmpItems[j].items;
+                        ZaCosXFormView.FEATURE_TAB_ATTRS.push(ZaCos.A_zimbraFeatureCrocodocEnabled);
+                        ZaCosXFormView.FEATURE_TAB_ATTRS.push(ZaCos.A_zimbraFeatureExternalFeedbackEnabled);
+						genernalFeatureItems.push({
+                            ref:ZaCos.A_zimbraFeatureCrocodocEnabled,
+                            type:_CHECKBOX_, msgName:com_zimbra_octopus.LBL_zimbraFeatureCrocodocrEnabled,
+                            label:com_zimbra_octopus.LBL_zimbraFeatureCrocodocrEnabled,
+                            trueValue:"TRUE", falseValue:"FALSE"}
+                        );
+                        genernalFeatureItems.push({
+                            ref:ZaCos.A_zimbraFeatureExternalFeedbackEnabled,
+                            type:_CHECKBOX_, msgName:com_zimbra_octopus.LBL_zimbraFeatureExternalFeedbackEnabled,
+                            label:com_zimbra_octopus.LBL_zimbraFeatureExternalFeedbackEnabled,
+                            trueValue:"TRUE", falseValue:"FALSE"}
+                        );
+						break;
 					}
 				}
-			} else*/ if (switchObj.items[i].id=="cos_form_advanced_tab") {
+			} else if (switchObj.items[i].id=="cos_form_advanced_tab") {
 				var tmpItems = switchObj.items[i].items;
 				var cnt2 = tmpItems.length;
 				for(var j=0;j<cnt2;j++) {
@@ -546,6 +579,50 @@ if(ZaTabView.XFormModifiers["ZaCosXFormView"]) {
 	
 	ZaTabView.XFormModifiers["ZaCosXFormView"].push(ZaOctopus.COSXFormModifier);
 }
+
+if(ZaXDialog.XFormModifiers["ZaNewCosXWizard"]) {
+	ZaOctopus.NewCOSXWizardModifier = function(xFormObject,entry) {
+		var cnt = xFormObject.items.length;
+		var switchObj = null;
+		for(var i = 0; i <cnt; i++) {
+			if(xFormObject.items[i].type=="switch") {
+				switchObj = xFormObject.items[i];
+				break;
+			}
+		}
+		cnt = switchObj.items.length;
+		for(var i = 0; i <cnt; i++) {
+			if(switchObj.items[i].id=="cos_form_features_tab") {
+				var tmpItems = switchObj.items[i].items;
+				var cnt2 = tmpItems.length;
+				for(var j=0; j<cnt2; j++) {
+                    if(tmpItems[j].id=="cos_form_features_general" && tmpItems[j].items) {
+                        tmpItems[j].visibilityChecks[0][1].push(ZaCos.A_zimbraFeatureCrocodocEnabled);
+                        tmpItems[j].visibilityChecks[0][1].push(ZaCos.A_zimbraFeatureExternalFeedbackEnabled);
+						var genernalFeatureItems = tmpItems[j].items;
+                        ZaNewCosXWizard.FEATURE_TAB_ATTRS.push(ZaCos.A_zimbraFeatureCrocodocEnabled);
+                        ZaNewCosXWizard.FEATURE_TAB_ATTRS.push(ZaCos.A_zimbraFeatureExternalFeedbackEnabled);
+						genernalFeatureItems.push({
+                            ref:ZaCos.A_zimbraFeatureCrocodocEnabled,
+                            type:_WIZ_CHECKBOX_, msgName:com_zimbra_octopus.LBL_zimbraFeatureCrocodocrEnabled,
+                            label:com_zimbra_octopus.LBL_zimbraFeatureCrocodocrEnabled,
+                            trueValue:"TRUE", falseValue:"FALSE"}
+                        );
+                        genernalFeatureItems.push({
+                            ref:ZaCos.A_zimbraFeatureExternalFeedbackEnabled,
+                            type:_WIZ_CHECKBOX_, msgName:com_zimbra_octopus.LBL_zimbraFeatureExternalFeedbackEnabled,
+                            label:com_zimbra_octopus.LBL_zimbraFeatureExternalFeedbackEnabled,
+                            trueValue:"TRUE", falseValue:"FALSE"}
+                        );
+						break;
+					}
+				}
+			}
+		}
+	}
+	ZaXDialog.XFormModifiers["ZaNewCosXWizard"].push(ZaOctopus.NewCOSXWizardModifier);
+}
+
 if(ZaTabView.XFormModifiers["ZaAccountXFormView"]) {
 	
 	ZaOctopus.AccountXFormModifier = function(xFormObject,entry) {
@@ -562,10 +639,11 @@ if(ZaTabView.XFormModifiers["ZaAccountXFormView"]) {
 		}
 		cnt = switchObj.items.length;
 		for(var i = 0; i <cnt; i++) {
-			/*if(switchObj.items[i].id=="account_form_features_tab") {
+			if(switchObj.items[i].id=="account_form_features_tab") {
 				var tmpItems = switchObj.items[i].items;
 				var cnt2 = tmpItems.length;
 				for(var k=0; k<cnt2; k++) {
+                    /*
 					if(tmpItems[k].id=="account_form_features_major" && tmpItems[k].items) {
 						var majorFeatureItems = tmpItems[k].items;
 						for(var l=0;l<majorFeatureItems.length;l++) {
@@ -583,9 +661,20 @@ if(ZaTabView.XFormModifiers["ZaAccountXFormView"]) {
 							}
 						}
 						break;
-					}
+					} */
+                    if(tmpItems[k].id=="account_form_features_general" && tmpItems[k].items) {
+                        ZaAccountXFormView.FEATURE_TAB_ATTRS.push(ZaAccount.A_zimbraFeatureCrocodocEnabled);
+                        tmpItems[k].visibilityChecks[0][1].push(ZaCos.A_zimbraFeatureCrocodocEnabled);
+                        tmpItems[k].items.push(
+                            {ref:ZaAccount.A_zimbraFeatureCrocodocEnabled,
+                                type:_SUPER_CHECKBOX_, resetToSuperLabel:ZaMsg.NAD_ResetToCOS,
+                                msgName:com_zimbra_octopus.LBL_zimbraFeatureCrocodocrEnabled,checkBoxLabel:com_zimbra_octopus.LBL_zimbraFeatureCrocodocrEnabled,
+                                trueValue:"TRUE", falseValue:"FALSE"
+                            }
+                        );
+                    }
 				}
-			} else*/ if (switchObj.items[i].id=="account_form_advanced_tab") {
+			} else if (switchObj.items[i].id=="account_form_advanced_tab") {
 				var tmpItems = switchObj.items[i].items;
 				var cnt2 = tmpItems.length;
 				for(var j=0;j<cnt2;j++) {

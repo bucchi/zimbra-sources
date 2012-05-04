@@ -2262,6 +2262,7 @@ e.g.
 
 <CountObjectsRequest type="{count-objects-type}">
     [<domain by="{domain-by}">...</domain>]
+    [<UCService by="{UCService-by}">...</UCService>]
 </CountObjectsRequest>
 
 {count-objects-type} = userAccount | 
@@ -2270,14 +2271,20 @@ e.g.
                        dl |
                        domain |
                        cos | 
-                       server
+                       server |
+                       accountOnUCService |
+                       cosOnUCService |
+                       domainOnUCService
 
 <CountObjectsResponse num="{result}">
 </CountObjectsResponse>
 
-Note: For account/alias/dl, if a domain is specified, only entries on the 
+Note: For account/alias/dl, if a <domain> is specified, only entries on the 
       specified domain are counted.  If no domain is specified, entries on 
       all domains are counted.
+      
+      For accountOnUCService/cosOnUCService/domainOnUCService, <UCService> is required, 
+      and <domain> cannot be specified.
 
 ---------------------------------------------------------------------------
 # Get server's network interfaces. Returns IP  addresses and net masks
@@ -2762,3 +2769,31 @@ See soap.txt for more details about the <retentionPolicy> element structure.
 
 <DeleteUCServiceResponse/>
 
+----------------------------
+
+<VerifyStoreManagerRequest [num="{numberOfBlobs}"] [fileSize="{fileSize}"]/>
+
+<VerifyStoreManagerResponse linkTime="{linkTime}" incomingTime="{incomingTime}" fetchTime="{fetchTime}"
+   stageTime="{stageTime}" deleteTime="{deleteTime}" storeManagerClass="{storeManagerClass}"/>
+
+Verify basic StoreManager functionality and performance. To be used by integrators during StoreManager development.
+
+numberOfBlobs - number of blobs to create. Defaults to 1000 if not specified.
+fileSize - size of each blob file in bytes. Defaults to 1024 if not specified. 
+
+All times reported in response are the total elapsed time for all blobs. 
+
+storeManagerClass - Java class name for the currently deployed StoreManager implementation
+incomingTime - time (ms) for the store incoming operation
+stageTime - time (ms) for the stage operation
+linkTime - time (ms) for the link operation
+fetchTime - time (ms) for the fetch operation
+deleteTime - time (ms) for the delete operation
+
+-----------------------------
+
+<GetAllSkinsRequest/>
+
+<GetAllSkinsResponse>
+  <skin name="{skin-name}"/>+
+</GetAllSkinsResponse>

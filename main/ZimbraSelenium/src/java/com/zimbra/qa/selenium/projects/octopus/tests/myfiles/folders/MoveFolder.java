@@ -30,7 +30,7 @@ public class MoveFolder extends OctopusCommonTest {
 		_folderIsCreated = false;
 	}
 
-	@Test(description = "Move folder using soap - verify folder is moved", groups = { "sanity" })
+	@Test(description = "Move folder using soap - verify folder is moved", groups = { "functional" })
 	public void MoveFolder_01() throws HarnessException {
 		ZimbraAccount account = app.zGetActiveAccount();
 
@@ -82,7 +82,7 @@ public class MoveFolder extends OctopusCommonTest {
 				"Verify the first sub-folder was moved to the destination folder");
 	}
 
-	@Test(description = "Move folder using context menu - verify folder is moved", groups = { "smoke" })
+	@Test(description = "Move folder using context menu - verify folder is moved", groups = { "sanity" })
 	public void MoveFolder_02() throws HarnessException {
 		ZimbraAccount account = app.zGetActiveAccount();
 

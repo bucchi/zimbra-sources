@@ -28,7 +28,7 @@ public class ZAttrProvisioning {
 
     ///// BEGIN-AUTO-GEN-REPLACE
 
-    /* build: 8.0.0_BETA1_1111 pshao 20120414-1503 */
+    /* build: 8.0.0_BETA1_1111 pburgu 20120418-1522 */
 
     public static enum AccountCalendarUserType {
         RESOURCE("RESOURCE"),
@@ -3403,6 +3403,14 @@ public class ZAttrProvisioning {
     public static final String A_zimbraDeviceLockWhenInactive = "zimbraDeviceLockWhenInactive";
 
     /**
+     * Whether offline reading of docuemnts on device is allowed
+     *
+     * @since ZCS 8.0.0
+     */
+    @ZAttr(id=1409)
+    public static final String A_zimbraDeviceOfflineCacheEnabled = "zimbraDeviceOfflineCacheEnabled";
+
+    /**
      * Whether device is password protected in native apps
      *
      * @since ZCS 8.0.0
@@ -4812,6 +4820,14 @@ public class ZAttrProvisioning {
      */
     @ZAttr(id=360)
     public static final String A_zimbraGalAutoCompleteLdapFilter = "zimbraGalAutoCompleteLdapFilter";
+
+    /**
+     * the time at which GAL definition is last modified.
+     *
+     * @since ZCS 8.0.0
+     */
+    @ZAttr(id=1410)
+    public static final String A_zimbraGalDefinitionLastModifiedTime = "zimbraGalDefinitionLastModifiedTime";
 
     /**
      * whether to indicate if an email address on a message is a GAL group
@@ -6896,6 +6912,18 @@ public class ZAttrProvisioning {
      */
     @ZAttr(id=1305)
     public static final String A_zimbraMobilePolicyApprovedApplication = "zimbraMobilePolicyApprovedApplication";
+
+    /**
+     * This is the internal attr for
+     * &quot;zimbraMobilePolicyApprovedApplication&quot; which can only store
+     * app hash (to keep consistent with ActiveSync specification. This
+     * attr&#039;s format is &quot;app_name&quot;:&quot;app_hash&quot;, and
+     * is used for showing both the app name and hash in admin console UI
+     *
+     * @since ZCS 8.0.0
+     */
+    @ZAttr(id=1408)
+    public static final String A_zimbraMobilePolicyApprovedApplicationList = "zimbraMobilePolicyApprovedApplicationList";
 
     /**
      * require data encryption on device; ignored if
@@ -11073,52 +11101,28 @@ public class ZAttrProvisioning {
     public static final String A_zimbraTimeZoneStandardRRule = "zimbraTimeZoneStandardRRule";
 
     /**
-     * admin password for UC service
-     *
-     * @since ZCS 8.0.0
-     */
-    @ZAttr(id=1404)
-    public static final String A_zimbraUCAdminPassword = "zimbraUCAdminPassword";
-
-    /**
-     * admin service URL for the UC service
-     *
-     * @since ZCS 8.0.0
-     */
-    @ZAttr(id=1405)
-    public static final String A_zimbraUCAdminURL = "zimbraUCAdminURL";
-
-    /**
-     * admin user for UC service
-     *
-     * @since ZCS 8.0.0
-     */
-    @ZAttr(id=1403)
-    public static final String A_zimbraUCAdminUser = "zimbraUCAdminUser";
-
-    /**
      * call control service URL for the UC service
      *
      * @since ZCS 8.0.0
      */
-    @ZAttr(id=1409)
+    @ZAttr(id=1405)
     public static final String A_zimbraUCCallControlURL = "zimbraUCCallControlURL";
 
     /**
-     * call log service URL for the UC service
+     * password for the user&#039;s UC service
      *
      * @since ZCS 8.0.0
      */
-    @ZAttr(id=1408)
-    public static final String A_zimbraUCCallLogURL = "zimbraUCCallLogURL";
+    @ZAttr(id=1407)
+    public static final String A_zimbraUCPassword = "zimbraUCPassword";
 
     /**
-     * handler class for the UC service
+     * provider for the UC service
      *
      * @since ZCS 8.0.0
      */
     @ZAttr(id=1402)
-    public static final String A_zimbraUCHandlerClass = "zimbraUCHandlerClass";
+    public static final String A_zimbraUCProvider = "zimbraUCProvider";
 
     /**
      * UC service zimbraId
@@ -11129,36 +11133,28 @@ public class ZAttrProvisioning {
     public static final String A_zimbraUCServiceId = "zimbraUCServiceId";
 
     /**
-     * video service URL for the UC service
+     * username for the user&#039;s UC service
      *
      * @since ZCS 8.0.0
      */
-    @ZAttr(id=1407)
-    public static final String A_zimbraUCVideoURL = "zimbraUCVideoURL";
+    @ZAttr(id=1406)
+    public static final String A_zimbraUCUsername = "zimbraUCUsername";
+
+    /**
+     * user info service URL for the UC service
+     *
+     * @since ZCS 8.0.0
+     */
+    @ZAttr(id=1403)
+    public static final String A_zimbraUCUserURL = "zimbraUCUserURL";
 
     /**
      * voicemail service URL for the UC service
      *
      * @since ZCS 8.0.0
      */
-    @ZAttr(id=1406)
+    @ZAttr(id=1404)
     public static final String A_zimbraUCVoicemailURL = "zimbraUCVoicemailURL";
-
-    /**
-     * binary data
-     *
-     * @since ZCS 8.0.0
-     */
-    @ZAttr(id=10000)
-    public static final String A_zimbraUnittestBinary = "zimbraUnittestBinary";
-
-    /**
-     * binary data
-     *
-     * @since ZCS 8.0.0
-     */
-    @ZAttr(id=10001)
-    public static final String A_zimbraUnittestCertificate = "zimbraUnittestCertificate";
 
     /**
      * whether end-user services on SOAP and LMTP interfaces are enabled

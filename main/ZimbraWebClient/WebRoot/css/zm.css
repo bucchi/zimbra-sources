@@ -1877,6 +1877,13 @@ INPUT[type="text"].search_input, INPUT[type="text"].search_input-expanded {
 	font-weight:bold;
 }
 
+.calendar_heading_day_tab {
+    border:1px solid @DarkSeparatorColor@;
+    border-left: none;
+	@WidgetHeaderContainer-normal@
+	overflow:hidden;
+}
+
 /* Separator between all-day and hourly sections */
 .calendar_header_allday_separator {
 	@HSashSize@
@@ -2143,6 +2150,14 @@ INPUT[type="text"].search_input, INPUT[type="text"].search_input-expanded {
 .calendar_month_day_item {
 	@NoWrap@
 	/*color:#2869FF;*/		/* ??? USE?  text color comes from OrangeC, RedC, etc? */
+}
+
+.calendar_month_day_item .subject {
+    padding-left: 4px;
+}
+
+.calendar_month_day_item .start_time {
+    padding-left: 2px;
 }
 
 .calendar_month_day_item-dnd {
@@ -2666,6 +2681,12 @@ HTML>BODY .appt-selected .appt_allday_body
 	border:0px;
 	padding-top:3px;
 	height:22px;
+}
+
+/* Make disabled inputs still readable in scheduler view */
+/* included 2 classes and a tag to make it more specific */
+.DwtInputField-disabled INPUT[type='text'].ZmSchedulerInput {
+	color:@TxtC@;
 }
 
 .ZmSchedulerInputDisabledTd {
@@ -4894,11 +4915,17 @@ If you feel compelled to have a background color, please do so on a per skin lev
 
 /*Attachments View*/
 .ZmFilterTree {
-   border-width:0px;
+	border-width:0px;
 }
 
-/*IE hack - To stop the button shake in the MSg Header*/
+/* Remove styling applied to other button types */
+.arrowbtn .ZToolbarButtonBorder {
+	background-image:none;
+	border-width:0;
+	@cssShadow@:none;
+}
 
+/*IE hack - To stop the button shake in the Msg Header*/
 #IFDEF MSIE
 .arrowbtn DIV .ZToolbarButtonBorder {
 	margin-top:0px;

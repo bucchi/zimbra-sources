@@ -477,6 +477,7 @@ ZmMailMsg.prototype.setBodyParts =
 function(parts) {
 	this._onChange("bodyParts", parts);
 	this._bodyParts = parts;
+    this._loaded = this._bodyParts.length > 0 || this.attachments.length > 0;
 };
 
 /**
@@ -1459,18 +1460,20 @@ function(request, isDraft, accountName, requestReadReceipt, sendTime) {
 	    msgNode.f = ZmItem.FLAG_PRIORITY;			
 	}
 	
-	if (ZmMailMsg.COMPOSE_ADDRS.length > 0) { // If no addrs, no element 'e'
-		var addrNodes = msgNode.e = [];
-		for (var i = 0; i < ZmMailMsg.COMPOSE_ADDRS.length; i++) {
-			var type = ZmMailMsg.COMPOSE_ADDRS[i];
-			this._addAddressNodes(addrNodes, type, isDraft);
-		}
-		this._addFrom(addrNodes, msgNode, isDraft, accountName);
-		this._addReplyTo(addrNodes);
-		if (requestReadReceipt) {
-			this._addReadReceipt(addrNodes, accountName);
-		}
+	var addrNodes = msgNode.e = [];
+	for (var i = 0; i < ZmMailMsg.COMPOSE_ADDRS.length; i++) {
+		var type = ZmMailMsg.COMPOSE_ADDRS[i];
+		this._addAddressNodes(addrNodes, type, isDraft);
 	}
+	this._addFrom(addrNodes, msgNode, isDraft, accountName);
+	this._addReplyTo(addrNodes);
+	if (requestReadReceipt) {
+		this._addReadReceipt(addrNodes, accountName);
+	}
+	if (addrNodes.length) {
+		msgNode.e = addrNodes;
+	}
+	
 	//Let Zimlets set custom mime headers. They need to push header-name and header-value like below:
 	//customMimeHeaders.push({name:"header1", _content:"headerValue"})
 	var customMimeHeaders = [];
@@ -1854,8 +1857,12 @@ function(findHits, includeInlineImages, includeInlineAtts) {
 				else {
 					props.size = numFormatter.format(Math.round((attach.size / (1024 * 1024)) * 10) / 10) + " " + ZmMsg.mb;
 				}
-			} else {
+			}
+
+			if (attach.part) {
 				useCL = attach.contentLocation && (attach.relativeCl || ZmMailMsg.URL_RE.test(attach.contentLocation));
+			} else {
+				useCL = attach.contentLocation && true;
 			}
 
 			// see if rfc822 is an invite
@@ -1883,7 +1890,9 @@ function(findHits, includeInlineImages, includeInlineAtts) {
 
 				var folder = appCtxt.getById(this.folderId);
 				if ((attach.name || attach.fileName) && appCtxt.get(ZmSetting.BRIEFCASE_ENABLED) && (folder && !folder.isRemote())) {
-					props.links.briefcase = true;
+					if (!useCL) {
+						props.links.briefcase = true;
+					}
 				}
 
 				var isICSAttachment = (attach.fileName && attach.fileName.match(/\./) && attach.fileName.replace(/^.*\./, "").toLowerCase() == "ics");
@@ -1908,8 +1917,10 @@ function(findHits, includeInlineImages, includeInlineAtts) {
 					props.url = url;
 				}
 
-				// bug: 233 - remove attachment
-				props.links.remove = true;
+				if (attach.part) {
+					// bug: 233 - remove attachment
+					props.links.remove = true;
+				}
 			}
 
 			// set the link icon
@@ -2364,11 +2375,11 @@ function(addrNodes, parentNode, isDraft, accountName) {
 		var addr, displayName;
 		if (onBehalfOf) {
 			addr = accountName;
-		} else if(identity) {
+		} else if (identity) {
 			addr = identity.sendFromAddress || mainAcct;
 			displayName = identity.sendFromDisplay;
-		} else{
-           addr = this.delegatedSenderAddr;
+		} else {
+           addr = this.delegatedSenderAddr || mainAcct;
            onBehalfOf = this.isOnBehalfOf;
         }
 

@@ -303,7 +303,13 @@ function(actionCode, ev) {
 			}
 			break;
 
-		case ZmKeyMap.MARK_READ:
+		case ZmKeyMap.MUTE_UNMUTE_CONV:
+			if (num && (!folder || (folder && !folder.isReadOnly()))) {
+				this._muteUnmuteConvListener();
+			}
+			break;
+
+        case ZmKeyMap.MARK_READ:
 			if (num && (!folder || (folder && !folder.isReadOnly()))) {
 				this._markReadListener();
 			}
@@ -714,10 +720,22 @@ function() {
 ZmMailListController.prototype._getConvMuteStatus =
 function() {
 	var items = this.getItems();
-    if (items.length > 1) { return false; }
-
-    var item = items[0];
-	return item.isMute;
+    var status = {
+                    hasMuteConv: false,
+                    hasUnmuteConv: false
+                },
+        item,
+        i;
+    for (i=0; i<items.length; i++) {
+        item = items[i];
+        if (item.isMute) {
+            status.hasMuteConv = true;
+        }
+        else {
+            status.hasUnmuteConv = true;
+        }
+    }
+    return status;
 };
 
 /**
@@ -1170,7 +1188,7 @@ function(msg) {
 	if (msg.isUnread) {
 		var folder = appCtxt.getById(msg.folderId);
 		var readOnly = folder && folder.isReadOnly();
-		if (!readOnly) {
+		if (!readOnly && !appCtxt.isExternalAccount()) {
 			var markRead = appCtxt.get(ZmSetting.MARK_MSG_READ);
 			if (markRead == ZmSetting.MARK_READ_NOW) {
 				// msg was cached as unread, mark it read now
@@ -1818,6 +1836,17 @@ function(ev) {
 	this._doAction({ev:ev, action:ZmOperation.DRAFT});
 };
 
+ZmMailListController.prototype._muteUnmuteConvListener =
+function(ev) {
+    var status = this._getConvMuteStatus();
+    if (status.hasUnmuteConv) {
+        this._muteConvListener();
+    }
+    else {
+        this._unmuteConvListener();
+    }
+};
+
 ZmMailListController.prototype._muteConvListener =
 function(ev) {
     var listView = this._listView[this._currentView];
@@ -1845,13 +1874,6 @@ function(ev) {
 
 ZmMailListController.prototype._handleMuteUnmuteConvResponse =
 function(callback, actionId, result) {
-    var msg = ZmMsg.muteConvSuccess;
-    if(actionId == ZmId.OP_UNMUTE_CONV) {
-        //appCtxt.setStatusMsg(ZmMsg.unmuteConvSuccess);
-        msg = ZmMsg.unmuteConvSuccess;
-    }
-    //this._appendUndoLink(msg, actionId);
-    appCtxt.setStatusMsg(msg);
     if(callback != null) {
         callback.run();
     }
@@ -2048,10 +2070,13 @@ function(parent, num) {
                             ZmOperation.MARK_UNREAD,
                             ZmOperation.SPAM,
                             ZmOperation.DETACH,
-                            ZmOperation.ADD_FILTER_RULE
+                            ZmOperation.ADD_FILTER_RULE,
+                            ZmOperation.CREATE_APPT,
+                            ZmOperation.CREATE_TASK
                         ],
                         false
                     );
+        parent.setItemVisible(ZmOperation.TAG_MENU, false);
     }
 
 	this._cleanupToolbar(parent);
@@ -2125,11 +2150,15 @@ function(menu) {
 ZmMailListController.prototype._enableMuteUnmute =
 function(menu) {
     menu.enable([ZmOperation.UNMUTE_CONV, ZmOperation.MUTE_CONV], false);
-    if(appCtxt.isExternalAccount() || this._app.getGroupMailBy() === ZmItem.MSG) {
+    if (appCtxt.isExternalAccount() || appCtxt.isChildWindow || this._app.getGroupMailBy() === ZmItem.MSG) {
         return;
     }
-    var isMute = this._getConvMuteStatus();
-	if(isMute) {
+    var status = this._getConvMuteStatus();
+    if (status.hasMuteConv && status.hasUnmuteConv) {
+        menu.enable(ZmOperation.UNMUTE_CONV, true);
+        menu.enable(ZmOperation.MUTE_CONV, true);
+    }
+	else if (status.hasMuteConv) {
          menu.enable(ZmOperation.UNMUTE_CONV, true);
     }
     else {

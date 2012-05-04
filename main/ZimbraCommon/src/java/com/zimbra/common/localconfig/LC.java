@@ -761,7 +761,7 @@ public final class LC {
     public static final KnownKey pop3_max_idle_time = KnownKey.newKey(60);
     public static final KnownKey pop3_throttle_ip_limit = KnownKey.newKey(200);
     public static final KnownKey pop3_throttle_acct_limit = KnownKey.newKey(200);
-    
+
     public static final KnownKey lmtp_throttle_ip_limit = KnownKey.newKey(0);
 
     public static final KnownKey milter_bind_port = KnownKey.newKey(0);
@@ -1190,12 +1190,16 @@ public final class LC {
     public static final KnownKey document_incoming_max_age = KnownKey.newKey(360); // 120 mins = 2 hours
 
     @Supported
-    public static final KnownKey http_store_local_cache_max_bytes = KnownKey.newKey(1024 * 1024 * 1024); // 1GB
+    public static final KnownKey external_store_local_cache_max_bytes = KnownKey.newKey(1024 * 1024 * 1024); // 1GB
 
     @Supported
-    public static final KnownKey http_store_local_cache_max_files = KnownKey.newKey(10000);
+    public static final KnownKey external_store_local_cache_max_files = KnownKey.newKey(10000);
 
-    public static final KnownKey http_store_local_cache_min_lifetime = KnownKey.newKey(Constants.MILLIS_PER_MINUTE);
+    @Supported
+    public static final KnownKey external_store_local_cache_min_lifetime = KnownKey.newKey(Constants.MILLIS_PER_MINUTE);
+
+    public static final KnownKey triton_store_url = KnownKey.newKey("");
+
     public static final KnownKey uncompressed_cache_min_lifetime = KnownKey.newKey(Constants.MILLIS_PER_MINUTE);
 
     public static final KnownKey check_dl_membership_enabled = KnownKey.newKey(true);

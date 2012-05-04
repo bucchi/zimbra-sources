@@ -560,12 +560,16 @@ ZaGlobalAdvancedStatsPage.getCounters = function(hostname, group) {
 
 ZaGlobalAdvancedStatsPage.counterSelected = function(evt, id) {
     var select = ZaGlobalAdvancedStatsPage.getTarget(evt);
+    if (AjxUtil.isEmpty(select)) {
+        return;
+	}
     
     var chartdiv = document.getElementById("loggerchart" + id);
     ZaGlobalAdvancedStatsPage.setText(chartdiv, ZaMsg.NAD_AdvStatsLoadingDataLabel);
     
     var serverSelect = document.getElementById("select-servers" + id);
-    if (AjxUtil.isEmpty(serverSelect.selectedIndex) ||
+    if (AjxUtil.isEmpty(serverSelect) ||
+        AjxUtil.isEmpty(serverSelect.selectedIndex) ||
         serverSelect.selectedIndex < 0 ||
         !serverSelect[serverSelect.selectedIndex] ||
         !serverSelect[serverSelect.selectedIndex].value) {
@@ -575,10 +579,13 @@ ZaGlobalAdvancedStatsPage.counterSelected = function(evt, id) {
     var hostname = serverSelect[serverSelect.selectedIndex].value;
 
     var groupSelect = document.getElementById("select-group" + id);
-
-    if (!groupSelect[groupSelect.selectedIndex] ||
+    if (AjxUtil.isEmpty(groupSelect) ||
+        AjxUtil.isEmpty(groupSelect.selectedIndex) ||
+        groupSelect.selectedIndex < 0 ||
+        !groupSelect[groupSelect.selectedIndex] ||
         !groupSelect[groupSelect.selectedIndex].value)
         return;
+
     var group = groupSelect[groupSelect.selectedIndex].value;
     
     var selected = [];
@@ -601,13 +608,15 @@ ZaGlobalAdvancedStatsPage.counterSelected = function(evt, id) {
 
 ZaGlobalAdvancedStatsPage.showhide = function(id) {
     var e = document.getElementById(id);
-    e.style.display = e.style.display == "none" ? "block" : "none";
+    e.style.display = (e.style.display == "none") ? "" : "none";  //show it as the original
     return e.style.display != "none";
 }
 
 ZaGlobalAdvancedStatsPage.removeChild = function(id) {
     var e = document.getElementById(id);
-    e.parentNode.removeChild(e);
+    if (!AjxUtil.isEmpty(e) && !AjxUtil.isEmpty(e.parentNode)) {
+        e.parentNode.removeChild(e);
+    }
 }
 
 ZaGlobalAdvancedStatsPage.insertChartHTML = function(element) {
@@ -623,6 +632,10 @@ ZaGlobalAdvancedStatsPage.insertChartHTML = function(element) {
 	var tbody = document.createElement("tbody");
         table.appendChild(tbody);
 	table.id = "loggertable" + id;
+	table.style.tableLayout = "fixed";
+	if (AjxEnv.isIE) {
+		table.style.width = "96%";
+	}
 	
 	var label;
 	var tr;
@@ -631,6 +644,7 @@ ZaGlobalAdvancedStatsPage.insertChartHTML = function(element) {
 	tr = document.createElement("tr");
 	td = document.createElement("td");
 	label = document.createElement("label");
+	label.style.display = "block"; //show it in a single line
 	label.htmlFor = "select-servers" + id;
 	ZaGlobalAdvancedStatsPage.setText(label, ZaMsg.NAD_AdvStatsServerLabel);
 	select = document.createElement("select");
@@ -644,6 +658,7 @@ ZaGlobalAdvancedStatsPage.insertChartHTML = function(element) {
 	tr.appendChild(td);
 	td = document.createElement("td");
 	label = document.createElement("label");
+	label.style.display = "block"; //show it in a single line
 	label.htmlFor = "select-group" + id;
 	ZaGlobalAdvancedStatsPage.setText(label, ZaMsg.NAD_AdvStatsGroupLabel);
 	select = document.createElement("select");
@@ -657,6 +672,7 @@ ZaGlobalAdvancedStatsPage.insertChartHTML = function(element) {
 	tr.appendChild(td);
 	td = document.createElement("td");
 	label = document.createElement("label");
+	label.style.display = "block"; //show it in a single line
 	label.htmlFor = "select-counter" + id;
 	ZaGlobalAdvancedStatsPage.setText(label, ZaMsg.NAD_AdvStatsCountersLabel);
 	select = document.createElement("select");
@@ -676,6 +692,7 @@ ZaGlobalAdvancedStatsPage.insertChartHTML = function(element) {
 	tr = document.createElement("tr");
 	td = document.createElement("td");
 	label = document.createElement("label");
+	label.style.display = "block"; //show it in a single line
 	label.htmlFor = "input-start-time" + id;
 	ZaGlobalAdvancedStatsPage.setText(label, ZaMsg.NAD_AdvStatsStartLabel);
 	input = document.createElement("input");
@@ -689,6 +706,7 @@ ZaGlobalAdvancedStatsPage.insertChartHTML = function(element) {
 	tr.appendChild(td);
 	td = document.createElement("td");
 	label = document.createElement("label");
+	label.style.display = "block"; //show it in a single line
 	label.htmlFor = "input-end-time" + id;
 	ZaGlobalAdvancedStatsPage.setText(label, ZaMsg.NAD_AdvStatsEndLabel);
 	input = document.createElement("input");
@@ -710,9 +728,10 @@ ZaGlobalAdvancedStatsPage.insertChartHTML = function(element) {
 	a.href = "javascript:void(0)";
 	a.className = "LinkButton";
 	a.onclick = function (evt) {
-	    var showing = ZaGlobalAdvancedStatsPage.showhide("loggertable" + id);
-            var target = ZaGlobalAdvancedStatsPage.getTarget(evt);
-	    ZaGlobalAdvancedStatsPage.setText(target, (showing ? " - " : " + ") + ZaMsg.NAD_AdvStatsChartSettingsLabel);
+		var showing = ZaGlobalAdvancedStatsPage.showhide("loggertable" + id);
+		var target = ZaGlobalAdvancedStatsPage.getTarget(evt);
+		ZaGlobalAdvancedStatsPage.setText(target, (showing ? " - " : " + ") + ZaMsg.NAD_AdvStatsChartSettingsLabel);
+		return false; //disable the default action from broswer, such as jumping to other page
 	}
 	ZaGlobalAdvancedStatsPage.setText(a, " - " + ZaMsg.NAD_AdvStatsChartSettingsLabel);
 	form.appendChild(a);
@@ -724,9 +743,10 @@ ZaGlobalAdvancedStatsPage.insertChartHTML = function(element) {
 	a.href = "javascript:void(0)";
 	a.className = "LinkButton";
 	a.onclick = function () {
-	    var s = document.getElementById("select-counter" + id);
-	    ZaGlobalAdvancedStatsPage.counterSelected({ target: s }, id);
-    }
+		var s = document.getElementById("select-counter" + id);
+		ZaGlobalAdvancedStatsPage.counterSelected({ target: s }, id);
+		return false; //disable the default action from broswer, such as jumping to other page
+	}
 	ZaGlobalAdvancedStatsPage.setText(a, ZaMsg.NAD_AdvStatsUpdateChartLabel);
 	form.appendChild(a);
 	//span = document.createElement("span");
@@ -736,9 +756,10 @@ ZaGlobalAdvancedStatsPage.insertChartHTML = function(element) {
 	a.href = "javascript:void(0)";
 	a.className = "LinkButton";
 	a.onclick = function () {
-	    ZaGlobalAdvancedStatsPage.removeChild("loggerform" + id);
-	    ZaGlobalAdvancedStatsPage.removeChild("loggerchart" + id);
-    }
+		ZaGlobalAdvancedStatsPage.removeChild("loggerform" + id);
+		ZaGlobalAdvancedStatsPage.removeChild("loggerchart" + id);
+		return false; //disable the default action from broswer, such as jumping to other page
+	}
 	ZaGlobalAdvancedStatsPage.setText(a, ZaMsg.NAD_AdvStatsRemoveChartLabel);
 	form.appendChild(a);
 	
@@ -780,7 +801,10 @@ function () {
 	ZaGlobalAdvancedStatsPage.setText(a, ZaMsg.NAD_AdvStatsAddChartLabel);
 	a.href = "javascript:void(0)";
 	a.className = "LinkButton";
-	a.onclick = function () { ZaGlobalAdvancedStatsPage.insertChartHTML(element); };
+	a.onclick = function () {
+		ZaGlobalAdvancedStatsPage.insertChartHTML(element);
+		return false; //disable the default action from broswer, such as jumping to other page
+	};
 	div.appendChild(a);
 	element.appendChild(div);
 }

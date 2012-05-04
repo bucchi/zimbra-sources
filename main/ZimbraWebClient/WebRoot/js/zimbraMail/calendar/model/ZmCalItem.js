@@ -1255,6 +1255,7 @@ function(dwtIframe) {
 ZmCalItem.prototype._setNotes =
 function(message) {
 
+    if(!(message instanceof ZmMailMsg)) { return; }
 	this.notesTopPart = new ZmMimePart();
 
 	var htmlContent = message.getBodyContent(ZmMimeTable.TEXT_HTML);
@@ -1557,7 +1558,7 @@ function(mode, msg, callback, errorCallback, batchCmd) {
 			? msg._topPart.children.getArray()
 			: [msg._topPart];
 		for (var i = 0; i < childParts.length; i++) {
-			bodyParts.push(childParts[i].node);
+			bodyParts.push(childParts[i]);
 		}
 		msg.setBodyParts(bodyParts);
 		this._setNotes(msg);

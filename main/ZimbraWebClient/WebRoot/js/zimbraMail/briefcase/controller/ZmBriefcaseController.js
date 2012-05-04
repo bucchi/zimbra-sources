@@ -279,7 +279,7 @@ function(parent, num) {
     // isOldRevision is true if the item is a revision but not the latest.
     var isOldRevision = item && item.isRevision && !hasHighestRevisionSelected;
 	
-	parent.enable([ZmOperation.SEND_FILE, ZmOperation.SEND_FILE_AS_ATT], (isZimbraAccount && isMailEnabled && isItemSelected && !isMultiFolder && !isFolderSelected));
+	parent.enable([ZmOperation.SEND_FILE, ZmOperation.SEND_FILE_AS_ATT], (isZimbraAccount && isMailEnabled && isItemSelected && !isMultiFolder && !isFolderSelected && !appCtxt.isExternalAccount()));
 	parent.enable(ZmOperation.TAG_MENU, (!isReadOnly && isItemSelected && !isFolderSelected && !isOldRevision));
 	parent.enable([ZmOperation.NEW_FILE, ZmOperation.VIEW_MENU], true);
 	parent.enable([ZmOperation.NEW_SPREADSHEET, ZmOperation.NEW_PRESENTATION, ZmOperation.NEW_DOC], true);
@@ -491,8 +491,13 @@ function(results) {
 
 	this._setView({	view:		this._currentViewId,
 					viewType:	this._currentViewType,
+					noPush:		this.isSearchResults,
 					elements:	elements,
 					isAppView:	true});
+	if (this.isSearchResults) {
+		// if we are switching views, make sure app view mgr is up to date on search view's components
+		appCtxt.getAppViewMgr().setViewComponents(this.searchResultsController.getCurrentViewId(), elements, true);
+	}
 	this._resetNavToolBarButtons();
 };
 

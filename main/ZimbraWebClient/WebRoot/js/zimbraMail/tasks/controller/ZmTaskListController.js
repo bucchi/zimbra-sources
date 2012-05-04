@@ -159,21 +159,28 @@ function(results, folderId) {
 		tlv._saveState({selection:true});
 		tlv.reset();
 	}
+    //Generate view Id again as loading the read only view changes the viewId of the TaskListView
+    var viewId = [this.getCurrentViewType(), this.getSessionId()].join(ZmController.SESSION_ID_SEP);
 
-	this._setup(this._currentViewId);
+	this._setup(viewId);
 
 	// reset offset if list view has been created
-	var lv = this._listView[this._currentViewId];
+	var lv = this.getListView();
 	if (lv) { lv.offset = 0; }
 
-	var elements = this.getViewElements(this._currentViewId, this._taskMultiView);
+	var elements = this.getViewElements(viewId, this._taskMultiView);
 	
-	this._setView({ view:		this._currentViewId,
+	this._setView({ view:		viewId,
 					viewType:	this._currentViewType,
+					noPush:		this.isSearchResults,
 					elements:	elements,
 					isAppView:	true});
+	if (this.isSearchResults) {
+		// if we are switching views, make sure app view mgr is up to date on search view's components
+		appCtxt.getAppViewMgr().setViewComponents(this.searchResultsController.getCurrentViewId(), elements, true);
+	}
 
-	this._setTabGroup(this._tabGroups[this._currentViewId]);
+	this._setTabGroup(this._tabGroups[viewId]);
 	this._resetNavToolBarButtons();
 
     // do this last
@@ -188,6 +195,11 @@ function(results, folderId) {
 ZmTaskListController.prototype.getCurrentView = 
 function() {
 	return this._taskMultiView;
+};
+
+ZmTaskListController.prototype.getListView =
+function() {
+	return this._taskListView;
 };
 
 ZmTaskListController.prototype._getDefaultFocusItem =
@@ -804,13 +816,15 @@ function(task) {
 		clone.getDetails(mode, new AjxCallback(this, this._showTaskReadOnlyView, clone));
 	} else {
 		if (task.isRecurring()) {
+			/*recurring tasks not yet supported bug 23454
 			// prompt user to edit instance vs. series if recurring but not exception
-			if (task.isException) {
-				mode = ZmCalItem.MODE_EDIT_SINGLE_INSTANCE;
-			} else {
-				this._showTypeDialog(task, ZmCalItem.MODE_EDIT);
-				return;
-			}
+			//if (task.isException) {
+			//	mode = ZmCalItem.MODE_EDIT_SINGLE_INSTANCE;
+			//} else {
+			//	this._showTypeDialog(task, ZmCalItem.MODE_EDIT);
+			//	return;
+			/}*/
+			mode = ZmCalItem.MODE_EDIT_SINGLE_INSTANCE;
 		}
         task.message = null; //null out message so we re-fetch task next time its opened
 		task.getDetails(mode, new AjxCallback(this, this._showTaskEditView, [task, mode]));
