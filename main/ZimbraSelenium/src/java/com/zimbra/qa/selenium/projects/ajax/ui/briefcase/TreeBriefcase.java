@@ -5,6 +5,7 @@ package com.zimbra.qa.selenium.projects.ajax.ui.briefcase;
 
 import java.util.*;
 
+import org.openqa.selenium.By;
 import com.zimbra.qa.selenium.framework.items.*;
 import com.zimbra.qa.selenium.framework.ui.*;
 import com.zimbra.qa.selenium.framework.util.*;
@@ -20,10 +21,10 @@ public class TreeBriefcase extends AbsTree {
 	public static class Locators {
 		public static final String briefcaseListView = "css=[id='zl__BDLV__rows']";
 		public static final String briefcaseTreeView = "css=[id*=zti__main_Briefcase__";
-		public static final String zNewTagTreeMenuItem = "css=tr[id=POPUP_NEW_TAG]:contains('New Tag')";
-		public static final String zNewFolderTreeMenuItem = "css=tr[id=POPUP_NEW_BRIEFCASE]:contains('New Folder')";
+		public static final String zNewTagTreeMenuItem = "css=td[id^=NEW_TAG__][id$=_title]";
+		public static final String zNewFolderTreeMenuItem = "css=td[id^=NEW_BRIEFCASE__][id$=_title]";
 		public static final String zRenameTagTreeMenuItem = "css=td[id$=_left_icon]>[class=ImgRename]";
-		public static final String zDeleteTreeMenuItem = "css=div[id='DELETE_WITHOUT_SHORTCUT'] tr[id^='POPUP_DELETE']:contains(Delete)";
+		public static final String zDeleteTreeMenuItem = "css=td[id^=DELETE_WITHOUT_SHORTCUT][id$=_title]";
 		public static final String zEditPropertiesTreeMenuItem = "css=div[id=EDIT_PROPS] tr[id=POPUP_EDIT_PROPS]:contains('Edit Properties')";
 	}
 
@@ -55,12 +56,14 @@ public class TreeBriefcase extends AbsTree {
 			actionLocator = "css=td[id^=zti__main_Briefcase__]:contains(" + ((TagItem) item).getName()
 				+ ")";
 		} else if (item instanceof FolderItem) {
-			actionLocator = "zti__main_Briefcase__"
-					+ ((FolderItem) item).getId() + "_textCell";
+			actionLocator = "css=td[id^=zti__main_Briefcase__"
+					+ ((FolderItem) item).getId() + "_textCell]";
 		} else {
 			throw new HarnessException("Must use IItem as argument, but was "
 					+ item.getClass());
 		}
+		
+		zWaitForElementVisible(actionLocator);	
 
 		if (action == Action.A_RIGHTCLICK) {
 			this.zRightClickAt(actionLocator, "0,0");
@@ -111,6 +114,9 @@ public class TreeBriefcase extends AbsTree {
 					+ " not yet implemented");
 		}
 
+		this.zWaitForBusyOverlay();
+		zWaitForElementVisible(optionLocator);		
+		
 		// Default behavior. Click the locator
 		zClickAt(optionLocator, "0,0");
 
@@ -167,10 +173,18 @@ public class TreeBriefcase extends AbsTree {
 					+ "_imageCell]";
 
 		} else if (item instanceof LinkItem) {
-			locator = "css=a[id$=_addshare_link]";
 			page = new DialogFindShares(MyApplication,
 					((AppAjaxClient) MyApplication).zPageBriefcase);
-
+			if (ZimbraSeleniumProperties.isWebDriver()) {
+				clickBy(By.id("ztih__main_Briefcase__BRIEFCASE"),
+					By.linkText("Find Shares..."));
+				return page;
+			}else{
+				locator = "css=div[id=ztih__main_Briefcase__BRIEFCASE] a[id$=_addshare_link]";
+				page = new DialogFindShares(MyApplication,
+					((AppAjaxClient) MyApplication).zPageBriefcase);
+			}
+			
 			if (!this.sIsElementPresent(locator)) {
 				throw new HarnessException("Unable to locate link in the tree "
 						+ locator);
@@ -311,7 +325,7 @@ public class TreeBriefcase extends AbsTree {
 
 		if (pulldown == Button.B_TREE_FOLDERS_OPTIONS) {
 
-			pulldownLocator = "css=div[id='zov__main_Briefcase'] td[id='ztih__main_Briefcase__BRIEFCASE_optCell'] td[id$='_title']";
+			pulldownLocator = "css=div[id='zov__main_Briefcase'] td[id='ztih__main_Briefcase__BRIEFCASE_optCell'] div[class=ImgContextMenu]";
 
 			if (option == Button.B_TREE_NEWFOLDER) {
 
@@ -328,7 +342,7 @@ public class TreeBriefcase extends AbsTree {
 
 		} else if (pulldown == Button.B_TREE_TAGS_OPTIONS) {
 
-			pulldownLocator = "css=div[id='zov__main_Briefcase'] td[id='ztih__main_Briefcase__TAG_optCell'] td[id$='_title']";
+			pulldownLocator = "css=div[id='zov__main_Briefcase'] td[id='ztih__main_Briefcase__TAG_optCell'] div[class=ImgContextMenu]";
 
 			if (option == Button.B_TREE_NEWTAG) {
 

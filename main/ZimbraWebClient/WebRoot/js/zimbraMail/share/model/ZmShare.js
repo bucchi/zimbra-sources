@@ -639,12 +639,12 @@ function(notes, result) {
  */
 ZmShare.prototype._sendShareNotification =
 function(userEmail, folderId, notes, callback) {
-	//todo - the notes are not used. nobody cares? when did we stop using them?
     var soapDoc = AjxSoapDoc.create("SendShareNotificationRequest", "urn:zimbraMail");
     var itemNode = soapDoc.set("item");
     itemNode.setAttribute("id", folderId);
     var emailNode = soapDoc.set("e");
     emailNode.setAttribute("a",userEmail);
+    soapDoc.set("notes", notes);
     appCtxt.getAppController().sendRequest({soapDoc: soapDoc, asyncMode: true, callback: callback});
 };
 
@@ -780,7 +780,7 @@ function(mode, addrs, owner) {
 	var textPart = parts.get(0);
 	var htmlPart = parts.get(1);
 	var xmlPart = parts.get(2);
-	msg.setBodyParts([ textPart.node, htmlPart.node, xmlPart.node ]);
+	msg.setBodyParts([ textPart, htmlPart, xmlPart ]);
 	AjxDispatcher.run("Compose", {action: ZmOperation.SHARE, inNewWindow: true, msg: msg});
 };
 

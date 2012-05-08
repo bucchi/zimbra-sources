@@ -121,8 +121,10 @@ if(ZaAccount) {
 	ZaAccount.A_zimbraPrefFileSharingApplication = "zimbraPrefFileSharingApplication";
 	ZaAccount.A_zimbraFileUploadMaxSizePerFile = "zimbraFileUploadMaxSizePerFile";
 	//sharing
-	ZaAccount.A2_zimbraLimitExternalShareLifetime = "zimbraLimitExternalShareLifetime"; 
+	ZaAccount.A2_zimbraExternalShareLimitLifetime = "zimbraExternalShareLimitLifetime";
 	ZaAccount.A_zimbraFileExternalShareLifetime = "zimbraFileExternalShareLifetime";
+	ZaAccount.A2_zimbraInternalShareLimitLifetime = "zimbraInternalShareLimitLifetime";
+	ZaAccount.A_zimbraShareLifetime = "zimbraShareLifetime";
 	ZaAccount.A_zimbraExternalSharingEnabled = "zimbraExternalSharingEnabled";
 	ZaAccount.A_zimbraExternalShareWhitelistDomain = "zimbraExternalShareWhitelistDomain";
 	ZaAccount.A_zimbraExternalShareDomainWhitelistEnabled = "zimbraExternalShareDomainWhitelistEnabled";
@@ -150,8 +152,10 @@ if(ZaAccount) {
 		ZaAccount.myXModel.items.push({id:ZaOctopus.A2_device_selection_cache, ref:"octopus/"+ZaOctopus.A2_device_selection_cache, type:_LIST_});
 		//sharing
 		ZaAccount.myXModel.items.push({id:ZaAccount.A_zimbraFileExternalShareLifetime, type:_COS_MLIFETIME_, ref:"attrs/"+ZaAccount.A_zimbraFileExternalShareLifetime});
-		ZaAccount.myXModel.items.push({id:ZaAccount.A2_zimbraLimitExternalShareLifetime, type:_COS_ENUM_, ref:ZaAccount.A2_zimbraLimitExternalShareLifetime,  choices:ZaModel.BOOLEAN_CHOICES});
+		ZaAccount.myXModel.items.push({id:ZaAccount.A2_zimbraExternalShareLimitLifetime, type:_COS_ENUM_, ref:ZaAccount.A2_zimbraExternalShareLimitLifetime,  choices:ZaModel.BOOLEAN_CHOICES});
 		ZaAccount.myXModel.items.push({id:ZaAccount.A_zimbraExternalSharingEnabled, type:_COS_ENUM_, ref:"attrs/"+ZaAccount.A_zimbraExternalSharingEnabled,  choices:ZaModel.BOOLEAN_CHOICES});
+		ZaAccount.myXModel.items.push({id:ZaAccount.A2_zimbraInternalShareLimitLifetime, type:_COS_ENUM_, ref:ZaAccount.A2_zimbraInternalShareLimitLifetime,  choices:ZaModel.BOOLEAN_CHOICES});
+		ZaAccount.myXModel.items.push({id:ZaAccount.A_zimbraShareLifetime, type:_COS_MLIFETIME_, ref:"attrs/"+ZaAccount.A_zimbraShareLifetime});
 		ZaAccount.myXModel.items.push({id:ZaAccount.A_zimbraExternalShareDomainWhitelistEnabled, type:_COS_ENUM_, ref:"attrs/"+ZaAccount.A_zimbraExternalShareDomainWhitelistEnabled,  choices:ZaModel.BOOLEAN_CHOICES});
 		ZaAccount.myXModel.items.push({id:ZaAccount.A_zimbraExternalShareWhitelistDomain, ref:"attrs/" + ZaAccount.A_zimbraExternalShareWhitelistDomain, type:_COS_LIST_,  itemDelimiter:"\n", dataType:_STRING_,outputType:_STRING_});
 		
@@ -176,8 +180,10 @@ if(ZaAccount) {
 if(ZaCos) {
 	ZaCos.A_zimbraFileUploadMaxSizePerFile = "zimbraFileUploadMaxSizePerFile";
 	//sharing
-	ZaCos.A2_zimbraLimitExternalShareLifetime = "zimbraLimitExternalShareLifetime"; 
+	ZaCos.A2_zimbraExternalShareLimitLifetime = "zimbraExternalShareLimitLifetime"; 
 	ZaCos.A_zimbraFileExternalShareLifetime = "zimbraFileExternalShareLifetime";
+	ZaCos.A2_zimbraInternalShareLimitLifetime = "zimbraInternalShareLimitLifetime";
+	ZaCos.A_zimbraShareLifetime = "zimbraShareLifetime";
 	ZaCos.A_zimbraExternalSharingEnabled = "zimbraExternalSharingEnabled";
 	ZaCos.A_zimbraExternalShareWhitelistDomain = "zimbraExternalShareWhitelistDomain";
 	ZaCos.A_zimbraExternalShareDomainWhitelistEnabled = "zimbraExternalShareDomainWhitelistEnabled";
@@ -201,8 +207,10 @@ if(ZaCos) {
 		ZaCos.myXModel.items.push({id:ZaAccount.A_zimbraPrefFileSharingApplication, type:_ENUM_, ref:"attrs/"+ZaCos.A_zimbraPrefFileSharingApplication, choices:ZaOctopus.fileSharingAppChoices});
         //sharing
 		ZaCos.myXModel.items.push({id:ZaCos.A_zimbraFileExternalShareLifetime, type:_MLIFETIME_, ref:"attrs/"+ZaCos.A_zimbraFileExternalShareLifetime});
-		ZaCos.myXModel.items.push({id:ZaCos.A2_zimbraLimitExternalShareLifetime, type:_ENUM_, ref:ZaCos.A2_zimbraLimitExternalShareLifetime,  choices:ZaModel.BOOLEAN_CHOICES});
+		ZaCos.myXModel.items.push({id:ZaCos.A2_zimbraExternalShareLimitLifetime, type:_ENUM_, ref:ZaCos.A2_zimbraExternalShareLimitLifetime,  choices:ZaModel.BOOLEAN_CHOICES});
 		ZaCos.myXModel.items.push({id:ZaCos.A_zimbraExternalSharingEnabled, type:_ENUM_, ref:"attrs/"+ZaCos.A_zimbraExternalSharingEnabled,  choices:ZaModel.BOOLEAN_CHOICES});
+		ZaCos.myXModel.items.push({id:ZaCos.A2_zimbraInternalShareLimitLifetime, type:_ENUM_, ref:ZaCos.A2_zimbraInternalShareLimitLifetime,  choices:ZaModel.BOOLEAN_CHOICES});
+		ZaCos.myXModel.items.push({id:ZaCos.A_zimbraShareLifetime, type:_MLIFETIME_, ref:"attrs/"+ZaCos.A_zimbraShareLifetime});
 		ZaCos.myXModel.items.push({id:ZaCos.A_zimbraExternalShareWhitelistDomain, ref:"attrs/" + ZaCos.A_zimbraExternalShareWhitelistDomain, type:_LIST_, itemDelimiter:"\n", dataType:_STRING_,outputType:_STRING_});
 		ZaCos.myXModel.items.push({id:ZaCos.A_zimbraExternalShareDomainWhitelistEnabled, type:_ENUM_, ref:"attrs/"+ZaCos.A_zimbraExternalShareDomainWhitelistEnabled,  choices:ZaModel.BOOLEAN_CHOICES});
 		
@@ -302,17 +310,36 @@ if(ZaTabView.ObjectModifiers["ZaAccountXFormView"]) {
             defaultShareLife = this._containedObject._defaultValues.attrs[ZaAccount.A_zimbraFileExternalShareLifetime];
         }
         if (defaultShareLife && (parseInt(defaultShareLife) != 0)) {
-            this._containedObject._defaultValues[ZaAccount.A2_zimbraLimitExternalShareLifetime] = "TRUE";
+            this._containedObject._defaultValues[ZaAccount.A2_zimbraExternalShareLimitLifetime] = "TRUE";
         }  else {
-            this._containedObject._defaultValues[ZaAccount.A2_zimbraLimitExternalShareLifetime] = "FALSE";
+            this._containedObject._defaultValues[ZaAccount.A2_zimbraExternalShareLimitLifetime] = "FALSE";
         }
 
         var shareLife = this._containedObject.attrs[ZaAccount.A_zimbraFileExternalShareLifetime];
         if (shareLife) {
             if (parseInt(shareLife) != 0) {
-                this._containedObject[ZaAccount.A2_zimbraLimitExternalShareLifetime] = "TRUE";
+                this._containedObject[ZaAccount.A2_zimbraExternalShareLimitLifetime] = "TRUE";
             } else {
-                this._containedObject[ZaAccount.A2_zimbraLimitExternalShareLifetime] = "FALSE";
+                this._containedObject[ZaAccount.A2_zimbraExternalShareLimitLifetime] = "FALSE";
+            }
+
+        }
+        defaultShareLife = null;
+        if (this._containedObject._defaultValues) {
+            defaultShareLife = this._containedObject._defaultValues.attrs[ZaAccount.A_zimbraShareLifetime];
+        }
+        if (defaultShareLife && (parseInt(defaultShareLife) != 0)) {
+            this._containedObject._defaultValues[ZaAccount.A2_zimbraInternalShareLimitLifetime] = "TRUE";
+        }  else {
+            this._containedObject._defaultValues[ZaAccount.A2_zimbraInternalShareLimitLifetime] = "FALSE";
+        }
+
+        var shareLife = this._containedObject.attrs[ZaAccount.A_zimbraShareLifetime];
+        if (shareLife) {
+            if (parseInt(shareLife) != 0) {
+                this._containedObject[ZaAccount.A2_zimbraInternalShareLimitLifetime] = "TRUE";
+            } else {
+                this._containedObject[ZaAccount.A2_zimbraInternalShareLimitLifetime] = "FALSE";
             }
 
         }
@@ -332,7 +359,19 @@ if(ZaTabView.ObjectModifiers["ZaCosXFormView"]) {
                 shareLifeTime = "TRUE";
             }
         }
-        this._containedObject[ZaCos.A2_zimbraLimitExternalShareLifetime] =  shareLifeTime;
+        this._containedObject[ZaCos.A2_zimbraExternalShareLimitLifetime] =  shareLifeTime;
+        
+        shareLifeTime = null;
+        if (!this._containedObject.attrs[ZaCos.A_zimbraShareLifetime]) {
+            shareLifeTime = "FALSE";
+        }  else {
+            if (parseInt(this._containedObject.attrs[ZaCos.A_zimbraShareLifetime]) == 0 ) {
+                shareLifeTime = "FALSE";
+            } else {
+                shareLifeTime = "TRUE";
+            }
+        }
+        this._containedObject[ZaCos.A2_zimbraInternalShareLimitLifetime] =  shareLifeTime;
     }
     ZaTabView.ObjectModifiers["ZaCosXFormView"].push(ZaOctopus.CosObjectModifier);
 }
@@ -353,27 +392,6 @@ if(ZaTabView.XFormModifiers["ZaCosXFormView"]) {
 				var tmpItems = switchObj.items[i].items;
 				var cnt2 = tmpItems.length;
 				for(var j=0; j<cnt2; j++) {
-                    /*
-					if(tmpItems[j].id=="cos_form_features_major" && tmpItems[j].items) {
-						var majorFeatureItems = tmpItems[j].items;
-						for(var l=0;l<majorFeatureItems.length;l++) {
-							if(majorFeatureItems[l].ref == ZaCos.A_zimbraFeatureBriefcasesEnabled) {
-								//add filesharing dropdown 
-								majorFeatureItems.splice(l+1,0,
-										{ref:ZaAccount.A_zimbraPrefFileSharingApplication,choices:ZaOctopus.fileSharingAppChoices,
-											type:_OSELECT1_,
-											label:com_zimbra_octopus.LBL_zimbraPrefFileSharingApplication,
-											labelLocation:_LEFT_,
-											enableDisableChecks:[[XForm.checkInstanceValue,ZaCos.A_zimbraFeatureBriefcasesEnabled,"TRUE"],
-																	[ZaItem.hasWritePermission,ZaAccount.A_zimbraPrefFileSharingApplication]],
-											enableDisableChangeEventSources:[ZaCos.A_zimbraFeatureBriefcasesEnabled]
-										}		
-								);
-								break;
-							}
-						}
-						break;
-					}*/
                     if(tmpItems[j].id=="cos_form_features_general" && tmpItems[j].items) {
                         tmpItems[j].visibilityChecks[0][1].push(ZaCos.A_zimbraFeatureCrocodocEnabled);
                         tmpItems[j].visibilityChecks[0][1].push(ZaCos.A_zimbraFeatureExternalFeedbackEnabled);
@@ -424,7 +442,7 @@ if(ZaTabView.XFormModifiers["ZaCosXFormView"]) {
 		
 		if(ZaTabView.isTAB_ENABLED(entry,ZaCosXFormView.EXTERNAL_SHARING_TAB_ATTRS, ZaCosXFormView.EXTERNAL_SHARING_TAB_RIGHTS)) {
 			externalShareTab = ++this.TAB_INDEX;
-	    	tabBarChoices.push({value:externalShareTab, label:com_zimbra_octopus.TABT_ExternalSharing});
+	    	tabBarChoices.push({value:externalShareTab, label:com_zimbra_octopus.TABT_Sharing});
 	    }
 	    
 		if(externalShareTab) {
@@ -444,7 +462,7 @@ if(ZaTabView.XFormModifiers["ZaCosXFormView"]) {
         	    	    	   visibilityChangeEventSources:[ZaCos.A_zimbraFileExternalShareLifetime],
         	    	    	   colSpan:2,numCols:5,colSizes:["50px", "auto","5px", "auto", "auto"],
         	    	           items:[
-									{ref:ZaCos.A2_zimbraLimitExternalShareLifetime, 
+									{ref:ZaCos.A2_zimbraExternalShareLimitLifetime, 
 										type:_CHECKBOX_,subLabel:null,align:_RIGHT_,
 										label:com_zimbra_octopus.LimitExternalShareLifetime,
 										labelLocation:_RIGHT_, trueValue:"TRUE", falseValue:"FALSE",
@@ -462,8 +480,8 @@ if(ZaTabView.XFormModifiers["ZaCosXFormView"]) {
 									{ref:ZaCos.A_zimbraFileExternalShareLifetime, type:_LIFETIME_,
 			                               label:null, labelLocation:_NONE_,  bmolsnr: true,
 			                               labelCssStyle:"white-space:normal;",nowrap:false,labelWrap:true,
-			                               enableDisableChangeEventSources:[ZaCos.A2_zimbraLimitExternalShareLifetime,ZaCos.A_zimbraExternalSharingEnabled],
-			                               enableDisableChecks:[[XForm.checkInstanceValue,ZaCos.A2_zimbraLimitExternalShareLifetime,"TRUE"],[XForm.checkInstanceValue,ZaCos.A_zimbraExternalSharingEnabled,"TRUE"]]
+			                               enableDisableChangeEventSources:[ZaCos.A2_zimbraExternalShareLimitLifetime,ZaCos.A_zimbraExternalSharingEnabled],
+			                               enableDisableChecks:[[XForm.checkInstanceValue,ZaCos.A2_zimbraExternalShareLimitLifetime,"TRUE"],[XForm.checkInstanceValue,ZaCos.A_zimbraExternalSharingEnabled,"TRUE"]]
 			                        }   
         	    	           ]                                   
         	    	       }
@@ -488,6 +506,39 @@ if(ZaTabView.XFormModifiers["ZaCosXFormView"]) {
 							enableDisableChangeEventSources:[ZaCos.A_zimbraExternalSharingEnabled,
 							                                 ZaCos.A_zimbraExternalShareDomainWhitelistEnabled]
 				      	}
+        	    	]
+        	    },
+        	    {type:_ZA_TOP_GROUPER_, id:"cos_internal_sharing_expiration_settings", colSizes:["50px","auto"],
+        	    	label:com_zimbra_octopus.NAD_InternalShareExpirationGrouper,
+        	    	items:[
+        	    	       {type:_GROUP_,
+        	    	    	   visibilityChecks:[[XFormItem.prototype.hasReadPermission,ZaCos.A_zimbraShareLifetime]],
+        	    	    	   visibilityChangeEventSources:[ZaCos.A_zimbraShareLifetime],
+        	    	    	   colSpan:2,numCols:5,colSizes:["50px", "auto","5px", "auto", "auto"],
+        	    	           items:[
+									{ref:ZaCos.A2_zimbraInternalShareLimitLifetime, 
+										type:_CHECKBOX_,subLabel:null,align:_RIGHT_,
+										label:com_zimbra_octopus.LimitInternalShareLifetime,
+										labelLocation:_RIGHT_, trueValue:"TRUE", falseValue:"FALSE",
+									    enableDisableChangeEventSources:[],
+									    enableDisableChecks:[],
+                                        elementChanged: function(elementValue,instanceValue, event) {
+                                            if(elementValue != "TRUE") {
+                                                this.setInstanceValue("0d", ZaCos.A_zimbraShareLifetime);
+                                            }
+                                            this.getForm().itemChanged(this, elementValue, event);
+                                        },
+									    visibilityChecks:[]
+									},
+									{type:_CELLSPACER_, height:"100%"},
+									{ref:ZaCos.A_zimbraShareLifetime, type:_LIFETIME_,
+			                               label:null, labelLocation:_NONE_,  bmolsnr: true,
+			                               labelCssStyle:"white-space:normal;",nowrap:false,labelWrap:true,
+			                               enableDisableChangeEventSources:[ZaCos.A2_zimbraInternalShareLimitLifetime],
+			                               enableDisableChecks:[[XForm.checkInstanceValue,ZaCos.A2_zimbraInternalShareLimitLifetime,"TRUE"]]
+			                        }   
+        	    	           ]                                   
+        	    	       }
         	    	]
         	    }
 
@@ -742,7 +793,7 @@ if(ZaTabView.XFormModifiers["ZaAccountXFormView"]) {
 		
 		if(ZaTabView.isTAB_ENABLED(entry,ZaAccountXFormView.EXTERNAL_SHARING_TAB_ATTRS, ZaAccountXFormView.EXTERNAL_SHARING_TAB_RIGHTS)) {
 			externalShareTab = ++this.TAB_INDEX;
-	    	tabBarChoices.push({value:externalShareTab, label:com_zimbra_octopus.TABT_ExternalSharing});
+	    	tabBarChoices.push({value:externalShareTab, label:com_zimbra_octopus.TABT_Sharing});
 	    }
 	    
 		if(externalShareTab) {
@@ -762,7 +813,7 @@ if(ZaTabView.XFormModifiers["ZaAccountXFormView"]) {
         	    	       {type:_GROUP_,
         	    	    	   colSpan:"*",numCols:5,colSizes:["30px", "245px", "245px", "auto", "auto"],
         	    	           items:[
-									{ref:ZaAccount.A2_zimbraLimitExternalShareLifetime, 
+									{ref:ZaAccount.A2_zimbraExternalShareLimitLifetime, 
 										type:_CHECKBOX_,subLabel:null,
 										bmolsnr:true,
 										id:"account_limit_external_share_lifetime",
@@ -788,8 +839,8 @@ if(ZaTabView.XFormModifiers["ZaAccountXFormView"]) {
 		                               label:null, labelLocation:_NONE_,
 		                               bmolsnr:true,
 		                               labelCssStyle:"white-space:normal;",nowrap:false,labelWrap:true,
-		                               enableDisableChangeEventSources:[ZaAccount.A2_zimbraLimitExternalShareLifetime,ZaAccount.A_zimbraExternalSharingEnabled],
-		                               enableDisableChecks:[[XForm.checkInstanceValue,ZaCos.A2_zimbraLimitExternalShareLifetime,"TRUE"],[XForm.checkInstanceValue,ZaAccount.A_zimbraExternalSharingEnabled,"TRUE"]],
+		                               enableDisableChangeEventSources:[ZaAccount.A2_zimbraExternalShareLimitLifetime,ZaAccount.A_zimbraExternalSharingEnabled],
+		                               enableDisableChecks:[[XForm.checkInstanceValue,ZaCos.A2_zimbraExternalShareLimitLifetime,"TRUE"],[XForm.checkInstanceValue,ZaAccount.A_zimbraExternalSharingEnabled,"TRUE"]],
 		                               updateElement:function(value) {
 											Super_XFormItem.updateCss.call(this,5);
 											Lifetime_XFormItem.prototype.updateElement.call(this, value);
@@ -806,10 +857,10 @@ if(ZaTabView.XFormModifiers["ZaAccountXFormView"]) {
 										       		return (rad1 || rad2);										                	  
 										         }
 										],
-										visibilityChangeEventSources:[ZaAccount.A_zimbraFileExternalShareLifetime,ZaAccount.A2_zimbraLimitExternalShareLifetime],
+										visibilityChangeEventSources:[ZaAccount.A_zimbraFileExternalShareLifetime,ZaAccount.A2_zimbraExternalShareLimitLifetime],
 										onActivate:function(ev) {
 											this.setInstanceValue(null, ZaAccount.A_zimbraFileExternalShareLifetime);
-											this.setInstanceValue(null,ZaAccount.A2_zimbraLimitExternalShareLifetime);
+											this.setInstanceValue(null,ZaAccount.A2_zimbraExternalShareLimitLifetime);
                                             this.getForm().parent.setDirty(true);
 			                            },
 										onChange:ZaTabView.onFormFieldChanged
@@ -843,6 +894,69 @@ if(ZaTabView.XFormModifiers["ZaAccountXFormView"]) {
 							enableDisableChangeEventSources:[ZaAccount.A_zimbraExternalSharingEnabled,
 							                                 ZaAccount.A_zimbraExternalShareDomainWhitelistEnabled]
 				      	}
+        	    	]
+        	    },
+        	    {type:_ZA_TOP_GROUPER_, id:"account_internal_sharing_expiration_settings", colSizes:["auto"],numCols:1,
+        	    	label:com_zimbra_octopus.NAD_InternalShareExpirationGrouper,
+        	    	items:[
+        	    	       {type:_GROUP_,
+        	    	    	   colSpan:"*",numCols:5,colSizes:["30px", "245px", "245px", "auto", "auto"],
+        	    	           items:[
+									{ref:ZaAccount.A2_zimbraInternalShareLimitLifetime, 
+										type:_CHECKBOX_,subLabel:null,
+										bmolsnr:true,
+										id:"account_limit_internal_share_lifetime",
+										labelCssClass: "gridGroupBodyLabel",
+										label:com_zimbra_octopus.LimitInternalShareLifetime,
+										labelLocation:_RIGHT_, trueValue:"TRUE", falseValue:"FALSE",
+									    enableDisableChangeEventSources:[],
+									    enableDisableChecks:[],
+									    updateElement:function(value) {
+											Super_XFormItem.updateCss.call(this,5);
+											Checkbox_XFormItem.prototype.updateElement.call(this, value);
+										},
+                                        elementChanged: function(elementValue,instanceValue, event) {
+                                            if(elementValue != "TRUE") {
+                                                this.setInstanceValue("0d", ZaAccount.A_zimbraShareLifetime);
+                                            }
+                                            this.getForm().itemChanged(this, elementValue, event);
+                                        },
+										visibilityChecks:[]
+									},
+									{ref:ZaAccount.A_zimbraShareLifetime, type:_LIFETIME_,
+									   id:"account_internal_share_lifetime",
+		                               label:null, labelLocation:_NONE_,
+		                               bmolsnr:true,
+		                               labelCssStyle:"white-space:normal;",nowrap:false,labelWrap:true,
+		                               enableDisableChangeEventSources:[ZaAccount.A2_zimbraInternalShareLimitLifetime],
+		                               enableDisableChecks:[[XForm.checkInstanceValue,ZaCos.A2_zimbraInternalShareLimitLifetime,"TRUE"]],
+		                               updateElement:function(value) {
+											Super_XFormItem.updateCss.call(this,5);
+											Lifetime_XFormItem.prototype.updateElement.call(this, value);
+		                       		   }
+			                        },
+			                        {	
+										type:_DWT_BUTTON_,
+										ref:".", label:ZaMsg.NAD_ResetToCOS,
+										visibilityChecks:[
+										    [XFormItem.prototype.hasReadPermission,ZaAccount.A_zimbraShareLifetime],
+										        function(){
+										       		var rad1 = (this.getForm().getItemsById("account_internal_share_lifetime")[0].getModelItem().getLocalValue(this.getInstance()) != null);
+										       		var rad2 = (this.getForm().getItemsById("account_limit_internal_share_lifetime")[0].getModelItem().getLocalValue(this.getInstance()) != null);	
+										       		return (rad1 || rad2);										                	  
+										         }
+										],
+										visibilityChangeEventSources:[ZaAccount.A_zimbraShareLifetime,ZaAccount.A2_zimbraInternalShareLimitLifetime],
+										onActivate:function(ev) {
+											this.setInstanceValue(null, ZaAccount.A_zimbraShareLifetime);
+											this.setInstanceValue(null,ZaAccount.A2_zimbraInternalShareLimitLifetime);
+                                            this.getForm().parent.setDirty(true);
+			                            },
+										onChange:ZaTabView.onFormFieldChanged
+								   }  
+        	    	           ]                                   
+        	    	       }
+                           
         	    	]
         	    }
         	]
@@ -1463,7 +1577,8 @@ function(viewId) {
 }*/
 
 ZaOctopus.cosInitMethod = function() {
-	this[ZaCos.A2_zimbraLimitExternalShareLifetime] = this.attrs[ZaCos.A_zimbraFileExternalShareLifetime] ? "TRUE" : "FALSE";	
+	this[ZaCos.A2_zimbraExternalShareLimitLifetime] = this.attrs[ZaCos.A_zimbraFileExternalShareLifetime] ? "TRUE" : "FALSE";
+	this[ZaCos.A2_zimbraInternalShareLimitLifetime] = this.attrs[ZaCos.A_zimbraShareLifetime] ? "TRUE" : "FALSE";
 }
 
 /*

@@ -88,21 +88,18 @@ ZmSearch = function(params) {
 		}
 	}
 
-	if (!(this.types instanceof AjxVector)) {
-		this.types = AjxUtil.toArray(this.types);
-        if (!appCtxt.get(ZmSetting.MAIL_ENABLED)) {
-            this.types = AjxUtil.arrayAsHash(this.types);
-            delete this.types[ZmSearch.TYPE[ZmItem.MSG]];
-            delete this.types[ZmSearch.TYPE[ZmItem.CONV]];
-            this.types = AjxUtil.keys(this.types);
-        }
-        this.types = AjxVector.fromArray(this.types);
+	if (params.checkTypes) {
+		var types = AjxUtil.toArray(this.types);
+		var enabledTypes = [];
+		for (var i = 0; i < types.length; i++) {
+			var type = types[i];
+			var app = ZmItem.APP[type];
+			if (appCtxt.get(ZmApp.SETTING[app])) {
+				enabledTypes.push(type);
+			}
+		}
+		this.types = AjxVector.fromArray(enabledTypes);
 	}
-
-    // a search of no types is equivalent to a search of all allowed types
-    if (this.types.size() == 0) {
-        this.types = AjxVector.fromArray(AjxUtil.keys(ZmSearch.TYPE));
-    }
 };
 
 ZmSearch.prototype.isZmSearch = true;
@@ -267,11 +264,7 @@ function(params) {
 					method.setAttribute("types", typeStr.join(","));
 					// special handling for showing participants ("To" instead of "From")
 					var folder = appCtxt.getById(this.folderId);
-					if (folder &&
-						(folder.isUnder(ZmFolder.ID_SENT) ||
-						folder.isUnder(ZmFolder.ID_DRAFTS) ||
-						folder.isUnder(ZmFolder.ID_OUTBOX)))
-					{
+					if (folder && folder.isOutbound()) {
 						method.setAttribute("recip", "1");
 					}
 					// if we're prefetching the first hit message, also mark it as read
@@ -426,11 +419,7 @@ function(params) {
 
 					// special handling for showing participants ("To" instead of "From")
 					var folder = appCtxt.getById(this.folderId);
-					if (folder &&
-						(folder.isUnder(ZmFolder.ID_SENT) ||
-						folder.isUnder(ZmFolder.ID_DRAFTS) ||
-						folder.isUnder(ZmFolder.ID_OUTBOX)))
-					{
+					if (folder && folder.isOutbound()) {
 						request.recip = 1;
 					}
 
@@ -604,6 +593,12 @@ function(params) {
 		request.max = appCtxt.get(ZmSetting.MAX_MESSAGE_SIZE);
 	}
 
+	// special handling for showing participants ("To" instead of "From")
+	var folder = appCtxt.getById(this.folderId);
+	if (folder && folder.isOutbound()) {
+		request.recip = 1;
+	}
+	
 	var searchParams = {
 		jsonObj:		jsonObj,
 		asyncMode:		true,
@@ -1199,7 +1194,7 @@ function(query) {
 			}
 			tokens.push(new ZmSearchToken(ch));
 			pos = skipSpace(query, pos + 1);
-		} else if (ch == "-" && !word) {
+		} else if (ch == "-" && !word && !op) {
 			tokens.push(new ZmSearchToken(ZmParsedQuery.COND_NOT));
 			pos = skipSpace(query, pos + 1);
 			endOk = false;
@@ -1494,11 +1489,11 @@ function(force) {
 	if (this.type == ZmParsedQuery.TERM) {
 		var arg = this.arg;
 		if (this.op == ZmParsedQuery.OP_CONTENT) {
-			return arg;
+			return '"' + arg.replace(/"/g, '\\"') + '"';
 		}
 		else {
-			// quote arg if any non-word chars
-			arg = (arg && /\W/.test(arg)) ? '"' + arg + '"' : arg;
+			// quote arg if any non-word chars and not already quoted
+			arg = (arg && (arg.indexOf('"') !== 0) && /\W/.test(arg)) ? '"' + arg + '"' : arg;
 			return [this.op, arg].join(":");
 		}
 	}

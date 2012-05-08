@@ -437,7 +437,7 @@ Access: domain admin sufficient (though a domain admin can't specify "domains" a
 
 -----------------------------
 
-<GetQuotaUsageRequest [limit="..."] [offset="..."] [domain="{limit-to-domain}"]
+<GetQuotaUsageRequest [limit="..."] [offset="..."] [domain="{limit-to-domain}"] [allServers="1"]
          [sortBy="{sort-by}"] [sortAscending="{sort-ascending}"] [refresh="1"]>
 </GetQuotaUsageRequest>
 
@@ -450,6 +450,8 @@ GetQuotaUsageRequest
   limit - the number of accounts to return (0 is default and means all)
   offset - the starting offset (0, 25, etc)
   domain - the domain name to limit the search to
+  allServers - whether to fetch quota usage for all domain accounts from across all mailbox servers (0/1), 0 is default,
+               applicable when domain attribute is specified
   sortBy - valid values: "percentUsed", "totalUsed", "quotaLimit"
   sortAscending - whether to sort in ascending order (0/1), 0 is default, so highest quotas are returned first
   refresh - whether to always recalculate the data even when cached values are available.  0 is default.
@@ -2262,7 +2264,7 @@ e.g.
 
 <CountObjectsRequest type="{count-objects-type}">
     [<domain by="{domain-by}">...</domain>]
-    [<UCService by="{UCService-by}">...</UCService>]
+    [<ucservice by="{ucservice-by}">...</ucservice>]
 </CountObjectsRequest>
 
 {count-objects-type} = userAccount | 
@@ -2283,7 +2285,7 @@ Note: For account/alias/dl, if a <domain> is specified, only entries on the
       specified domain are counted.  If no domain is specified, entries on 
       all domains are counted.
       
-      For accountOnUCService/cosOnUCService/domainOnUCService, <UCService> is required, 
+      For accountOnUCService/cosOnUCService/domainOnUCService, <ucservice> is required, 
       and <domain> cannot be specified.
 
 ---------------------------------------------------------------------------
@@ -2661,7 +2663,9 @@ The system retention policy SOAP APIs allow the administrator to edit
 named system retention policies that users can apply to folders and tags.
 See soap.txt for more details about the <retentionPolicy> element structure.
 
-<GetSystemRetentionPolicyRequest/>
+<GetSystemRetentionPolicyRequest>
+  [<cos by="id|name">...</cos>]
+</GetSystemRetentionPolicyRequest>
 
 <GetSystemRetentionPolicyResponse>
   <retentionPolicy xmlns="urn:zimbraMail">
@@ -2676,6 +2680,7 @@ See soap.txt for more details about the <retentionPolicy> element structure.
 
 
 <CreateSystemRetentionPolicyRequest>
+  [<cos by="id|name">...</cos>]
   <keep>
     <policy name="{name}" lifetime="{duration}" xmlns="urn:zimbraMail"/>
   </keep> |
@@ -2690,6 +2695,7 @@ See soap.txt for more details about the <retentionPolicy> element structure.
 
 
 <ModifySystemRetentionPolicyRequest>
+  [<cos by="id|name">...</cos>]
   <policy id="{id}" [name="{name}"] [lifetime="{duration}"] xmlns="urn:zimbraMail"/>
 </ModifySystemRetentionPolicyRequest>
 
@@ -2699,10 +2705,13 @@ See soap.txt for more details about the <retentionPolicy> element structure.
 
 
 <DeleteSystemRetentionPolicyRequest>
+  [<cos by="id|name">...</cos>]
   <policy id="{id}" xmlns="urn:zimbraMail"/>
 </DeleteSystemRetentionPolicyRequest>
 
 <DeleteSystemRetentionPolicyResponse/>
+
+If "cos" element is specified the opeartion create/modify/get/delete gets applied on Cos otherwise globalConfig.
 
 -----------------------------
 <ClearCookieRequest>

@@ -504,12 +504,8 @@ function(id, content) {
         if (obj._onTinyMCEEditorInitcallback) {
 		    obj._onTinyMCEEditorInitcallback.run();
         }
-        obj._handlePopup(ed);
+        (ed.windowManager) && ed.windowManager.onOpen.add(ZmAdvancedHtmlEditor.onPopupOpen);
 	};
-
-    function onInsertImage(ev) {
-        ZmSignatureEditor.prototype._insertImagesListener.call(obj, ev);
-    };
 
 	var urlParts = AjxStringUtil.parseURL(location.href);
 
@@ -549,8 +545,8 @@ function(id, content) {
 		elements:  id,
         plugins : "autolink,advlist,inlinepopups,table,paste,directionality,media",
 		theme : "advanced",
-        theme_advanced_buttons1 : "fontselect,fontsizeselect,forecolor,backcolor,|,bold,italic,underline,strikethrough,|,bullist,numlist,|,outdent,indent,|,justifyleft,justifycenter,justifyright,|,link,unlink",
-        theme_advanced_buttons2 : "formatselect,undo,redo,|,pastetext,pasteword,|,tablecontrols,|,blockquote,hr,image,charmap,media,|,removeformat",
+        theme_advanced_buttons1 : "fontselect,fontsizeselect,forecolor,backcolor,|,bold,italic,underline,strikethrough,|,bullist,numlist,|,outdent,indent,|,justifyleft,justifycenter,justifyright,|,link,image",
+        theme_advanced_buttons2 : "formatselect,undo,redo,|,pastetext,pasteword,|,tablecontrols,|,blockquote,hr,image,charmap,media,|,unlink,removeformat",
 		theme_advanced_buttons3 : "",
 		theme_advanced_buttons4 : "",
 		theme_advanced_toolbar_location : "top",
@@ -575,12 +571,7 @@ function(id, content) {
 			ed.onInit.add(onTinyMCEEditorInit);
             ed.onKeyDown.add(obj._handleEditorKeyEvent.bind(obj));
             ed.onPaste.add(obj.onPaste.bind(obj));
-            //Adding Insert image button for uploading the insert image for signature alone
-            ed.addButton('zmimage', {
-                title : ZmMsg.insertImage,
-                "class" : "mce_ImgInsertImage",
-                onclick : onInsertImage
-            });
+            ed.onBeforeExecCommand.add(obj.onBeforeExecCommand.bind(obj));
             //Adding toggle button for showing/hiding the extended toolbar
             ed.addButton('toggle', {
                 title : ZmMsg.showExtendedToolbar,
@@ -590,9 +581,6 @@ function(id, content) {
 		}
     }
 
-    if( obj.isSignatureEditor ){
-       tinyMCEInitObj.theme_advanced_buttons1 = tinyMCEInitObj.theme_advanced_buttons1 + ",zmimage";
-    }
     if(appCtxt.get(ZmSetting.SHOW_COMPOSE_DIRECTION_BUTTONS)){
         tinyMCEInitObj.theme_advanced_buttons1 = tinyMCEInitObj.theme_advanced_buttons1 + ",|,ltr,rtl";
     }
@@ -620,7 +608,7 @@ ZmAdvancedHtmlEditor.prototype.onPaste = function(ed, ev) {
                 req.setRequestHeader("Cache-Control", "no-cache");
                 req.setRequestHeader("X-Requested-With", "XMLHttpRequest");
                 req.setRequestHeader("Content-Type", blob.type);
-                req.setRequestHeader("Content-Disposition", 'attachment; filename="' + blob.fileName + '"');//For paste from clipboard filename is undefined
+                req.setRequestHeader("Content-Disposition", 'attachment; filename="' + AjxUtil.convertToEntities(blob.fileName) + '"');//For paste from clipboard filename is undefined
                 req.onreadystatechange = function(){
                     if(req.readyState === 4 && req.status === 200) {
                         var resp = eval("["+req.responseText+"]");
@@ -693,6 +681,32 @@ ZmAdvancedHtmlEditor.prototype.onPostRender = function(ed, ev) {
     this.setSize("", parseInt(this.getContentField().style.height) + ZmAdvancedHtmlEditor.DELTA_HEIGHT);
     this.onToolbarToggle();
     Dwt.setVisible(this.getHtmlElement(), true);
+};
+
+/*
+**   TinyMCE will fire onBeforeExecCommand before executing all commands
+ */
+ZmAdvancedHtmlEditor.prototype.onBeforeExecCommand = function(ed, cmd, ui, val, o) {
+    if (cmd === "mceImage") {
+        this.onBeforeInsertImage(ed, cmd, ui, val, o);
+    }
+};
+
+ZmAdvancedHtmlEditor.prototype.onBeforeInsertImage = function(ed, cmd, ui, val, o) {
+    var element = ed.selection.getNode();
+    if (!element || element.nodeName !== 'IMG') {
+        if (this.isSignatureEditor) {
+            ZmSignatureEditor.prototype._insertImagesListener.call(this);
+            o.terminate = true; //This will terminate tinymce from executing this command
+        }
+        else {
+            var view = this.getParent();
+            if (view && view.toString() === "ZmComposeView") {
+                view.getController()._attachmentListener(true);
+                o.terminate = true;
+            }
+        }
+    }
 };
 
 ZmAdvancedHtmlEditor.prototype.setMode = function (mode, convert, convertor) {
@@ -1772,40 +1786,52 @@ function() {
 };
 
 /*
- * Modifies popup dialog after rendering
+ * This will be fired before every popup open
+ *
+ * @param {windowManager} tinymce window manager for popups
+ * @param {popupWindow}	contains tinymce popup info or popup DOM Window
+ *
  */
-ZmAdvancedHtmlEditor.prototype._handlePopup =
-function(ed) {
-    var popupIframeLoad = function(popupWindow){
-        var doc = popupWindow.document;
-        if( doc ){
-            if( popupWindow.action === "insert" ){  //Insert Table dialog
-                var align = doc.getElementById("align");
-                var width = doc.getElementById("width");
-                align && (align.value = "center");
-                width && (width.value = "90%");
-            }
-        }
-    };
+ZmAdvancedHtmlEditor.onPopupOpen = function(windowManager, popupWindow) {
+    if (!popupWindow) {
+        return;
+    }
+    if (popupWindow.resizable) {
+        popupWindow.resizable = 0;
+    }
 
-    ed.windowManager.onOpen.add(function(windowManager, popupWindow) {
-        if( !popupWindow ){
-            return;
-        }
-        var popupIframe = popupWindow.frameElement;
-        if( popupIframe ){
-            if( popupIframe.attachEvent ){
-                 popupIframe.attachEvent("onload", function(){
-                    popupIframeLoad( popupWindow );
-                 });
+    var popupIframe = popupWindow.frameElement,
+        popupIframeLoad;
+
+    if (popupIframe && popupIframe.src && popupIframe.src.match("/table.htm")) {//Table dialog
+        popupIframeLoad = function(popupWindow, popupIframe) {
+            var doc,align,width;
+            if (popupWindow.action === "insert") {//Insert Table Action
+                doc = popupWindow.document;
+                if (doc) {
+                    align = doc.getElementById("align");
+                    width = doc.getElementById("width");
+                    align && (align.value = "center");
+                    width && (width.value = "90%");
+                }
             }
-            else{
-                popupIframe.onload = function(){
-                    popupIframeLoad( popupWindow );
-                };
+            if (this._popupIframeLoad) {
+                popupIframe.detachEvent("onload", this._popupIframeLoad);
+                delete this._popupIframeLoad;
             }
+            else {
+                popupIframe.onload = null;
+            }
+        };
+
+        if (popupIframe.attachEvent) {
+            this._popupIframeLoad = popupIframeLoad.bind(this, popupWindow, popupIframe);
+            popupIframe.attachEvent("onload", this._popupIframeLoad);
         }
-    });
+        else {
+            popupIframe.onload = popupIframeLoad.bind(this, popupWindow, popupIframe);
+        }
+    }
 };
 
 /**

@@ -31,6 +31,9 @@ public class HistoryCommonTest extends OctopusCommonTest {
 
 	protected static String comment = null;
 	protected static String newName = null;
+    protected static String folderOldName = null;
+    protected static String folderNewName = null;
+    
 	protected static FolderItem folder = null; 
 	protected static FolderItem mainFolder = null;
 	protected static FolderItem subFolder = null;
@@ -98,12 +101,11 @@ public class HistoryCommonTest extends OctopusCommonTest {
         		   app.zGetActiveAccount(), SystemFolder.Briefcase);
            
            SleepUtil.sleepSmall();
-    	   comment = "Comment " + ZimbraSeleniumProperties.getUniqueString();
-    	   newName = "New Name " + ZimbraSeleniumProperties.getUniqueString() 
+    	   comment = "Comment " + ZimbraSeleniumProperties.getUniqueString();    	   
+    	   newName = "New Name " + app.zGetActiveAccount().getPref("displayName") 
            		   + fileName.substring(fileName.indexOf("."),fileName.length());
 
-    		   
-    	   
+    		      	   
           // mark file as favorite via soap
    		   markFileFavoriteViaSoap(app.zGetActiveAccount(), fileId);
    		   SleepUtil.sleepSmall();
@@ -111,14 +113,28 @@ public class HistoryCommonTest extends OctopusCommonTest {
    		   // unmark file as favorite via soap
    		   unMarkFileFavoriteViaSoap(app.zGetActiveAccount(), fileId);
    		   SleepUtil.sleepSmall();
-   		   
+   		
+   		   // just for debugging
+   		   // mark file as favorite again via soap
+   		   markFileFavoriteViaSoap(app.zGetActiveAccount(), fileId);
+   		   SleepUtil.sleepSmall();
+        
    		   // make comment via soap
    	       makeCommentViaSoap(app.zGetActiveAccount(), fileId, comment);
    	       SleepUtil.sleepSmall();
 		   
-		   //rename via soap
+		   //rename file via soap
 		   renameViaSoap(app.zGetActiveAccount(), fileId, newName);
 		   SleepUtil.sleepSmall();
+		   
+		   //rename folder via soap
+		   folderOldName = folder.getName();
+		   folderNewName = "Rename Folder " +  app.zGetActiveAccount().getPref("displayName");
+		   renameViaSoap(app.zGetActiveAccount(), folder.getId(), folderNewName);
+		   SleepUtil.sleepSmall();
+		   
+		   //updated 'folder' object 
+		   folder = FolderItem.importFromSOAP(app.zGetActiveAccount(), folderNewName);
 		   
 		   //create the sub folder
 		   subFolder = createFolderViaSoap(app.zGetActiveAccount(),folder);	 	  	            		

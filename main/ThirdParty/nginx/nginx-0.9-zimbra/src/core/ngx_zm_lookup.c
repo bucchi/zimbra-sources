@@ -1616,7 +1616,7 @@ ngx_zm_lookup_retrieve_route (ngx_pool_t * pool, ngx_str_t * addr_text,
     }
 
     if(!domainName) {
-        u.no_resolve = 1;
+        u.listen = 1; // set this will only parse the IP but not resolve addr
     }
 
     rc = ngx_parse_url(pool, &u);

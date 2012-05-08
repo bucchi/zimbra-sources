@@ -786,13 +786,24 @@ function(hash1, hash2, overwrite, ignore) {
 // can get lost in new window
 AjxUtil.isArray1 =
 function(arg) {
-	return Boolean(arg && (arg.length != null) && arg.splice && arg.slice);
+	return !!(arg && (arg.length != null) && arg.splice && arg.slice);
 };
 
 // converts the arg to an array if it isn't one
 AjxUtil.toArray =
 function(arg) {
-	return AjxUtil.isArray1(arg) ? arg : (arg === undefined) ? [] : [arg];
+	if (!arg) {
+		return [];
+	}
+	else if (AjxUtil.isArray1(arg)) {
+		return arg;
+	}
+	else if (arg.isAjxVector) {
+		return arg.toArray();
+	}
+	else {
+		return [arg];
+	}
 };
 
 /**
@@ -817,4 +828,29 @@ AjxUtil.get = function(object /* , propName1, ... */) {
         object = object[arguments[i]];
     }
     return object;
+};
+
+
+/**
+ *  Convert non-ASCII characters to valid HTML UNICODE entities 
+ * @param {string}
+ * 
+*/
+AjxUtil.convertToEntities = function (source){
+	var result = '', temp, length = 0, i = 0;
+    
+    if (!source || !(length = source.length)) return result;
+    
+	for(i; i < length; ++i){
+		if(source.charCodeAt(i) > 127){
+			temp = source.charCodeAt(i).toString(10);
+			while(temp.length < 4){
+				temp = '0' + temp;
+			}
+			result += '&#' + temp + ';';
+		} else {
+			result += source.charAt(i);
+		}
+	}
+	return result;
 };

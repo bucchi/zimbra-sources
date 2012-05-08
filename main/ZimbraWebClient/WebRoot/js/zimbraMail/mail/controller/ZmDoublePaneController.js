@@ -42,6 +42,7 @@ ZmDoublePaneController = function(container, mailApp, type, sessionId, searchRes
 	}
 	
 	this._listSelectionShortcutDelayAction = new AjxTimedAction(this, this._listSelectionTimedAction);
+	this._listeners[ZmOperation.KEEP_READING] = this._keepReadingListener.bind(this);
 };
 
 ZmDoublePaneController.prototype = new ZmMailListController;
@@ -208,6 +209,20 @@ function(view) {
 	this._itemCountText[ZmSetting.RP_BOTTOM] = toolbar.getButton(ZmOperation.TEXT);
 };
 
+ZmDoublePaneController.prototype._getRightSideToolBarOps =
+function() {
+	var list = [];
+	if (appCtxt.isChildWindow) {
+		return list;
+	}
+	list.push(ZmOperation.KEEP_READING);
+	if (appCtxt.get(ZmSetting.DETACH_MAILVIEW_ENABLED) && !appCtxt.isExternalAccount()) {
+		list.push(ZmOperation.DETACH);
+	}
+	list.push(ZmOperation.VIEW_MENU);
+	return list;
+};
+
 ZmDoublePaneController.prototype._getActionMenuOps =
 function() {
 	var list = this._flagOps();
@@ -217,8 +232,6 @@ function() {
     list.push(ZmOperation.EDIT_AS_NEW);		// bug #28717
 	list.push(ZmOperation.SEP);
 	list = list.concat(this._standardActionMenuOps());
-    list.push(ZmOperation.MUTE_CONV);
-    list.push(ZmOperation.UNMUTE_CONV);
 	if (!appCtxt.isChildWindow && appCtxt.get(ZmSetting.DETACH_MAILVIEW_ENABLED)) {
 		list.push(ZmOperation.SEP, ZmOperation.DETACH);
 	}
@@ -442,9 +455,16 @@ function(parent, num) {
 		var isSyncFailuresFolder = this.isSyncFailuresFolder();
 		parent.enable(ZmOperation.ADD_FILTER_RULE, isMsg && !isSyncFailuresFolder);
 	}
-	parent.enable(ZmOperation.DETACH, (appCtxt.get(ZmSetting.DETACH_MAILVIEW_ENABLED) && isMsg && !isDraft));
+	parent.enable(ZmOperation.DETACH, (appCtxt.get(ZmSetting.DETACH_MAILVIEW_ENABLED) && num == 1 && !isDraft));
 	parent.enable(ZmOperation.TEXT, true);
+	parent.enable(ZmOperation.KEEP_READING, this._keepReading(true));
+};
 
+ZmDoublePaneController.prototype._resetOperation = 
+function(parent, op, num) {
+	if (op == ZmOperation.KEEP_READING) {
+		parent.enable(ZmOperation.KEEP_READING, this._keepReading(true));
+	}
 };
 
 // top level view means this view is allowed to get shown when user clicks on 
@@ -626,6 +646,19 @@ function() {
 	ZmMailListController.prototype._doMove.apply(this, arguments);
 };
 
+ZmDoublePaneController.prototype._keepReadingListener =
+function(ev) {
+	this.handleKeyAction(ZmKeyMap.KEEP_READING, ev);
+};
+
+ZmDoublePaneController.prototype._keepReading = function(ev) {};
+
+// Set enabled state of the KEEP_READING button
+ZmDoublePaneController.prototype._checkKeepReading =
+function() {
+	// done on timer so item view has had change to lay out and resize
+	setTimeout(this._resetOperation.bind(this, this._toolbar[this._currentViewId], ZmOperation.KEEP_READING), 250);
+};
 
 ZmDoublePaneController.prototype._dragListener =
 function(ev) {

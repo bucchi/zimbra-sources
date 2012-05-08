@@ -75,6 +75,11 @@ function(activeSearch, conv, parentController, callback, markRead) {
 	}
 };
 
+ZmConvController.prototype.supportsDnD =
+function() {
+	return false;
+};
+
 ZmConvController.prototype._handleResponseLoadConv =
 function(conv, callback, result) {
 
@@ -177,10 +182,9 @@ function(view) {
 ZmConvController.prototype._getToolBarOps =
 function() {
 	var list = [ZmOperation.CLOSE, ZmOperation.SEP];
-	list = list.concat(ZmMailListController.prototype._getToolBarOps.call(this, true));
+	list = list.concat(ZmMailListController.prototype._getToolBarOps.call(this));
 	return list;
 };
-
 
 ZmConvController.prototype._initializeToolBar = 
 function(view) {
@@ -311,6 +315,11 @@ function(actionCode) {
 			if (this._navToolBar[this._currentViewId].getButton(ZmOperation.PAGE_BACK).getEnabled()) {
 				this._goToConv(false);
 			}
+			break;
+
+		// switching view not supported here
+		case ZmKeyMap.VIEW_BY_CONV:
+		case ZmKeyMap.VIEW_BY_MSG:
 			break;
 
 		default:

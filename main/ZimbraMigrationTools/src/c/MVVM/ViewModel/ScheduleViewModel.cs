@@ -223,33 +223,34 @@ public class ScheduleViewModel: BaseViewModel
                         }
 
                         string cosID = CosList[CurrentCOSSelection].CosID;
-                        ZimbraAPI zimbraAPI = new ZimbraAPI();
+                        ZimbraAPI zimbraAPI = new ZimbraAPI(isServer);
 
                         // FBS bug 71646 -- 3/26/12
                         string displayName = "";
                         string givenName = "";
                         string sn = "";
                         string zfp = "";
-                        if (usersViewModel.OPInfoList.Count > 0)
+
+                        // FBS bug 73395 -- 4/25/12
+                        ObjectPickerInfo opinfo = usersViewModel.GetOPInfo();
+                        if (opinfo.DisplayName.Length > 0)
                         {
-                            if (usersViewModel.OPInfoList[i].DisplayName.Length > 0)
-                            {
-                                displayName = usersViewModel.OPInfoList[i].DisplayName;
-                            }
-                            if (usersViewModel.OPInfoList[i].GivenName.Length > 0)
-                            {
-                                givenName = usersViewModel.OPInfoList[i].GivenName;
-                            }
-                            if (usersViewModel.OPInfoList[i].Sn.Length > 0)
-                            {
-                                sn = usersViewModel.OPInfoList[i].Sn;
-                            }
-                            if (usersViewModel.OPInfoList[i].Zfp.Length > 0)
-                            {
-                                zfp = usersViewModel.OPInfoList[i].Zfp;
-                            }
+                            displayName = opinfo.DisplayName;
                         }
-                        //////////////
+                        if (opinfo.GivenName.Length > 0)
+                        {
+                            givenName = opinfo.GivenName;
+                        }
+                        if (opinfo.Sn.Length > 0)
+                        {
+                            sn = opinfo.Sn;
+                        }
+                        if (opinfo.Zfp.Length > 0)
+                        {
+                            zfp = opinfo.Zfp;
+                        }
+                        // end 73395
+                        // end 71646
 
                         if (zimbraAPI.CreateAccount(accountName, displayName, givenName, sn, zfp, defaultPWD, cosID) == 0)
                         {
@@ -308,8 +309,9 @@ public class ScheduleViewModel: BaseViewModel
 
         // FBS bug 71048 -- 4/16/12 -- use the correct number of threads.
         // If MaxThreadCount not specified, default to 4.  If fewer users than MaxThreadCount, numThreads = numUsers
-        // NOTE: 4/18/12 -- currently there is no support for MaxThreadCount in the UI, so for now we always default to 4
-        int maxThreads = (m_config.GeneralOptions.MaxThreadCount > 0) ? m_config.GeneralOptions.MaxThreadCount : 4;
+        OptionsViewModel ovm = ((OptionsViewModel)ViewModelPtrs[(int)ViewType.OPTIONS]);
+        int maxThreads = (ovm.MaxThreadCount > 0) ? ovm.MaxThreadCount : 4;
+        maxThreads = Math.Min(maxThreads, 8);   // let's make 8 the limit for now
         int numUsers = SchedList.Count;
         int numThreads = Math.Min(numUsers, maxThreads);
         for (int i = 0; i < numUsers; i++)
@@ -699,6 +701,7 @@ public class ScheduleViewModel: BaseViewModel
         CSMigrationWrapper mw = ((IntroViewModel)ViewModelPtrs[(int)ViewType.INTRO]).mw;
         MigrationOptions importOpts = SetOptions();
         bool isVerbose = ((OptionsViewModel)ViewModelPtrs[(int)ViewType.OPTIONS]).LoggingVerbose;
+        bool doRulesAndOOO = ((OptionsViewModel)ViewModelPtrs[(int)ViewType.OPTIONS]).OEnableRulesAndOOO;
 
         if (isVerbose)
         {
@@ -710,7 +713,7 @@ public class ScheduleViewModel: BaseViewModel
         }
 
         //mw.StartMigration(MyAcct, importOpts, isServer, (isVerbose ? (LogLevel.Debug):(LogLevel.Info)), m_isPreview);
-        mw.StartMigration(MyAcct, importOpts, isServer, importOpts.VerboseOn, m_isPreview);
+        mw.StartMigration(MyAcct, importOpts, isServer, importOpts.VerboseOn, m_isPreview, doRulesAndOOO);
 
         // special case to format last user progress message
         int count = accountResultsViewModel.AccountResultsList[num].UserResultsList.Count;

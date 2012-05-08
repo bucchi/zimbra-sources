@@ -927,7 +927,7 @@ function(ev) {
 			setExpanded = (setExpanded === "true");
 		}
 		if (setExpanded != isExpand) { //set only if changed (ZmSetting.prototype.setValue is supposed to not send a request if no change, but it might have bugs)
-			appCtxt.set(ZmSetting.FOLDERS_EXPANDED, isExpand, folderId);
+			appCtxt.set(ZmSetting.FOLDERS_EXPANDED, isExpand, folderId, null, null, null, overview.skipImplicit);
 		}
 
 		// check if any of this treeItem's children need to be expanded as well
@@ -1042,7 +1042,7 @@ function(ev, treeView, overviewId) {
 			this._evHandled[overviewId] = true;
 		} else if (ev.event == ZmEvent.E_MODIFY) {
 			if (!fields) { return; }
-			if (fields[ZmOrganizer.F_TOTAL] || fields[ZmOrganizer.F_SIZE]) {
+			if (fields[ZmOrganizer.F_TOTAL] || fields[ZmOrganizer.F_SIZE] || fields[ZmOrganizer.F_UNREAD] || fields[ZmOrganizer.F_NAME]) {
 				node.setToolTipContent(organizer.getToolTip(true));
 				if (appCtxt.multiAccounts && organizer.type == ZmOrganizer.FOLDER) {
 					appCtxt.getApp(ZmApp.MAIL).getOverviewContainer().updateTooltip(organizer.nId);

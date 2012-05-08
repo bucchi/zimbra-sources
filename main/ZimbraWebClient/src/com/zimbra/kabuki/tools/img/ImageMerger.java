@@ -18,14 +18,35 @@ package com.zimbra.kabuki.tools.img;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.image.*;
-import java.io.*;
-import java.nio.channels.FileChannel;
-import java.util.*;
-import javax.imageio.*;
-import javax.imageio.stream.*;
-import org.apache.commons.cli.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileFilter;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.imageio.ImageIO;
+import javax.imageio.ImageWriter;
+import javax.imageio.stream.FileImageOutputStream;
+
 import net.jmge.gif.Gif89Encoder;
+
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 
 public class ImageMerger {
 
@@ -99,6 +120,7 @@ public class ImageMerger {
 
     private File outputDir;
     private String cssPath;
+	private String spacerImagesPath;
     private String cssFilename;
     private String jsFilename;
     private String cacheFilename;
@@ -125,6 +147,9 @@ public class ImageMerger {
             System.setProperty(P_HEADLESS, "true");
 
             // create output streams
+            if (!outputDir.exists()) {
+                outputDir.mkdir();
+            }
             boolean jsNeedsHeader = !(new File(outputDir, jsFilename).exists());
             cssOut = open(cssFilename);
             jsOut = open(jsFilename);
@@ -159,7 +184,7 @@ public class ImageMerger {
             close(jsOut);
             close(cacheOut);
 
-            // restore previous graphics value 
+            // restore previous graphics value
             if (headlessValue != null) {
                 System.setProperty(P_HEADLESS, headlessValue);
             }
@@ -174,6 +199,9 @@ public class ImageMerger {
     public void setCssPath(String path) {
         cssPath = path.endsWith("/") ? path.substring(0, path.length()-1) : path;
     }
+	public void setSpacerImagesPath(String path) {
+		spacerImagesPath = path;
+	}
     public void setCssFilename(String name) {
         cssFilename = name;
     }
@@ -200,21 +228,21 @@ public class ImageMerger {
     // processing
 
     private void processMerge(File dir) throws IOException {
-        processMerge(dir, dir.listFiles(F_GIF), IF_GIF);
-        processMerge(dir, dir.listFiles(F_JPG), IF_JPG);
-        processMerge(dir, dir.listFiles(F_PNG), IF_PNG);
+        processMerge(dir, dir.listFiles(F_GIF), IF_GIF, "1x1-trans.gif");
+        processMerge(dir, dir.listFiles(F_JPG), IF_JPG, null);
+        processMerge(dir, dir.listFiles(F_PNG), IF_PNG, "1x1-trans.png");
     }
 
-    private void processMerge(File dir, File[] files, ImageFactory factory) throws IOException {
+    private void processMerge(File dir, File[] files, ImageFactory factory, String spacerFileName) throws IOException {
         if (files.length == 0) return;
-        processMerge(dir, listFiles(files, F_NONE), factory, ImageLayout.NONE);
-        processMerge(dir, listFiles(files, F_HORIZONTAL), factory, ImageLayout.HORIZONTAL);
-        processMerge(dir, listFiles(files, F_VERTICAL), factory, ImageLayout.VERTICAL);
+        processMerge(dir, listFiles(files, F_NONE), factory, ImageLayout.NONE, spacerFileName);
+        processMerge(dir, listFiles(files, F_HORIZONTAL), factory, ImageLayout.HORIZONTAL, null);
+        processMerge(dir, listFiles(files, F_VERTICAL), factory, ImageLayout.VERTICAL, null);
         processCopy(dir, listFiles(files, F_TILE), factory);
     }
 
     private void processMerge(File dir, File[] files, ImageFactory factory,
-                              ImageLayout layout) throws IOException {
+                              ImageLayout layout, String spacerFileName) throws IOException {
         if (files.length == 0) return;
         if (verbose) System.out.println("merging files with layout "+layout.toString().toLowerCase());
 
@@ -233,6 +261,13 @@ public class ImageMerger {
             all.add(entry);
         }
 
+		ImageEntry spacerEntry = null;
+		if (spacerFileName != null) {
+			File spacerFile = new File(spacerImagesPath + spacerFileName);
+			DecodedImage spacerImage = factory.loadImage(spacerFile);
+			spacerEntry = new ImageEntry(dir, spacerFile, spacerImage, layout, true);
+		}
+
         // process images
         for (int filecount = 1; all.size() > 0; filecount++) {
             aggregate.reset();
@@ -246,6 +281,9 @@ public class ImageMerger {
                 if (!aggregate.acceptSubImage(entry)) {
                     continue;
                 }
+				else if (spacerEntry != null && allEntries.hasNext()) {
+					aggregate.acceptSubImage(spacerEntry);
+				}
 
                 // original image is now processed
                 allEntries.remove();
@@ -271,6 +309,9 @@ public class ImageMerger {
                 System.out.println("generating "+file);
                 aggregate.saveImage(file);
                 for (ImageEntry entry : subEntries) {
+					if (entry.isSpacer) { // no need to create JS or CSS for spacer
+						continue;
+					}
                     if (verbose) System.out.println("generating output for "+entry.image.getName());
                     entry.filename = filename;
                     printlnJs(entry);
@@ -373,7 +414,7 @@ public class ImageMerger {
     private void printlnCache(ImageEntry entry) {
         println(
             cacheOut,
-            "<img alt=\"\" src='%s/%s?v=@jsVersion@'>", 
+            "<img alt=\"\" src='%s/%s?v=@jsVersion@'>",
             cssPath, entry.filename.replace(File.separatorChar,'/')
         );
     }
@@ -456,7 +497,7 @@ public class ImageMerger {
         for (File file : all) {
             if (filter.accept(file)) list.add(file);
         }
-        return (File[])list.toArray(new File[]{});
+        return list.toArray(new File[]{});
     }
 
     private static void assertAndExit(boolean condition, String format, Object... args) {
@@ -546,14 +587,21 @@ public class ImageMerger {
         public int x;
         public int y;
         public ImageLayout layout;
+		public boolean isSpacer;
         // Constructors
-        public ImageEntry(File dir, File file, DecodedImage image, ImageLayout layout) {
+        public ImageEntry(File dir, File file, DecodedImage image, ImageLayout layout, boolean isSpacer) {
             this.filename = dir.getName()+File.separator+file.getName();
             this.iefilename = this.filename;
             this.image = image;
             this.layout = layout;
+			this.isSpacer = isSpacer;
         }
+		public ImageEntry(File dir, File file, DecodedImage image, ImageLayout layout) {
+			this(dir, file, image, layout, false);
+		}
+
         // Object methods
+        @Override
         public String toString() {
             return image.getName();
         }
@@ -568,9 +616,11 @@ public class ImageMerger {
 
     static class GifImageFactory extends ImageFactory {
         // ImageFactory methods
+        @Override
         public DecodedImage loadImage(File file) throws IOException {
             return loadImage(file, false);
         }
+        @Override
         public DecodedImage loadImage(File file, boolean allowMultipleFrames) throws IOException {
             try {
                 DecodedGifImage image = new DecodedGifImage(file.getAbsolutePath());
@@ -584,6 +634,7 @@ public class ImageMerger {
                 return null;
             }
         }
+        @Override
         public AggregateImage createAggregateImage(ImageLayout layout) {
             return new AggregateGifImage(layout);
         }
@@ -591,9 +642,11 @@ public class ImageMerger {
 
     static class FullColorImageFactory extends ImageFactory {
         // ImageFactory methods
+        @Override
         public DecodedImage loadImage(File file) throws IOException {
             return loadImage(file, false);
         }
+        @Override
         public DecodedImage loadImage(File file, boolean allowMultipleFrames) throws IOException {
             try {
                 DecodedFullColorImage image = new DecodedFullColorImage(file.getAbsolutePath());
@@ -607,6 +660,7 @@ public class ImageMerger {
                 return null;
             }
         }
+        @Override
         public AggregateImage createAggregateImage(ImageLayout layout) {
             return new AggregateFullColorImage(layout);
         }
@@ -617,7 +671,7 @@ public class ImageMerger {
         //
         // Data
         //
-        
+
         protected ImageLayout layout;
         protected Dimension size;
         protected List<ImageEntry> entries;
@@ -732,11 +786,13 @@ public class ImageMerger {
         }
 
         // AggregateImage methods
+        @Override
         public void reset() {
             super.reset();
             colors = new HashSet<Integer>(256);
         }
 
+        @Override
         public boolean acceptSubImage(ImageEntry entry) {
             if (!super.acceptSubImage(entry)) return false;
 
@@ -784,6 +840,7 @@ public class ImageMerger {
             return str.toString();
         }
 
+        @Override
         public void saveImage(File file) throws IOException {
             OutputStream out = null;
             try {
@@ -862,12 +919,14 @@ public class ImageMerger {
         }
 
         // AggregateImage methods
+        @Override
         public boolean acceptSubImage(ImageEntry entry) {
             if (!super.acceptSubImage(entry)) return false;
             addSubImage(entry);
             return true;
         }
 
+        @Override
         public void saveImage(File file) throws IOException {
             String type = file.getName().replaceAll("^.*\\.","");
             Iterator<ImageWriter> iter = ImageIO.getImageWritersBySuffix(type);
@@ -919,7 +978,8 @@ public class ImageMerger {
         public ExtensionFileFilter(String... exts) {
             this.exts = exts;
         }
-	    public boolean accept(File file) {
+	    @Override
+        public boolean accept(File file) {
             String name = file.getName().toLowerCase();
             for (String ext : exts) {
                 if (name.endsWith(ext)) return true;
@@ -933,6 +993,7 @@ public class ImageMerger {
         public SubExtensionFileFilter(String subext) {
             this.subext = subext;
         }
+        @Override
         public boolean accept(File file) {
             String name = file.getName().toLowerCase();
             int index = name.lastIndexOf('.');
@@ -946,6 +1007,7 @@ public class ImageMerger {
         public NotFileFilter(FileFilter filter) {
             this.filter = filter;
         }
+        @Override
         public boolean accept(File file) {
             return !filter.accept(file);
         }
@@ -956,6 +1018,7 @@ public class ImageMerger {
         public AndFileFilter(FileFilter... filters) {
             this.filters = filters;
         }
+        @Override
         public boolean accept(File file) {
             for (FileFilter filter : filters) {
                 if (!filter.accept(file)) return false;

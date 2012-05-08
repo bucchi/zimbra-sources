@@ -432,7 +432,13 @@ ZmSettings.prototype.setUserSettings = function(params) {
 ZmSettings.prototype._beginLoadZimlets =
 function(zimlet, prop, sync) {
     var zimletsCallback = new AjxCallback(this, this._loadZimlets, [zimlet, prop, sync]);
-    AjxDispatcher.require("Zimlet", false, zimletsCallback);
+    AjxDispatcher.require(["Startup2"], false, zimletsCallback);
+};
+
+ZmSettings.prototype._loadZimletPackage =
+function(zimlet, prop, sync) {
+	var zimletsCallback = new AjxCallback(this, this._loadZimlets, [zimlet, prop, sync]);
+	AjxDispatcher.require("Zimlet", false, zimletsCallback);
 };
 
 /**
@@ -895,7 +901,7 @@ function() {
 	this.registerSetting("EVAL_ENABLED",					{type:ZmSetting.T_COS, dataType:ZmSetting.D_BOOLEAN, defaultValue:false});
 	this.registerSetting("FEED_ENABLED",					{type:ZmSetting.T_COS, dataType:ZmSetting.D_BOOLEAN, defaultValue:false});
 	this.registerSetting("HELP_ENABLED",					{type:ZmSetting.T_COS, dataType:ZmSetting.D_BOOLEAN, defaultValue:true});
-	this.registerSetting("HISTORY_SUPPORT_ENABLED",			{type:ZmSetting.T_COS, dataType:ZmSetting.D_BOOLEAN, defaultValue:true});
+	this.registerSetting("HISTORY_SUPPORT_ENABLED",			{type:ZmSetting.T_COS, dataType:ZmSetting.D_BOOLEAN, defaultValue:("onhashchange" in window)});
 	this.registerSetting("NOTES_ENABLED",					{type:ZmSetting.T_COS, dataType:ZmSetting.D_BOOLEAN, defaultValue:false});
 	this.registerSetting("PRINT_ENABLED",					{type:ZmSetting.T_COS, dataType:ZmSetting.D_BOOLEAN, defaultValue:true});
 	this.registerSetting("SEARCH_ENABLED",					{type:ZmSetting.T_COS, dataType:ZmSetting.D_BOOLEAN, defaultValue:true});

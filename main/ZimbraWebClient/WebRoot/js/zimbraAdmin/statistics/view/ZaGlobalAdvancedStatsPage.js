@@ -38,7 +38,18 @@ function() {
 }
 
 ZaGlobalAdvancedStatsPage.prototype.showMe =  function(refresh) {
-	DwtTabViewPage.prototype.showMe.call(this);	
+    this.setZIndex(DwtTabView.Z_ACTIVE_TAB);
+	if (this.parent.getHtmlElement().offsetHeight > 26) { 						// if parent visible, use offsetHeight
+		this._contentEl.style.height=this.parent.getHtmlElement().offsetHeight-26;
+	} else {
+		var parentHeight = parseInt(this.parent.getHtmlElement().style.height);	// if parent not visible, resize page to fit parent
+		var units = AjxStringUtil.getUnitsFromSizeString(this.parent.getHtmlElement().style.height);
+		if (parentHeight > 26) {
+			this._contentEl.style.height = (Number(parentHeight-26).toString() + units);
+		}
+	}
+	this._contentEl.style.width = this.parent.getHtmlElement().style.width;	// resize page to fit parent
+
 	if(refresh) {
 		this.setObject();
 	}
@@ -334,6 +345,7 @@ ZaGlobalAdvancedStatsPage.plotQuickChart = function (id, hostname, group, column
     ZaRequestMgr.invoke(csfeParams, reqMgrParams);
 }
 
+
 ZaGlobalAdvancedStatsPage.plotChart = function (id, fields, colDef, newData) {
     var yAxis = new YAHOO.widget.NumericAxis();
     var max = 0;
@@ -361,15 +373,16 @@ ZaGlobalAdvancedStatsPage.plotChart = function (id, fields, colDef, newData) {
         var ts0 = newData[0].timestamp.getTime();
         var ts1 = newData[newData.length - 1].timestamp.getTime();
         var delta = (ts1 - ts0) / 1000;
-    
-        var fmt;
-        if (delta > (2 * 24 * 60 * 60)) {
-            fmt = ZaMsg.NAD_AdvStatsTimeAxisLabelMonthDay;
+
+        var formatter;
+        if (delta > 2 * 24 * 60 * 60) { //2 days
+            formatter = AjxDateFormat.getDateInstance(AjxDateFormat.SHORT);
+
         } else {
-            fmt = ZaMsg.NAD_AdvStatsTimeAxisLabelHourMinute;
+
+            formatter = AjxDateFormat.getTimeInstance(AjxDateFormat.SHORT); 
         }
-        
-        return YAHOO.util.Date.format(value, { format: fmt });
+        return formatter.format(value);
     }
     
     timeAxis.maximum = newData[newData.length - 1].timestamp;

@@ -105,6 +105,9 @@ function(view, force) {
 // Internally we manage two maps, one for CLV and one for CV2 (if applicable)
 ZmConvListController.prototype.getKeyMapName =
 function() {
+	if (this._convView.isActiveQuickReply()) { //if user is quick replying, don't use the mapping of conv/mail list - so Ctrl+Z works
+		return "Global";
+	}
 	return "ZmConvListController";
 };
 
@@ -176,39 +179,7 @@ function(actionCode, ev) {
 			break;
 		
 		case ZmKeyMap.KEEP_READING:
-			if (mlv.getSelectionCount() == 1) {
-				var itemView = this.getItemView();
-				// conv view
-				if (itemView && itemView.isZmConvView2) {
-					if (!itemView._keepReading()) {
-						return this.handleKeyAction(ZmKeyMap.NEXT_UNREAD, ev);
-					}
-				}
-				// msg view (within an expanded conv)
-				else if (itemView && itemView.isZmMailMsgView) {
-					if (!itemView._keepReading()) {
-						// go to next unread msg in this expanded conv, otherwise next unread conv
-						var msg = mlv.getSelection()[0];
-						var conv = msg && appCtxt.getById(msg.cid);
-						var msgList = conv && conv.msgs && conv.msgs.getArray();
-						var msgFound, item;
-						for (var i = 0; i < msgList.length; i++) {
-							var m = msgList[i];
-							msgFound = msgFound || (m.id == msg.id);
-							if (msgFound && m.isUnread) {
-								item = m;
-								break;
-							}
-						}
-						if (item) {
-							this._selectItem(mlv, item);
-						}
-						else {
-							return this.handleKeyAction(ZmKeyMap.NEXT_UNREAD, ev);
-						}
-					}
-				}
-			}
+			return this._keepReading(false, ev);
 			break;
 
 		// need to invoke DwtListView method directly since our list view no-ops DBLCLICK
@@ -227,6 +198,56 @@ function(actionCode) {
 	if (unreadItem) {
 		this._selectItem(this._mailListView, unreadItem);
 	}
+};
+
+ZmConvListController.prototype._keepReading =
+function(check, ev) {
+
+	if (!this.isReadingPaneOn() || !this._itemViewCurrent()) { return false; }
+	var mlv = this._mailListView;
+	if (!mlv || mlv.getSelectionCount() != 1) { return false; }
+	
+	var result = false;
+	var itemView = this.getItemView();
+	// conv view
+	if (itemView && itemView.isZmConvView2) {
+		result = itemView._keepReading(check);
+		result = result || (check ? !!(this._getUnreadItem(DwtKeyMap.SELECT_NEXT)) :
+									   this.handleKeyAction(ZmKeyMap.NEXT_UNREAD, ev));
+	}
+	// msg view (within an expanded conv)
+	else if (itemView && itemView.isZmMailMsgView) {
+		var result = itemView._keepReading(check);
+		if (!check || !result) {
+			// go to next unread msg in this expanded conv, otherwise next unread conv
+			var msg = mlv.getSelection()[0];
+			var conv = msg && appCtxt.getById(msg.cid);
+			var msgList = conv && conv.msgs && conv.msgs.getArray();
+			var msgFound, item;
+			for (var i = 0; i < msgList.length; i++) {
+				var m = msgList[i];
+				msgFound = msgFound || (m.id == msg.id);
+				if (msgFound && m.isUnread) {
+					item = m;
+					break;
+				}
+			}
+			if (item) {
+				result = true;
+				if (!check) {
+					this._selectItem(mlv, item);
+				}
+			}
+			else {
+				result = check ? !!(this._getUnreadItem(DwtKeyMap.SELECT_NEXT)) :
+									this.handleKeyAction(ZmKeyMap.NEXT_UNREAD, ev);
+			}
+		}
+	}
+	if (!check && result) {
+		this._checkKeepReading();
+	}
+	return result;
 };
 
 /**
@@ -268,12 +289,14 @@ function(currentItem, forward) {
 
 ZmConvListController.prototype._createDoublePaneView = 
 function() {
-	return new ZmConvDoublePaneView({
+	var dpv = new ZmConvDoublePaneView({
 		parent:		this._container,
 		posStyle:	Dwt.ABSOLUTE_STYLE,
 		controller:	this,
 		dropTgt:	this._dropTgt
 	});
+	this._convView = dpv._itemView;
+	return dpv;
 };
 
 ZmConvListController.prototype._paginate = 
@@ -323,6 +346,59 @@ function(params) {
 	params.markRead = true;
 };
 
+ZmConvListController.prototype._preUnloadCallback =
+function(view) {
+	return !(this._convView && this._convView.isDirty());
+};
+
+ZmConvListController.prototype._preHideCallback =
+function(view, force) {
+	return force ? true : this.popShield(view);
+};
+
+ZmConvListController.prototype.popShield =
+function(view, callback) {
+	if (this._convView && this._convView.isDirty()) {
+		var ps = this._popShield = this._popShield || appCtxt.getYesNoMsgDialog();
+		ps.reset();
+		var msg = view ? ZmMsg.convViewSwitch : ZmMsg.convViewCancel;
+		ps.setMessage(msg, DwtMessageDialog.WARNING_STYLE);
+		ps.registerCallback(DwtDialog.YES_BUTTON, this._popShieldYesCallback, this, [view, callback]);
+		ps.registerCallback(DwtDialog.NO_BUTTON, this._popShieldNoCallback, this, [view, callback]);
+		ps.popup();
+		return false;
+	}
+	else {
+		return true;
+	}
+};
+
+ZmConvListController.prototype._popShieldYesCallback =
+function(view, callback) {
+	this._convView._replyView.reset();
+	this._popShield.popdown();
+	if (view) {
+		appCtxt.getAppViewMgr().showPendingView(true);
+	}
+	else if (callback) {
+		callback();
+	}
+};
+
+ZmConvListController.prototype._popShieldNoCallback =
+function(view, callback) {
+	this._popShield.popdown();
+	if (view) {
+		// attempt to switch to TV was canceled - need to undo changes
+		var viewType = appCtxt.getViewTypeFromId(view);
+		this._updateViewMenu(viewType);
+		if (!appCtxt.isExternalAccount() && !this.isSearchResults && !this._currentSearch.isOutboundFolder) {
+			this._app.setGroupMailBy(ZmMailListController.GROUP_BY_SETTING[viewType]);
+		}
+	}
+	appCtxt.getKeyboardMgr().grabFocus(this._convView._replyView._input);
+};
+
 ZmConvListController.prototype._listSelectionListener =
 function(ev) {
 
@@ -339,25 +415,16 @@ function(ev) {
 					var msg = item.getFirstHotMsg();
 					item = msg || item;
 				}
-				var respCallback = this._handleResponseListSelectionListener.bind(this, item);
 				if (item.type == ZmItem.MSG) {
-					AjxDispatcher.run("GetMsgController", item && item.nId).show(item, this, respCallback, true);
+					AjxDispatcher.run("GetMsgController", item && item.nId).show(item, this, null, true);
 				} else {
-					AjxDispatcher.run("GetConvController").show(this._activeSearch, item, this, respCallback, true);
+					AjxDispatcher.run("GetConvController").show(this._activeSearch, item, this, null, true);
 				}
 				return true;
 			}
 		}
 	}
 	return false;
-};
-
-ZmConvListController.prototype._handleResponseListSelectionListener =
-function(item) {
-	// make sure correct msg is displayed in msg pane when user returns
-	if (this.isReadingPaneOn()) {
-		this._setSelectedItem();
-	}
 };
 
 ZmConvListController.prototype._setSelectedItem =
@@ -469,8 +536,12 @@ function(callback) {
 
 ZmConvListController.prototype._displayItem =
 function(item) {
+	var curItem = this._doublePaneView.getItem();
+	var noMarkRead = (curItem && item.id == curItem.id);
 	this._doublePaneView.setItem(item);
-	this._handleMarkRead(item);
+	if (!noMarkRead) {
+		this._handleMarkRead(item);
+	}
 };
 
 ZmConvListController.prototype._toggle =

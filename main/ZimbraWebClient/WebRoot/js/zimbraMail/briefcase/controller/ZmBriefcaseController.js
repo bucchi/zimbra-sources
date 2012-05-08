@@ -140,7 +140,7 @@ function() {
 ZmBriefcaseController.prototype._getSecondaryToolBarOps =
 function() {
 	var list = [];
-
+    if (appCtxt.isExternalAccount()) { return list; }
 	if (appCtxt.get(ZmSetting.MAIL_ENABLED)) {
 		list.push(ZmOperation.SEND_FILE, ZmOperation.SEND_FILE_AS_ATT, ZmOperation.SEP);
 	}
@@ -179,10 +179,14 @@ function() {
 	}*/
 
 
-    ops.push(ZmOperation.VIEW_MENU);
-
 	return ops;
 };
+
+ZmBriefcaseController.prototype._getRightSideToolBarOps =
+function(noViewMenu) {
+	return [ZmOperation.VIEW_MENU];
+};
+
 
 ZmBriefcaseController.prototype._handleDoc =
 function(op) {
@@ -279,12 +283,12 @@ function(parent, num) {
     // isOldRevision is true if the item is a revision but not the latest.
     var isOldRevision = item && item.isRevision && !hasHighestRevisionSelected;
 	
-	parent.enable([ZmOperation.SEND_FILE, ZmOperation.SEND_FILE_AS_ATT], (isZimbraAccount && isMailEnabled && isItemSelected && !isMultiFolder && !isFolderSelected && !appCtxt.isExternalAccount()));
+	parent.enable([ZmOperation.SEND_FILE, ZmOperation.SEND_FILE_AS_ATT], (isZimbraAccount && isMailEnabled && isItemSelected && !isMultiFolder && !isFolderSelected));
 	parent.enable(ZmOperation.TAG_MENU, (!isReadOnly && isItemSelected && !isFolderSelected && !isOldRevision));
 	parent.enable([ZmOperation.NEW_FILE, ZmOperation.VIEW_MENU], true);
 	parent.enable([ZmOperation.NEW_SPREADSHEET, ZmOperation.NEW_PRESENTATION, ZmOperation.NEW_DOC], true);
 	parent.enable([ZmOperation.MOVE, ZmOperation.MOVE_MENU], ( isItemSelected &&  !isReadOnly && !isShared && !isOldRevision));
-    parent.enable(ZmOperation.NEW_FILE, !(isTrash || isReadOnly || appCtxt.isExternalAccount()));
+    parent.enable(ZmOperation.NEW_FILE, !(isTrash || isReadOnly));
     parent.enable(ZmOperation.NEW_BRIEFCASE_WIN, (isItemSelected && !isFolderSelected));
 
     var firstItem = items && items[0];
@@ -358,6 +362,26 @@ function(parent, num) {
     if (appCtxt.get(ZmSetting.SLIDES_ENABLED)) {
         parent.enable(ZmOperation.NEW_PRESENTATION, isDocOpEnabled);
         parent.enable(ZmOperation.CREATE_SLIDE_SHOW, isDocOpEnabled && isItemSelected);
+    }
+
+    if(appCtxt.isExternalAccount()) {
+        parent.enable ([ZmOperation.SEND_FILE,
+                        ZmOperation.SEND_FILE_AS_ATT,
+                        ZmOperation.RENAME_FILE,
+                        ZmOperation.MOVE,
+                        ZmOperation.MOVE_MENU,
+                        ZmOperation.NEW_FILE,
+                        ZmOperation.TAG_MENU,
+                        ZmOperation.EDIT_FILE,
+                        ZmOperation.OPEN_FILE,
+                        ZmOperation.CHECKIN,
+                        ZmOperation.CHECKOUT,
+                        ZmOperation.DISCARD_CHECKOUT,
+                        ZmOperation.RESTORE_VERSION,
+                        ZmOperation.NEW_BRIEFCASE_WIN,
+                        ZmOperation.DELETE
+                        ], false);
+        parent.setItemVisible(ZmOperation.TAG_MENU, false);
     }
 };
 

@@ -51,7 +51,7 @@ exe = {
 	'CBPOLICYD'     : "bin/zmcbpolicydctl",
 	'PROXYGEN'      : "bin/zmproxyconfgen",
 	'CONVERTD'      : "bin/zmconvertctl",
-	'LDAPHELPER'    : "bin/ldapHelper.pl",
+	'OPENDKIM'	: "bin/zmopendkimctl",
 	}
 
 class Command:
@@ -400,6 +400,11 @@ commands = {
 		name = "amavis",
 		cmd  = exe["AMAVIS"] + " %s",
 	),
+	"opendkim" : Command(
+		desc = "opendkim",
+		name = "opendkim",
+		cmd  = exe["OPENDKIM"] + " %s",
+	),
 	"cbpolicyd" : Command(
 		desc = "cbpolicyd",
 		name = "cbpolicyd",
@@ -444,11 +449,6 @@ commands = {
 		desc = "convertd",
 		name = "convertd",
 		cmd  = exe["CONVERTD"] + " %s",
-	),
-	"ldaphelper" : Command(
-		desc = "ldaphelper",
-		name = "ldaphelper",
-		cmd  = exe["LDAPHELPER"] + " %s %s %s '%s'",
 	),
 	}
 

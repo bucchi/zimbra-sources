@@ -104,7 +104,7 @@ ZmAppViewMgr = function(shell, controller, isNewWindow, hasSkin) {
 	this._sashSupported = (window.skin && typeof window.skin.setTreeWidth == "function");
 
 	// history support
-	if (appCtxt.get(ZmSetting.HISTORY_SUPPORT_ENABLED) && (!AjxEnv.isChrome && (!AjxEnv.isSafari || AjxEnv.isSafari5up)) && !isNewWindow && !AjxEnv.isPrism) {
+	if (appCtxt.get(ZmSetting.HISTORY_SUPPORT_ENABLED) && !isNewWindow && !AjxEnv.isPrism) {
 		this._historyMgr = appCtxt.getHistoryMgr();
 		this._historyMgr.addListener(this._historyChangeListener.bind(this));
 	}
@@ -281,8 +281,8 @@ function(viewId, components, show, app) {
 		if (!comp) { continue; }
 		if (this.isHidden(cid, viewId)) { continue; }
 		
-		show = show && !this.isHidden(cid, this._currentViewId);
-		if (show) {
+		var doShow = show && !this.isHidden(cid, this._currentViewId);
+		if (doShow) {
 			// if we're replacing a visible component, hide the old one
 			var oldComp = this._component[cid] && this._component[cid].control;
 			if (oldComp && (oldComp != comp)) {
@@ -297,9 +297,7 @@ function(viewId, components, show, app) {
 			list.push(cid);
 		}
 
-		if (show) {
-			this.displayComponent(cid, true);
-		}
+		this.displayComponent(cid, doShow);
 
 		// TODO: move this code
 		if (cid == ZmAppViewMgr.C_SASH) {
@@ -619,7 +617,7 @@ ZmAppViewMgr.prototype.pushView =
 function(viewId, force) {
 
 	if (!viewId) { return false; }
-	DBG.println("avm", "-------------- PUSH view: " + viewId);
+	DBG.println("avm", "------- PUSH view: " + viewId);
 	
 	viewId = this._viewByTabId[viewId] || viewId;
 	var view = this._view[viewId] || this._emptyView;
@@ -638,6 +636,7 @@ function(viewId, force) {
 	var viewController = view.controller;
 
 	// if same view, no need to hide previous view or check for callbacks
+	//also no need to make the view visible, it already is.
 	if (viewId == this._currentViewId) {
 		this._setViewVisible(viewId, true);
 		// make sure the new content has focus
@@ -742,7 +741,7 @@ function(viewId, force) {
 ZmAppViewMgr.prototype.popView =
 function(force, viewId, skipHistory) {
 
-	DBG.println("avm", "-------------- POP view: " + viewId);
+	DBG.println("avm", "------- POP view: " + viewId);
 	
 	viewId = this._viewByTabId[viewId] || viewId;
 	var view = this._view[viewId] || this._emptyView;
@@ -776,11 +775,7 @@ function(force, viewId, skipHistory) {
 	if (!this._hidden.length && !this._isNewWindow) {
 		noHide = !curView.isTabView;
 		noShow = true;
-		var qsParams = AjxStringUtil.parseQueryString();
-		if (qsParams && ((qsParams.view && qsParams.view == "compose") || qsParams.id)) {
-			// if ZCS opened into compose or msg tab, take user to Mail
-			goToApp = ZmApp.MAIL;
-		}
+		goToApp = appCtxt.getCurrentAppName() || appCtxt.startApp;
 	}
 
 	DBG.println(AjxDebug.DBG1, "popView: " + this._currentViewId);
@@ -1199,32 +1194,24 @@ function(viewId, show) {
 	var toFit = [];
 	if (show) {
 
-		// first, handle the differences between what this view hides and what the last view hides
-		if (this._lastViewId) {
-			for (var i = 0; i < ZmAppViewMgr.ALL_COMPONENTS.length; i++) {
-				var cid = ZmAppViewMgr.ALL_COMPONENTS[i];
-				var hidden = this.isHidden(cid, viewId);
-				if (hidden != this.isHidden(cid, this._lastViewId)) {
-					this.displayComponent(cid, !hidden);
-				}
-			}
-		}
-
-		// then display the components for this view 
 		for (var i = 0; i < ZmAppViewMgr.ALL_COMPONENTS.length; i++) {
 			var cid = ZmAppViewMgr.ALL_COMPONENTS[i];
 			var oldComp = this.getViewComponent(cid, this._lastViewId);
-			var comp = this.getViewComponent(cid, viewId);
-			// bug 67499 - make sure any components left over from previous views are hidden
-			if (oldComp && comp && oldComp != comp) {
-				this.showComponent(cid, false, oldComp);
+			if (oldComp) {
+				this.displayComponent(cid, false);
 			}
-			if (comp && !this.isHidden(cid, viewId)) {
-				this.displayComponent(cid, true);
-				toFit.push(cid);
+			var comp = this.getViewComponent(cid, viewId);
+			if (comp) {
+				if (!this.isHidden(cid, viewId)) {
+					this.displayComponent(cid, true);
+					toFit.push(cid);
+				}
+			}
+			else {
+				this.showSkinElement(cid, false);
 			}
 		}
-	
+
 		// fit the components now that we're done messing with the skin
 		if (this._hasSkin) {
 			this._fitToContainer(toFit);

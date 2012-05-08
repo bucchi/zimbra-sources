@@ -180,6 +180,7 @@ function() {
  * @param {Boolean}		inNewWindow		if <code>true</code>, we are in detached window
  * @param {ZmMailMsg}	msg				the original message (reply/forward), or address (new message)
  * @param {String}		toOverride 		the initial value for To: field
+ * @param {String}		ccOverride		Cc: addresses (optional)
  * @param {String}		subjOverride 	the initial value for Subject: field
  * @param {String}		extraBodyText	the canned text to prepend to body (invites)
  * @param {AjxCallback}	callback		the callback to run after view has been set
@@ -723,6 +724,11 @@ function() {
 			tooltip:ZmComposeController.DEFAULT_TAB_TEXT, style: DwtLabel.IMAGE_RIGHT};
 };
 
+ZmComposeController.prototype.isTransient =
+function(oldView, newView) {
+	return (appCtxt.getViewTypeFromId(newView) == ZmId.VIEW_MAIL_CONFIRM);
+};
+
 ZmComposeController.prototype._identityChangeListener =
 function(setSignature, event) {
 
@@ -777,11 +783,7 @@ function() {
 	}
 	tg.addMember(this._composeView._subjectField);
 	var mode = this._composeView.getComposeMode();
-	var member = (mode == DwtHtmlEditor.TEXT) ? this._composeView._bodyField : this._composeView.getHtmlEditor();
-    if(this._composeView.isTinyMCEEnabled()) {
-        var htmlEditor = this._composeView.getHtmlEditor();
-        member = htmlEditor.getEditorContainer();
-    }
+	var member = (mode === DwtHtmlEditor.TEXT) ? this._composeView._bodyField : this._composeView.getHtmlEditor().getEditorContainer();
 	tg.addMember(member);
 };
 
@@ -942,12 +944,7 @@ function(params) {
 	this._extraBodyText = params.extraBodyText;
 	this._msgIds = params.msgIds;
 	this._accountName = params.accountName;
-
-	var account = (appCtxt.multiAccounts && appCtxt.getActiveAccount().isMain)
-		? appCtxt.accountList.defaultAccount : null;
-	var identityCollection = appCtxt.getIdentityCollection(account);
-	var identity = (msg && msg.identity) ? msg.identity : identityCollection.selectIdentity(msg);
-	params.identity = identity;
+	var identity = params.identity = this._getIdentity(msg);
 
 	this._composeMode = params.composeMode || this._getComposeMode(msg, identity);
 	AjxDebug.println(AjxDebug.REPLY, "ZmComposeController::_setView - Compose mode: " + this._composeMode);
@@ -1025,6 +1022,13 @@ function(params) {
 	if (params.callback) {
 		params.callback.run(this);
 	}
+};
+
+ZmComposeController.prototype._getIdentity =
+function(msg) {
+	var account = (appCtxt.multiAccounts && appCtxt.getActiveAccount().isMain)
+		? appCtxt.accountList.defaultAccount : null;
+	return (msg && msg.identity) ? msg.identity : appCtxt.getIdentityCollection(account).selectIdentity(msg);
 };
 
 ZmComposeController.prototype._initializeToolBar =
@@ -1233,6 +1237,7 @@ function(composeMode, incOptions) {
     var ac = window.parentAppCtxt || window.appCtxt;
 
 	var button = this._toolbar.getButton(ZmOperation.COMPOSE_OPTIONS);
+	button.noMenuBar = true;
 	button.setToolTipContent(ZmMsg[ZmComposeController.OPTIONS_TT[this._action]], true);
 	var menu = this._optionsMenu[this._action];
 	if (!menu) { return; }
@@ -1547,7 +1552,14 @@ function() {
 
 // Attachment button was pressed
 ZmComposeController.prototype._attachmentListener =
-function(ev) {
+function(isInline) {
+
+    var view = this._composeView,
+        fileInputElement;
+
+    if (isInline && AjxEnv.supportsHTML5File && !view._attcBtnInlineFileInpId) {
+        view.collapseAttMenu();//This will create the attach menu options
+    }
 
 	if (!this._detachOkCancel) {
 		// detach ok/cancel dialog is only necessary if user clicked on the add attachments button
@@ -1555,9 +1567,17 @@ function(ev) {
 		this._detachOkCancel.setMessage(ZmMsg.detachAnyway, DwtMessageDialog.WARNING_STYLE);
 		this._detachOkCancel.registerCallback(DwtDialog.OK_BUTTON, this._detachCallback, this);
 	}
-    var view = this._composeView;
-    if (view._attcBtnFileInpId) {
-        var fileInputElement = document.getElementById(view._attcBtnFileInpId);
+    if (AjxEnv.supportsHTML5File) {
+        if (isInline) {
+            if (view._attcBtnInlineFileInpId) {
+                fileInputElement = document.getElementById(view._attcBtnInlineFileInpId);
+            }
+        }
+        else {
+            if (view._attcBtnFileInpId) {
+                fileInputElement = document.getElementById(view._attcBtnFileInpId);
+            }
+        }
         if (fileInputElement && fileInputElement.click) {
             try {
                 fileInputElement.click();
@@ -2110,7 +2130,7 @@ ZmComposeController.prototype._pasteHandler = function( ev ){
 };
 
 ZmComposeController.prototype._processDataURIImages = function(idoc, callback){
-    var BlobBuilder = window.MozBlobBuilder || window.WebKitBlobBuilder || window.BlobBuilder;
+    var BlobBuilder = window.MozBlobBuilder || window.WebKitBlobBuilder || window.MSBlobBuilder || window.BlobBuilder;
     if(!BlobBuilder || !idoc || !window.atob){
         return;
     }
@@ -2125,9 +2145,17 @@ ZmComposeController.prototype._processDataURIImages = function(idoc, callback){
         if( dataURI ){
             var dataURIArray = dataURI.split(",");
             if( dataURIArray.length === 2 ){
+                if (dataURIArray[0].indexOf('base64') === -1){
+                    return;
+                }
                 // convert base64 to raw binary data held in a string
                 // doesn't handle URLEncoded DataURIs
-                var byteString = window.atob( dataURIArray[1] );
+                try{
+                    var byteString = window.atob( dataURIArray[1] );
+                }
+                catch(e){
+                    return;
+                }
                 if( !byteString ){
                     return;
                 }
@@ -2213,7 +2241,7 @@ ZmComposeController.prototype._uploadMyComputerFile =
         req.setRequestHeader("Cache-Control", "no-cache");
         req.setRequestHeader("X-Requested-With", "XMLHttpRequest");
         req.setRequestHeader("Content-Type",  (file.type || "application/octet-stream") + ";");
-        req.setRequestHeader("Content-Disposition", 'attachment; filename="'+ fileName + '"');
+        req.setRequestHeader("Content-Disposition", 'attachment; filename="'+ AjxUtil.convertToEntities(fileName) + '"');
 
 	    curView._startUploadAttachment();
         DBG.println(AjxDebug.DBG1,"Uploading file: "  + fileName + " file type" + (file.type || "application/octet-stream") );
@@ -2278,7 +2306,7 @@ ZmComposeController.prototype._uploadImage = function(blob, callback){
     req.setRequestHeader("Cache-Control", "no-cache");
     req.setRequestHeader("X-Requested-With", "XMLHttpRequest");
     req.setRequestHeader("Content-Type", blob.type);
-    req.setRequestHeader("Content-Disposition", 'attachment; filename="' + blob.name + '"');
+    req.setRequestHeader("Content-Disposition", 'attachment; filename="' + AjxUtil.convertToEntities(blob.name) + '"');
     req.onreadystatechange = function(){
         if(req.readyState === 4 && req.status === 200) {
             var resp = eval("["+req.responseText+"]");

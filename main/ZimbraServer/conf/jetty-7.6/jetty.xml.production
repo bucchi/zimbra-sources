@@ -237,6 +237,14 @@
 	    </Arg>
         </Call>
         <Call name="addRule">
+        <Arg>
+        <New class="org.eclipse.jetty.rewrite.handler.RewritePatternRule">
+            <Set name="pattern">/octopus/*</Set>
+            <Set name="replacement">/service/octopus/</Set>
+        </New>
+        </Arg>
+        </Call>
+        <Call name="addRule">
 	    <Arg>
 		<New class="org.eclipse.jetty.rewrite.handler.RewritePatternRule">
 		    <Set name="pattern">/user/*</Set>
@@ -567,6 +575,7 @@
           <Set name="extended">true</Set>
           <Set name="filenameDateFormat">yyyy-MM-dd</Set>
           <Set name="preferProxiedForAddress">true</Set>
+          <Set name="logLatency">true</Set>
         </New>
       </Set>
     </Ref>
@@ -591,7 +600,7 @@
     <!-- extra options                                               -->
     <!-- =========================================================== -->
     <Set name="stopAtShutdown">true</Set>
-    <Set name="sendServerVersion">false</Set>
+    <Set name="sendServerVersion">true</Set>
     <Set name="sendDateHeader">true</Set>
 
     <!-- =========================================================== -->

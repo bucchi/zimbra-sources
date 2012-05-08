@@ -3,10 +3,12 @@
  */
 package com.zimbra.qa.selenium.projects.ajax.ui.search;
 
+import java.util.*;
+
+import com.zimbra.qa.selenium.framework.items.MailItem;
 import com.zimbra.qa.selenium.framework.ui.*;
 import com.zimbra.qa.selenium.framework.util.HarnessException;
-import com.zimbra.qa.selenium.projects.ajax.ui.*;
-import java.util.*;
+import com.zimbra.qa.selenium.projects.ajax.ui.AppAjaxClient;
 
 
 /**
@@ -79,6 +81,24 @@ public class PageSearch extends AbsTab {
 		return (true);
 
 	}
+	
+	public void zClose() throws HarnessException {
+		
+		if ( !zIsActive() ) {
+			return; // Already closed
+		}
+		
+		String locator = "css=div[id^='zb__App__tab_SR'] td[id$='_right_icon'] div.ImgCloseGray";
+		
+		if ( !this.sIsElementPresent(locator) ) {
+			return; // Already closed
+		}
+		
+		this.zClickAt(locator, "");
+		this.zWaitForBusyOverlay();
+		
+		return;
+	}
 
 	/* (non-Javadoc)
 	 * @see projects.admin.ui.AbsPage#myPageName()
@@ -132,38 +152,18 @@ public class PageSearch extends AbsTab {
 		//
 		
 		if ( button == Button.B_SEARCH ) {
-			locator = "css=div#zb__Search__SEARCH>div#zb__Search__SEARCH_left_icon>div.ImgSearch2";
+			locator = "css=div#zb__Search__SEARCH_left_icon div.ImgSearch2";
 			
 			// for all item types
 			if (zIsSearchType(Button.O_SEARCHTYPE_ALL)) {
 			    page = new PageAllItemTypes(((AppAjaxClient)MyApplication));
 			}
 			
-			// Make sure the button exists
-			if ( !sIsElementPresent(locator) )
-				throw new HarnessException("Button is not present locator="+ locator +" button="+ button);
+		} else if ( (button == Button.B_SEARCHSAVE) || (button == Button.B_SAVE) ) {
 			
-		} else if ( button == Button.B_SEARCHSAVE ) {
-			
-			locator = "css=div[id='zb__Search__SAVE'] td[id='zb__Search__SAVE_left_icon']";
+			locator = "css=div[id^='ztb_searchresults__'] td[id$='_saveButton'] td[id$='_title']";
 			page = new DialogSaveSearch(MyApplication, this);
 			
-			// Make sure the button exists
-			if ( !sIsElementPresent(locator) )
-				throw new HarnessException("Button is not present locator="+ locator +" button="+ button);
-			
-		/*	IronMaiden does not support Advanced Search 
-		} else if ( button == Button.B_SEARCHADVANCED ) {
-			
-			locator = "zb__Search__ADV_title";
-			page = ((AppAjaxClient)MyApplication).zPageAdvancedSearch;
-			
-			// Make sure the button exists
-			if ( !this.sIsElementPresent(locator) )
-				throw new HarnessException("Button is not present locator="+ locator +" button="+ button);
-			
-			// FALL THROUGH
-			*/
 		} else {
 			throw new HarnessException("no logic defined for button "+ button);
 		}
@@ -171,6 +171,10 @@ public class PageSearch extends AbsTab {
 		if ( locator == null ) {
 			throw new HarnessException("locator was null for button "+ button);
 		}
+		
+		// Make sure the button exists
+		if ( !sIsElementPresent(locator) )
+			throw new HarnessException("Button is not present locator="+ locator +" button="+ button);
 		
 		// Default behavior, process the locator by clicking on it
 		//
@@ -185,8 +189,6 @@ public class PageSearch extends AbsTab {
 		// If page was specified, make sure it is active
 		if ( page != null ) {
             
-			sWaitForPageToLoad();
-			
 			// This function (default) throws an exception if never active
 			page.zWaitForActive();
 			
@@ -335,6 +337,58 @@ public class PageSearch extends AbsTab {
             
     	return sIsElementPresent("css=td#zb__Search__MENU_left_icon>div." + imageClass);
     }
+
+	public List<MailItem> zListGetMessages() throws HarnessException {
+
+		List<MailItem> items = new ArrayList<MailItem>();
+
+		String listLocator = null;
+		String rowLocator = null;
+		if (zGetPropMailView() == SearchView.BY_MESSAGE) {
+			listLocator = "css=div[id^='zv__TV-SR-Mail-']";
+			rowLocator = "div[id$='__rows']";
+		} else {
+			listLocator = "css=div[id^='zv__CLV-SR-Mail-']";
+			rowLocator = "div[id$='__rows']";
+		}
+
+		// Make sure the button exists
+		if ( !this.sIsElementPresent(listLocator) )
+			throw new HarnessException("Message List View Rows is not present: " + listLocator);
+
+		String tableLocator = listLocator + " " + rowLocator;
+		
+		// How many items are in the table?
+		int count = this.sGetCssCount(tableLocator);
+		logger.debug(myPageName() + " zListGetMessages: number of messages: "+ count);
+
+		// Get each conversation's data from the table list
+		for (int i = 1; i <= count; i++) {
+
+			// Add the new item to the list
+			MailItem item = ((AppAjaxClient)this.MyApplication).zPageMail.parseMessageRow(listLocator + " div:nth-of-type("+ i +") ");
+			items.add(item);
+			logger.info(item.prettyPrint());
+		}
+
+		// Return the list of items
+		return (items);
+	}
 	
+	public enum SearchView {
+		BY_MESSAGE, BY_CONVERSATION
+	}
+
+
+	public SearchView zGetPropMailView() throws HarnessException {
+		if ( this.zIsVisiblePerPosition("css=div[id^='zv__CLV-SR-Mail-']", 0, 0) ) {
+			return (SearchView.BY_CONVERSATION);
+		} else if ( this.zIsVisiblePerPosition("css=div[id^='zv__TV-SR-Mail-']", 0, 0) ) {
+			return (SearchView.BY_MESSAGE);
+		}
+
+		throw new HarnessException("Unable to determine the Page Mail View");
+	}
+
 
 }

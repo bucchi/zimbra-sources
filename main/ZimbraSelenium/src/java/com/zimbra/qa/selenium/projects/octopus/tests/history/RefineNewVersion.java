@@ -12,7 +12,11 @@ public class RefineNewVersion extends HistoryCommonTest {
 		logger.info("New " + RefineNewVersion.class.getCanonicalName());
 	}
 
-	
+	 @BeforeMethod(groups= ("always")) 
+	 public void setup()
+	 throws HarnessException {
+	    	super.setup();
+	 }
 			
 	@Test(description = "Verify check 'new version' checkbox", groups = { "functional" })
 	public void RefineCheckNewVersion() throws HarnessException {

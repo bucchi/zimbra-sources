@@ -333,6 +333,7 @@ function(params) {
 	ZmZimbraMail.registerViewsToTypeMap();
 
 	this._getStartApp(params);
+	appCtxt.startApp = params.startApp;
 
 	this._postRenderCallbacks = [];
 	this._postRenderLast = 0;
@@ -392,7 +393,7 @@ function(sendRights, sendRight) {
             for (var i=0;i<sendRights.length; i++){
                 var target = sendRights[i].target;
                 var right =  sendRights[i].right;
-                if (right == sendRight){
+                if (right == sendRight || right == (sendRight + "DistList")){
                     for (var j=0;j < target.length; j++){
                         var emailList = target[j].email;
                         for (var k=0; k < emailList.length; k++){
@@ -726,6 +727,14 @@ function(params, result) {
 			}
 		});
 	this.addPostRenderCallback(callback, 5, 100);
+
+    if (appCtxt.get(ZmSetting.MAIL_ENABLED) && !appCtxt.isExternalAccount() && navigator.registerProtocolHandler){
+        callback = new AjxCallback(this,
+            function() {
+                navigator.registerProtocolHandler("mailto",AjxUtil.formatUrl({qsArgs:{view:'compose',to:'%s'}, qsReset:true}) ,ZmMsg.zimbraTitle);
+        });
+        this.addPostRenderCallback(callback, 6, 100);
+    }
 
 	this.activateApp(params.startApp, false, respCallback, this._errorCallback, params);
 
@@ -1450,7 +1459,7 @@ function(attachment, controller) {
         req.setRequestHeader("Cache-Control", "no-cache");
         req.setRequestHeader("X-Requested-With", "XMLHttpRequest");
         req.setRequestHeader("Content-Type",  (contentType || "application/octet-stream") );
-        req.setRequestHeader("Content-Disposition", 'attachment; filename="'+ filename + '"');
+        req.setRequestHeader("Content-Disposition", 'attachment; filename="'+ AjxUtil.convertToEntities(filename) + '"');
 
         var reqObj = req;
         req.onreadystatechange = AjxCallback.simpleClosure(this._handleUploadResponse, this, reqObj, controller);

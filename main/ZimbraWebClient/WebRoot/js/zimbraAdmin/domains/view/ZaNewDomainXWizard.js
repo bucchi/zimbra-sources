@@ -718,56 +718,58 @@ ZaNewDomainXWizard.myXFormModifier = function(xFormObject, entry) {
 		{type: _SWITCH_,width:"100%", valign:_TOP_,
 			items: [
 				{type:_CASE_, caseKey:ZaNewDomainXWizard.GENERAL_STEP, colSizes:["200px","*"],numCols:2,
-					items: [
-						{ref:ZaDomain.A_domainName, type:_TEXTFIELD_, label:ZaMsg.Domain_DomainName,labelLocation:_LEFT_, required:true, width:200},
-						{ref:ZaDomain.A_zimbraPublicServiceHostname, type:_TEXTFIELD_, label:ZaMsg.Domain_zimbraPublicServiceHostname,labelLocation:_LEFT_, width:200},
-						{ref:ZaDomain.A_zimbraPublicServiceProtocol, type:_OSELECT1_, choices:ZaDomain.protocolChoices, label:ZaMsg.Domain_zimbraPublicServiceProtocol,labelLocation:_LEFT_},
-						{ref:ZaDomain.A_zimbraPublicServicePort, type:_TEXTFIELD_, label:ZaMsg.Domain_zimbraPublicServicePort,labelLocation:_LEFT_, width:100},
-						{ type: _DWT_ALERT_,containerCssStyle: "padding-bottom:0px",style: DwtAlert.INFO,
-								iconVisible: true,content: ZaMsg.Domain_InboundSMTPNote,colSpan:"*"},
-						{type:_GROUP_,colSpan:"2", colSizes:["*"],numCols:1, width:"100%", id:"dns_check_group",items:[
-						
-							{ref: ZaDomain.A_zimbraDNSCheckHostname, type:_SUPERWIZ_TEXTFIELD_, textFieldWidth:200, colSizes:["200px", "250px", "*"],
-		 						label:null,txtBoxLabel:ZaMsg.Domain_zimbraDNSCheckHostname, resetToSuperLabel:ZaMsg.NAD_ResetToGlobal}/*, {type:_CELLSPACER_}*/
-						]},	
-						{ref:ZaDomain.A_description, type:_TEXTFIELD_, label:ZaMsg.NAD_Description, labelLocation:_LEFT_, width:200},
-						{ref:ZaDomain.A_domainDefaultCOSId, type:_DYNSELECT_, 
-							toolTipContent:ZaMsg.tt_StartTypingCOSName,
-							label:ZaMsg.Domain_DefaultCOS, labelLocation:_LEFT_, 
-							onChange:ZaNewDomainXWizard.onCOSChanged,
-							dataFetcherMethod:ZaSearch.prototype.dynSelectSearchCoses,
-							choices:this.cosChoices,
-							dataFetcherClass:ZaSearch,
-							emptyText:ZaMsg.enterSearchTerm,
-                            inputSize: 33,
-							editable:true,
-							getDisplayValue:function(newValue) {
-								// dereference through the choices array, if provided
-								//newValue = this.getChoiceLabel(newValue);
-								if(ZaItem.ID_PATTERN.test(newValue)) {
-									var cos = ZaCos.getCosById(newValue, this.getForm().parent._app);
-									if(cos)
-										newValue = cos.name;
-								} 
-								if (newValue == null) {
-									newValue = "";
-								} else {
-									newValue = "" + newValue;
-								}
-								return newValue;
-							}
-						},
-						{ref:ZaDomain.A_zimbraDomainStatus, type:_OSELECT1_, msgName:ZaMsg.NAD_DomainStatus,
-							label:ZaMsg.LBL_zimbraDomainStatus, 
-							labelLocation:_LEFT_, choices:ZaDomain.domainStatusChoices
-						},						
-						{ref:ZaDomain.A_notes, type:_TEXTAREA_, label:ZaMsg.NAD_Notes, labelLocation:_LEFT_, labelCssStyle:"vertical-align:top", width:250},
-						// help URL
-						{ref:ZaDomain.A_zimbraHelpAdminURL, type:_TEXTFIELD_, label:ZaMsg.Domain_zimbraHelpAdminURL, 
-						msgName:ZaMsg.Domain_zimbraHelpAdminURL, labelLocation:_LEFT_, width:200},
-                                                {ref:ZaDomain.A_zimbraHelpDelegatedURL, type:_TEXTFIELD_, label:ZaMsg.Domain_zimbraHelpDelegatedURL,
-                                                msgName:ZaMsg.Domain_zimbraHelpDelegatedURL, labelLocation:_LEFT_, width:200}
-					]
+					items: [{type:_ZAWIZ_TOP_GROUPER_, colSpan:"*", label:ZaMsg.TABT_GeneralPage,
+                        items:[
+                            {ref:ZaDomain.A_domainName, type:_TEXTFIELD_, label:ZaMsg.Domain_DomainName,labelLocation:_LEFT_, required:true, width:200},
+                            {ref:ZaDomain.A_zimbraPublicServiceHostname, type:_TEXTFIELD_, label:ZaMsg.Domain_zimbraPublicServiceHostname,labelLocation:_LEFT_, width:200},
+                            {ref:ZaDomain.A_zimbraPublicServiceProtocol, type:_OSELECT1_, choices:ZaDomain.protocolChoices, label:ZaMsg.Domain_zimbraPublicServiceProtocol,labelLocation:_LEFT_},
+                            {ref:ZaDomain.A_zimbraPublicServicePort, type:_TEXTFIELD_, label:ZaMsg.Domain_zimbraPublicServicePort,labelLocation:_LEFT_, width:100},
+                            { type: _DWT_ALERT_,containerCssStyle: "padding-bottom:0px",style: DwtAlert.INFO,
+                                    iconVisible: true,content: ZaMsg.Domain_InboundSMTPNote,colSpan:"*"},
+                            {type:_GROUP_,colSpan:"2", colSizes:["*"],numCols:1, width:"100%", id:"dns_check_group",items:[
+
+                                {ref: ZaDomain.A_zimbraDNSCheckHostname, type:_SUPERWIZ_TEXTFIELD_, textFieldWidth:200, colSizes:["200px", "250px", "*"],
+                                    label:null,txtBoxLabel:ZaMsg.Domain_zimbraDNSCheckHostname, resetToSuperLabel:ZaMsg.NAD_ResetToGlobal}/*, {type:_CELLSPACER_}*/
+                            ]},
+                            {ref:ZaDomain.A_description, type:_TEXTFIELD_, label:ZaMsg.NAD_Description, labelLocation:_LEFT_, width:200},
+                            {ref:ZaDomain.A_domainDefaultCOSId, type:_DYNSELECT_,
+                                toolTipContent:ZaMsg.tt_StartTypingCOSName,
+                                label:ZaMsg.Domain_DefaultCOS, labelLocation:_LEFT_,
+                                onChange:ZaNewDomainXWizard.onCOSChanged,
+                                dataFetcherMethod:ZaSearch.prototype.dynSelectSearchCoses,
+                                choices:this.cosChoices,
+                                dataFetcherClass:ZaSearch,
+                                emptyText:ZaMsg.enterSearchTerm,
+                                inputSize: 33,
+                                editable:true,
+                                getDisplayValue:function(newValue) {
+                                    // dereference through the choices array, if provided
+                                    //newValue = this.getChoiceLabel(newValue);
+                                    if(ZaItem.ID_PATTERN.test(newValue)) {
+                                        var cos = ZaCos.getCosById(newValue, this.getForm().parent._app);
+                                        if(cos)
+                                            newValue = cos.name;
+                                    }
+                                    if (newValue == null) {
+                                        newValue = "";
+                                    } else {
+                                        newValue = "" + newValue;
+                                    }
+                                    return newValue;
+                                }
+                            },
+                            {ref:ZaDomain.A_zimbraDomainStatus, type:_OSELECT1_, msgName:ZaMsg.NAD_DomainStatus,
+                                label:ZaMsg.LBL_zimbraDomainStatus,
+                                labelLocation:_LEFT_, choices:ZaDomain.domainStatusChoices
+                            },
+                            {ref:ZaDomain.A_notes, type:_TEXTAREA_, label:ZaMsg.NAD_Notes, labelLocation:_LEFT_, labelCssStyle:"vertical-align:top", width:250},
+                            // help URL
+                            {ref:ZaDomain.A_zimbraHelpAdminURL, type:_TEXTFIELD_, label:ZaMsg.Domain_zimbraHelpAdminURL,
+                            msgName:ZaMsg.Domain_zimbraHelpAdminURL, labelLocation:_LEFT_, width:200},
+                                                    {ref:ZaDomain.A_zimbraHelpDelegatedURL, type:_TEXTFIELD_, label:ZaMsg.Domain_zimbraHelpDelegatedURL,
+                                                    msgName:ZaMsg.Domain_zimbraHelpDelegatedURL, labelLocation:_LEFT_, width:200}
+                        ]}
+                    ]
 				},
 				{type:_CASE_, caseKey:ZaNewDomainXWizard.GALMODE_STEP,numCols:2,colSizes:["220px","450px"],
 					items: [
@@ -1593,30 +1595,50 @@ ZaNewDomainXWizard.myXFormModifier = function(xFormObject, entry) {
 				{type:_CASE_, caseKey:ZaNewDomainXWizard.ADVANCED_STEP, numCols:1, 
 					items: [
 						{ type:_ZAWIZ_TOP_GROUPER_, label:ZaMsg.Domain_BC_ShareConf,
-                                  		  items :[
-                                          		{ ref: ZaDomain.A_zimbraBasicAuthRealm,
-                                            		  type: _SUPERWIZ_TEXTFIELD_, width: 250 ,
-                                            		  resetToSuperLabel:ZaMsg.NAD_ResetToGlobal,
-                                            		  txtBoxLabel: ZaMsg.Domain_zimbraBasicAuthRealm
-                                          		}
-                                         	 ]
-                                		},
-                                                { type:_ZAWIZ_TOP_GROUPER_, label:ZaMsg.Domain_AD_EmailValidate,
+                            items :[
+                                    { ref: ZaDomain.A_zimbraBasicAuthRealm,
+                                          type: _SUPERWIZ_TEXTFIELD_, width: 250 ,
+                                          resetToSuperLabel:ZaMsg.NAD_ResetToGlobal,
+                                          txtBoxLabel: ZaMsg.Domain_zimbraBasicAuthRealm
+                                    }
+                                 ]
+                            },
+                        { type:_ZAWIZ_TOP_GROUPER_, label:ZaMsg.Domain_AD_EmailValidate,
 							colSizes:["200px","*"], 
-                                                  items :[
-
-                                                	{ref:ZaDomain.A_zimbraMailAddressValidationRegex, type:_REPEAT_, 
-                                                		nowrap:false,labelWrap:true,
-                                                        label:ZaMsg.LBL_EmailValidate, repeatInstance:"", labelWrap:true,
-                                                		showAddButton:true, showRemoveButton:true,
-                                                                addButtonLabel:ZaMsg.NAD_AddRegex,
-                                                                showAddOnNextRow:true,
-                                                                removeButtonLabel:ZaMsg.NAD_RemoveRegex,
-                                                                items: [
-                                                                        {ref:".", type:_TEXTFIELD_, label:null,width:250}
-                                                                ]
-                                                	}
-						   ]}	
+                            items :[
+                                    {ref:ZaDomain.A_zimbraMailAddressValidationRegex, type:_REPEAT_,
+                                        nowrap:false,labelWrap:true,
+                                        label:ZaMsg.LBL_EmailValidate, repeatInstance:"", labelWrap:true,
+                                        showAddButton:true, showRemoveButton:true,
+                                        addButtonLabel:ZaMsg.NAD_AddRegex,
+                                        showAddOnNextRow:true,
+                                        removeButtonLabel:ZaMsg.NAD_RemoveRegex,
+                                        items: [
+                                            {ref:".", type:_TEXTFIELD_, label:null,width:250}
+                                        ]
+                                    }
+						   ]
+                        },
+                        {type:_ZAWIZ_TOP_GROUPER_, label:ZaMsg.Domain_QUOTA_Configuration,
+                            colSizes:["200px","*"],
+                            items:[
+                                {ref:ZaDomain.A_zimbraMailDomainQuota, type:_TEXTFIELD_,
+                                    label:ZaMsg.LBL_DomainQuota
+                                },
+                                {ref:ZaDomain.A_zimbraDomainAggregateQuota, type:_TEXTFIELD_,
+                                    label:ZaMsg.LBL_DomainAggregateQuota
+                                },
+                                {ref:ZaDomain.A_zimbraDomainAggregateQuotaWarnPercent, type:_TEXTFIELD_,
+                                    label:ZaMsg.LBL_DomainAggregateQuotaWarnPercent
+                                },
+                                {ref:ZaDomain.A_zimbraDomainAggregateQuotaWarnEmailRecipient, type:_TEXTFIELD_,
+                                    label:ZaMsg.LBL_DomainAggregateQuotaWarnEmailRecipient
+                                },
+                                {ref:ZaDomain.A_zimbraDomainAggregateQuotaPolicy, type:_OSELECT1_,
+                                   label:ZaMsg.LBL_DomainAggregateQuotaPolicy, labelLocation:_LEFT_
+                                }
+                            ]
+                        }
 									
 					]
 				},

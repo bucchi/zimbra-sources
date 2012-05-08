@@ -47,6 +47,8 @@ ZmGroupView = function(parent, controller) {
 	this._changeListener = new AjxListener(this, this._groupChangeListener);
 	this._detailedSearch = appCtxt.get(ZmSetting.DETAILED_CONTACT_SEARCH_ENABLED);
 	this._groupMemberMods = {};
+	this._tabGroup = new DwtTabGroup(this._htmlElId);
+	
 };
 
 ZmGroupView.prototype = new DwtComposite;
@@ -148,6 +150,7 @@ function(contact, isDirty) {
 		this._createHtml();
 		this._addWidgets();
 		this._installKeyHandlers();
+		this._tabGroup.addMember(this._getTabGroupMembers());
 	}
 	
 	this._setFields();
@@ -401,6 +404,17 @@ function() {
 	return this._getDlOwners().length > 0
 };
 
+
+ZmGroupView.prototype.isValidMailPolicy =
+function() {
+	if (!this.isDistributionList()) {
+		return true;
+	}
+	return this._getDlMailPolicy() != ZmGroupView.MAIL_POLICY_SPECIFIC || this._getDlSpecificMailers().length > 0;
+};
+
+
+
 ZmGroupView.prototype.isValid =
 function() {
 	// check for required group name
@@ -414,6 +428,9 @@ function() {
 		return false;
 	}
 	if (!this.isValidOwners()) {
+		return false;
+	}
+	if (!this.isValidMailPolicy()) {
 		return false;
 	}
 	return true;
@@ -438,6 +455,9 @@ function() {
 	if (!this.isValidOwners()) {
 		items.push("owners");
 	}
+	if (!this.isValidMailPolicy()) {
+		items.push("mailPolicy");
+	}
 	return items;
 };
 
@@ -456,6 +476,9 @@ ZmGroupView.prototype.getErrorMessage = function(id) {
 	}
 	if (id == "owners") {
 		return ZmMsg.dlInvalidOwners; 
+	}
+	if (id == "mailPolicy") {
+		return ZmMsg.dlInvalidMailPolicy;
 	}
 
 };
@@ -817,6 +840,9 @@ function() {
 		if (folderOrId && folderOrId.type != ZmOrganizer.ADDRBOOK) {
 			folderOrId = null;
 		}
+		if (!this.isDistributionList() && folderOrId && folderOrId.id && folderOrId.id == ZmFolder.ID_DLS) { //can't create under Distribution Lists virtual folder
+			folderOrId = null;
+		}
 	}
 
 	this._setLocationFolder(folderOrId);
@@ -943,6 +969,13 @@ function() {
 	}
 };
 
+/**
+ * very important method to have in order for the tab group (and tabbing) to be set up correctly (called from ZmBaseController.prototype._initializeTabGroup)
+ */
+ZmGroupView.prototype.getTabGroupMember = function() {
+	return this._tabGroup;
+};
+
 ZmGroupView.prototype._getTabGroupMembers =
 function() {
 	var fields = [];
@@ -980,12 +1013,21 @@ function() {
 	for (var fieldId in this._searchField) {
 		fields.push(this._searchField[fieldId]);
 	}
+	fields.push(this._searchButton);
+	fields.push(this._searchInSelect);
+
 	return fields;
 };
 
 ZmGroupView.prototype._getDefaultFocusItem =
 function() {
 	if (this.isDistributionList()) {
+		if (this._usernameEditable) {
+			return document.getElementById(this._groupNameId);
+		}
+		if (this._domainEditable) {
+			return document.getElementById(this._groupNameDomainId);
+		}
 		return document.getElementById(this._dlDisplayNameId);
 	}
 	return document.getElementById(this._groupNameId);

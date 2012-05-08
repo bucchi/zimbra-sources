@@ -276,7 +276,7 @@ function(actionCode, ev) {
 		case ZmKeyMap.MOVE_TO_INBOX:
 		case ZmKeyMap.MOVE_TO_TRASH:
 		case ZmKeyMap.MOVE_TO_JUNK:
-			if (isSyncFailures) { break; }
+			if (isSyncFailures || isExternalAccount) { break; }
 			if (actionCode == ZmKeyMap.MOVE_TO_JUNK && !appCtxt.get(ZmSetting.SPAM_ENABLED)) { break; }
 			if (num && !(isDrafts && actionCode != ZmKeyMap.MOVE_TO_TRASH)) {
 			 	var folderId = ZmMailListController.ACTION_CODE_TO_FOLDER_MOVE[actionCode];
@@ -298,24 +298,25 @@ function(actionCode, ev) {
 			break;
 	
 		case ZmKeyMap.SPAM:
+            if (isExternalAccount) { break; }
 			if (num && !isDrafts && !isExternalAccount && !isSyncFailures && appCtxt.get(ZmSetting.SPAM_ENABLED) && (folder && !folder.isReadOnly())) {
 				this._spamListener();
 			}
 			break;
 
 		case ZmKeyMap.MUTE_UNMUTE_CONV:
-			if (num && (!folder || (folder && !folder.isReadOnly()))) {
-				this._muteUnmuteConvListener();
-			}
+            // Mute/Unmute Code removed for IM will be added for JP
 			break;
 
         case ZmKeyMap.MARK_READ:
+            if (isExternalAccount) { break; }
 			if (num && (!folder || (folder && !folder.isReadOnly()))) {
 				this._markReadListener();
 			}
 			break;
 
 		case ZmKeyMap.MARK_UNREAD:
+            if (isExternalAccount) { break; }
 			if (num && (!folder || (folder && !folder.isReadOnly()))) {
 				this._markUnreadListener();
 			}
@@ -540,7 +541,7 @@ function(address, item, ev){
 };
 
 ZmMailListController.prototype._getToolBarOps =
-function(noViewMenu) {
+function() {
 	var list = [];
 	list.push(ZmOperation.SEP);
 	list = list.concat(this._msgOps());
@@ -549,21 +550,25 @@ function(noViewMenu) {
 		list.push(ZmOperation.MOVE_MENU);
 		list.push(ZmOperation.TAG_MENU);
 	}
+	return list;
+};
 
-	if (!noViewMenu) {
-    	list.push(ZmOperation.VIEW_MENU);
+ZmMailListController.prototype._getRightSideToolBarOps =
+function() {
+	var list = [];
+	if (appCtxt.isChildWindow) {
+		return list;
 	}
+	if (appCtxt.get(ZmSetting.DETACH_MAILVIEW_ENABLED) && !appCtxt.isExternalAccount()) {
+		list.push(ZmOperation.DETACH);
+	}
+	list.push(ZmOperation.VIEW_MENU);
 	return list;
 };
 
 ZmMailListController.prototype._getSecondaryToolBarOps =
 function() {
-	var list = [ZmOperation.PRINT,
-                ZmOperation.MUTE_CONV,
-                ZmOperation.UNMUTE_CONV];
-	if (!appCtxt.isChildWindow && appCtxt.get(ZmSetting.DETACH_MAILVIEW_ENABLED) && !appCtxt.isExternalAccount()) {
-		list.push(ZmOperation.SEP, ZmOperation.DETACH);
-	}
+	var list = [ZmOperation.PRINT];
 	list.push(ZmOperation.SEP, ZmOperation.MARK_READ, ZmOperation.MARK_UNREAD);
 	list.push(ZmOperation.SEP, ZmOperation.SHOW_ORIG);
     list.push(ZmOperation.SEP, ZmOperation.REDIRECT, ZmOperation.EDIT_AS_NEW);
@@ -812,7 +817,7 @@ function(ev) {
         this._resetOperations(this._draftsActionMenu, items.length);
 		this._draftsActionMenu.popup(0, ev.docX, ev.docY);
 	}
-	else if (address && items.length == 1 &&
+	else if (!appCtxt.isExternalAccount() && address && items.length == 1 &&
 			(appCtxt.get(ZmSetting.CONTACTS_ENABLED) && (ev.field == ZmItem.F_PARTICIPANT || ev.field == ZmItem.F_FROM)))
 	{
 		// show participant menu
@@ -1828,6 +1833,9 @@ function(ev) {
         var acctName = items[0].getAccount().name;
         url+="&acct=" + acctName ;
     }
+    if (appCtxt.isExternalAccount()) {
+        url += "&isext=true";
+    }
     window.open(appContextPath+url, "_blank");
 };
 
@@ -2032,9 +2040,9 @@ function(parent, num) {
 		if (isRfc822 || (folder && folder.isReadOnly() && num > 0)) {
 			parent.enable([ZmOperation.DELETE, ZmOperation.MOVE, ZmOperation.MOVE_MENU, ZmOperation.SPAM, ZmOperation.TAG_MENU], false);
 		} else {
-			parent.enable([ZmOperation.REPLY, ZmOperation.REPLY_ALL], (!isDrafts && !isFeed && num == 1));
+            parent.enable([ZmOperation.REPLY, ZmOperation.REPLY_ALL], (!isDrafts && !isFeed && num == 1));
 			parent.enable([ZmOperation.VIEW_MENU], true);
-            parent.enable([ZmOperation.SPAM], (!isDrafts && num > 0));
+            parent.enable([ZmOperation.FORWARD, ZmOperation.SPAM], (!isDrafts && num > 0));
 		}
 	} else {
 		if (folder && folder.isReadOnly() && num > 0) {
@@ -2069,9 +2077,14 @@ function(parent, num) {
                             ZmOperation.MARK_READ,
                             ZmOperation.MARK_UNREAD,
                             ZmOperation.SPAM,
+                            ZmOperation.MOVE,
+                            ZmOperation.MOVE_MENU,
+                            ZmOperation.DELETE,
                             ZmOperation.DETACH,
                             ZmOperation.ADD_FILTER_RULE,
                             ZmOperation.CREATE_APPT,
+                            ZmOperation.SEARCH_TO,
+                            ZmOperation.SEARCH,
                             ZmOperation.CREATE_TASK
                         ],
                         false
@@ -2270,8 +2283,9 @@ ZmMailListController.prototype._getUnreadItem =
 function(which, type, noBump) {
 
 	var lv = this._listView[this._currentViewId];
-	var list = lv.getList(true).getArray();
-	var size = list.length;
+	var vec = lv.getList(true);
+	var list = vec && vec.getArray();
+	var size = list && list.length;
 	if (!size) { return; }
 
 	var start, index;

@@ -36,7 +36,9 @@ public class DisplayMail extends AbsDisplay {
 		
 		public static final String MessageViewPreviewAtBottomCSS		= "css=div[id='zv__TV-main__MSG']";
 		public static final String MessageViewPreviewAtRightCSS			= "css=div[id='zv__TV-main__MSG']";
-		public static final String MessageViewOpenMessageCSS			= "css=div[id='zv__MSG-1__MSG']";
+		// 4/26/2012, the message ID is now used in the locator
+		// public static final String MessageViewOpenMessageCSS			= "css=div[id='zv__MSG-1__MSG']";
+		public static final String MessageViewOpenMessageCSS			= "css=div[id^='zv__MSG-'][id$='__MSG']";
 		
 		public static final String ConversationViewPreviewAtBottomCSS	= "css=div[id='zv__CLV-main__CV']";
 		public static final String ConversationViewPreviewAtRightCSS	= "css=div[id='zv__CLV-main__CV']";
@@ -230,24 +232,6 @@ public class DisplayMail extends AbsDisplay {
 			page = new DialogShareDecline(MyApplication, ((AppAjaxClient) MyApplication).zPageMail);
 			doPostfixCheck = true;
 
-		} else if ( button == Button.B_QUICK_REPLY_SEND ) {
-
-			locator = "css=div[id='zb__CV2__Rep__SEND'] td[id$='_title']";
-			page = null;
-			doPostfixCheck = true;
-
-		} else if ( button == Button.B_QUICK_REPLY_CANCEL ) {
-
-			locator = "css=div[id='zb__CV2__Rep__CANCEL'] td[id$='_title']";
-			page = null;
-			doPostfixCheck = false;
-
-		} else if ( button == Button.B_QUICK_REPLY_MORE ) {
-
-			locator = "css=div[id='zb__CV2__Rep__REPLY_ALL'] td[id$='_title']";
-			page = new FormMailNew(this.MyApplication);
-			doPostfixCheck = false;
-
 		} else  {
 			
 			throw new HarnessException("no implementation for button: "+ button);
@@ -288,6 +272,7 @@ public class DisplayMail extends AbsDisplay {
 		String pulldownLocator = null;
 		String optionLocator = null;
 		AbsPage page = this;
+		boolean doPostfixCheck = false;
 
 		if ( pulldown == Button.B_ACCEPT ) {
 			
@@ -296,19 +281,19 @@ public class DisplayMail extends AbsDisplay {
 			if (option == Button.O_ACCEPT_NOTIFY_ORGANIZER) {
 
 				optionLocator = Locators.AcceptNotifyOrganizerMenu;
-				
+				doPostfixCheck = true;
 				page = this;
 
 			} else if (option == Button.O_ACCEPT_EDIT_REPLY) {
 
 				optionLocator = Locators.AcceptEditReplyMenu;
-				
+				doPostfixCheck = false;
 				page = new FormMailNew(this.MyApplication);
 				
 			} else if (option == Button.O_ACCEPT_DONT_NOTIFY_ORGANIZER) {
 
 				optionLocator = Locators.AcceptDontNotifyOrganizerMenu;
-				
+				doPostfixCheck = false;
 				page = this;
 				
 			} else {
@@ -324,19 +309,19 @@ public class DisplayMail extends AbsDisplay {
 			if (option == Button.O_TENTATIVE_NOTIFY_ORGANIZER) {
 
 				optionLocator = Locators.TentativeNotifyOrganizerMenu;
-				
+				doPostfixCheck = true;
 				page = this;
 
 			} else if (option == Button.O_TENTATIVE_EDIT_REPLY) {
 
 				optionLocator = Locators.TentativeEditReplyMenu;
-				
+				doPostfixCheck = false;
 				page = new FormMailNew(this.MyApplication);
 				
 			} else if (option == Button.O_TENTATIVE_DONT_NOTIFY_ORGANIZER) {
 
 				optionLocator = Locators.TentativeDontNotifyOrganizerMenu;
-				
+				doPostfixCheck = false;
 				page = this;
 				
 			} else {
@@ -352,19 +337,19 @@ public class DisplayMail extends AbsDisplay {
 			if (option == Button.O_DECLINE_NOTIFY_ORGANIZER) {
 
 				optionLocator = Locators.DeclineNotifyOrganizerMenu;
-				
+				doPostfixCheck = true;
 				page = this;
 
 			} else if (option == Button.O_DECLINE_EDIT_REPLY) {
 
 				optionLocator = Locators.DeclineEditReplyMenu;
-				
+				doPostfixCheck = false;
 				page = new FormMailNew(this.MyApplication);
 				
 			} else if (option == Button.O_DECLINE_DONT_NOTIFY_ORGANIZER) {
 
 				optionLocator = Locators.DeclineDontNotifyOrganizerMenu;
-				
+				doPostfixCheck = false;
 				page = this;
 				
 			} else {
@@ -389,6 +374,12 @@ public class DisplayMail extends AbsDisplay {
 			page.zWaitForActive();
 		}
 
+		if ( doPostfixCheck ) {
+			// Make sure the response is delivered before proceeding
+			Stafpostqueue sp = new Stafpostqueue();
+			sp.waitForPostqueue();
+		}
+
 		return (page);
 		
 	}
@@ -399,7 +390,7 @@ public class DisplayMail extends AbsDisplay {
 	 * @return
 	 * @throws HarnessException
 	 */
-	private AttachmentItem parseAttachmentRow(String locator) throws HarnessException {
+	protected AttachmentItem parseAttachmentRow(String locator) throws HarnessException {
 		
 		AttachmentItem item = new AttachmentItem();
 		
@@ -433,7 +424,7 @@ public class DisplayMail extends AbsDisplay {
 	 * @throws HarnessException
 	 */
 	public List<AttachmentItem> zListGetAttachments() throws HarnessException {
-		logger.info(myPageName() + " zListGetMessages()");
+		logger.info(myPageName() + " zListGetAttachments()");
 		
 		List<AttachmentItem> items = new ArrayList<AttachmentItem>();
 
@@ -756,58 +747,6 @@ public class DisplayMail extends AbsDisplay {
 		
 	}
 	
-	/**
-	 * Set the "Quick Reply" content
-	 * @param reply The text to set the content area as
-	 * @throws HarnessException 
-	 */
-	public void zSetQuickReplyContent(String reply) throws HarnessException {
-		
-		String locator = "css=textarea[id='zv__CLV-main__CV_replyInput']";
-		
-		// Focus in the quick reply area
-		this.sFocus(locator);
-		
-		// Add the reply text
-		this.sType(locator, reply);
-		
-		// Wait for any client processing
-		this.zWaitForBusyOverlay();
-		
-		// All done
-	}
-	
-	/**
-	 * Get the Quick Reply Placeholder Hepler Text (e.g. "click here to reply to user1, user2, and user3")
-	 * @return the text in the placeholder area
-	 * @throws HarnessException
-	 */
-	public String zGetQuickReplyPlaceholder() throws HarnessException {
-
-		// Make sure the client is not busy
-		this.zWaitForBusyOverlay();
-		SleepUtil.sleepSmall();
-		
-		
-		String locator = "css=textarea[id='zv__CLV-main__CV_replyInput']";
-		
-		
-		if ( !this.sIsElementPresent(locator) ) {
-			throw new HarnessException("Placeholder not visible!");
-		}
-		
-		// The placeholder tests are ok when running manually, but
-		// fail in TMS.  Get the HTML to inspect what the TMS
-		// execution is failing on.
-		this.zGetHtml("css=div#zv__CLV-main__CV");
-		
-		String placeholder = this.sGetAttribute(locator + "@placeholder");
-		logger.debug("Found placeholder text: "+ placeholder);
-		
-		return (placeholder);
-		
-	}
-
 
 	/**
 	 * Wait for Zimlets to be rendered in the message
@@ -828,7 +767,11 @@ public class DisplayMail extends AbsDisplay {
 		// Use this 'top' css for all subsequent parsing
 		
 		if ( this.zIsVisiblePerPosition(Locators.MessageViewOpenMessageCSS, 0, 0) ) {
-			ContainerLocator = Locators.MessageViewOpenMessageCSS;
+			int count = this.sGetCssCount(Locators.MessageViewOpenMessageCSS);
+			if ( count > 1 ) {
+				throw new HarnessException("Too many message views open: "+ count);
+			}
+			ContainerLocator = "css=div#" + this.sGetAttribute(Locators.MessageViewOpenMessageCSS + "@id");
 		} else if ( this.zIsVisiblePerPosition(PageMail.Locators.IsMsgViewActiveCSS, 0, 0)) {
 			if ( this.zIsVisiblePerPosition(Locators.MessageViewPreviewAtBottomCSS, 0, 0) ) {
 				ContainerLocator = Locators.MessageViewPreviewAtBottomCSS;

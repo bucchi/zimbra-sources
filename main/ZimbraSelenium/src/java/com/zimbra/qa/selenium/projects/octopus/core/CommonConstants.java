@@ -10,7 +10,7 @@ public interface CommonConstants {
 	String TEXT_FILE= "testtextfile.txt";
 	String WORD_FILE= "testwordfile.doc";
 	String ZIP_FILE = "com_zimbra_vmaps.zip";
-	
+			
 	String SHARE_AS_READ = "r";
 	String SHARE_AS_READWRITE = "rwidx";
 	String SHARE_AS_ADMIN = "rwidxa";

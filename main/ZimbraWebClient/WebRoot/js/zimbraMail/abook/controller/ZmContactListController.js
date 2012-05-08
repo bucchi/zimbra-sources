@@ -422,10 +422,11 @@ function() {
 ZmContactListController.prototype.handleKeyAction =
 function(actionCode) {
 	DBG.println(AjxDebug.DBG3, "ZmContactListController.handleKeyAction");
-
+    var isExternalAccount = appCtxt.isExternalAccount();
 	switch (actionCode) {
 
 		case ZmKeyMap.EDIT:
+            if (isExternalAccount) { break; }
 			this._editListener();
 			break;
 
@@ -442,6 +443,7 @@ function(actionCode) {
 			break;
 
 		case ZmKeyMap.NEW_MESSAGE:
+            if (isExternalAccount) { break; }
 			this._participantComposeListener();
 			break;
 
@@ -482,6 +484,7 @@ function() {
  */
 ZmContactListController.prototype._getSecondaryToolBarOps =
 function() {
+    if (appCtxt.isExternalAccount()) { return []; }
 	var list = [ZmOperation.SEARCH_MENU];
 
 	if (appCtxt.get(ZmSetting.MAIL_ENABLED)) {
@@ -707,7 +710,11 @@ function(ev) {
 ZmContactListController.prototype._handleListChange =
 function(ev) {
 	if (ev.event == ZmEvent.E_MODIFY || ev.event == ZmEvent.E_CREATE) {
-		var item = ev && ev._details && ev._details.items && ev._details.items.length && ev._details.items[0];
+		if (!ev.getDetail("visible")) {
+			return;
+		}
+		var items = ev.getDetail("items");
+		var item = items && items.length && items[0];
 		if (item instanceof ZmContact && this._currentViewType == ZmId.VIEW_CONTACT_SIMPLE && item.folderId == this._folderId) {
 			var alphaBar = this._parentView[this._currentViewId].getAlphabetBar();
 			//only set the view if the contact is in the list
@@ -822,7 +829,7 @@ function(parent, num) {
 			var isInTrash = folder && folder.isInTrash();
 			var canEdit = (folder == null || !folder.isReadOnly());
 
-			parent.enable([ZmOperation.CONTACTGROUP_MENU, ZmOperation.NEW_MESSAGE], (num > 0 && !appCtxt.isExternalAccount()));
+			parent.enable([ZmOperation.CONTACTGROUP_MENU, ZmOperation.NEW_MESSAGE], (num > 0));
 			parent.enable([ZmOperation.TAG_MENU], canEdit && num > 0);
 			parent.enable([ZmOperation.DELETE, ZmOperation.MOVE, ZmOperation.MOVE_MENU], canEdit && num > 0);
 			parent.enable([ZmOperation.EDIT, ZmOperation.CONTACT], canEdit && num == 1 && !isInTrash);
@@ -838,7 +845,7 @@ function(parent, num) {
 			var canEdit = (num == 1 && !contact.isReadOnly() && !ZmContact.isInTrash(contact));
 			parent.enable([ZmOperation.DELETE, ZmOperation.MOVE, ZmOperation.MOVE_MENU, ZmOperation.TAG_MENU], num > 0);
 			parent.enable([ZmOperation.EDIT, ZmOperation.CONTACT], canEdit);
-			parent.enable([ZmOperation.CONTACTGROUP_MENU], (num > 0 && !appCtxt.isExternalAccount()));
+			parent.enable([ZmOperation.CONTACTGROUP_MENU], (num > 0));
 		}
 	} else {
 		// gal contacts cannot be tagged/moved/deleted
@@ -893,7 +900,22 @@ function(parent, num) {
 	}
 	this._setContactGroupMenu(parent);
 
-
+    if (appCtxt.isExternalAccount()) {
+        parent.enable(
+                        [
+                            ZmOperation.MOVE,
+                            ZmOperation.EDIT,
+                            ZmOperation.CONTACT,
+                            ZmOperation.MOVE_MENU,
+                            ZmOperation.CONTACTGROUP_MENU,
+                            ZmOperation.DELETE,
+                            ZmOperation.SEARCH_MENU,
+                            ZmOperation.NEW_MESSAGE
+                        ],
+                        false
+                    );
+        parent.setItemVisible(ZmOperation.TAG_MENU, false);
+    }
 };
 
 
@@ -1296,7 +1318,7 @@ function() {
 ZmContactListController.prototype._getContactGroupMenu =
 function(parent) {
 	var menu = parent instanceof ZmButtonToolBar ? parent.getActionsMenu() : parent;
-	return menu.getContactGroupMenu();
+	return menu ? menu.getContactGroupMenu() : null;
 };
 
 

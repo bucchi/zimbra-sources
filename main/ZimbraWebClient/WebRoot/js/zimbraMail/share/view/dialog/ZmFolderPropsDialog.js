@@ -170,19 +170,11 @@ function(event, share) {
 	tmpShare.link.perm = share.link.perm;
 
 	if (share.grantee.type == "guest") {
-		if (!this._guestFormatter) {
-			this._guestFormatter = new AjxMessageFormat(ZmMsg.shareWithGuestNotes);
-		}
-		var url = share.object.getRestUrl();
-		var username = tmpShare.grantee.email;
-		var password = share.link.pw;
-
-		if (password && username) {
-			tmpShare.notes = this._guestFormatter.format([url, username, password]);
-		}
+        tmpShare._sendShareNotification(tmpShare.grantor.email, tmpShare.link.id);
 	}
-
-	tmpShare.sendMessage(ZmShare.NEW);
+    else {
+	    tmpShare.sendMessage(ZmShare.NEW);
+    }
 	appCtxt.setStatusMsg(ZmMsg.resentShareMessage);
 
 	return false;
@@ -396,7 +388,7 @@ function(row, share) {
 
 		// public shares have no editable fields, and sent no mail
 		var isAllShare = share.grantee && (share.grantee.type == ZmShare.TYPE_ALL);
-		if ((isAllShare || share.isPublic()) && (action == ZmShare.EDIT || action == ZmShare.RESEND)) { continue; }
+		if ((isAllShare || share.isPublic() || share.isGuest()) && (action == ZmShare.EDIT || action == ZmShare.RESEND)) { continue; }
 
 		var link = document.createElement("A");
 		link.href = "#";
@@ -424,6 +416,7 @@ ZmFolderPropsDialog.prototype._initializeTabView =
 function(view) {
     this._tabContainer = new DwtTabView(view, null, Dwt.STATIC_STYLE);
 
+	//ZmFolderPropertyView handle things such as color and type. (in case you're searching for "color" and can't find in this file. I know I did)
     this.addTab(0, ZmFolderPropsDialog.TABKEY_PROPERTIES, new ZmFolderPropertyView(this._tabContainer));
     this.addTab(1, ZmFolderPropsDialog.TABKEY_RETENTION,  new ZmFolderRetentionView(this._tabContainer));
 

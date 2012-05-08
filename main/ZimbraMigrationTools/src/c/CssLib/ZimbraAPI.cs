@@ -86,10 +86,20 @@ public class ZimbraAPI
             bIsDomainAdminAccount = value;
         }
     }
+    private bool bIsServerMigration;
+    public bool IsServerMigration
+    {
+        get { return bIsServerMigration; }
+        set
+        {
+            bIsServerMigration = value;
+        }
+    }
     private Dictionary<string, string> dFolderMap;
 
-    public ZimbraAPI()
+    public ZimbraAPI(bool isServer)
     {
+        bIsServerMigration = isServer;
         ZimbraValues.GetZimbraValues();
         dFolderMap = new Dictionary<string, string>();
     }
@@ -426,7 +436,7 @@ public class ZimbraAPI
 
         uploadToken = "";
 
-        client.InvokeUploadService(ZimbraValues.GetZimbraValues().AuthToken, isSecure, filepath,mimebuffer,
+        client.InvokeUploadService(ZimbraValues.GetZimbraValues().AuthToken, IsServerMigration, filepath, mimebuffer,
             contentdisposition, contenttype, mode, out rsp);
         retval = client.status;
         if (retval == 0)
@@ -504,26 +514,19 @@ public class ZimbraAPI
 
     // API methods /////////
     public int Logon(string hostname, string port, string username, string password, bool
-        isAdmin)
+        isSecure, bool isAdmin)
     {
         if (ZimbraValues.GetZimbraValues().AuthToken.Length > 0)
             return 0;                           // already logged on
         lastError = "";
 
-        string urn = "";
+        // FBS Bug 73394 -- 4/26/12 -- rewrite this section
+        string mode = isSecure ? "https://"            : "http://";
+        string svc  = isAdmin  ? "/service/admin/soap" : "/service/soap";
+        string urn  = isAdmin  ? "urn:zimbraAdmin"     : "urn:zimbraAccount";
+        ZimbraValues.GetZimbraValues().Url = mode + hostname + ":" + port + svc;
+        // end Bug 73394
 
-        if (isAdmin)
-        {
-            ZimbraValues.GetZimbraValues().Url = "https://" + hostname + ":" + port +
-                "/service/admin/soap";
-            urn = "urn:zimbraAdmin";
-        }
-        else
-        {
-            ZimbraValues.GetZimbraValues().Url = "http://" + hostname + ":" + port +
-                "/service/soap";
-            urn = "urn:zimbraAccount";
-        }
         WebServiceClient client = new WebServiceClient {
             Url = ZimbraValues.GetZimbraValues().Url, WSServiceType =
                 WebServiceClient.ServiceType.Traditional
@@ -1105,9 +1108,14 @@ public class ZimbraAPI
                 string soapReason = ParseSoapFault(client.errResponseMessage);
 
                 if (soapReason.Length > 0)
+                {
                     lastError = soapReason;
+                    Log.err("Error on message", message["Subject"], "--", soapReason);
+                }
                 else
+                {
                     lastError = client.exceptionMessage;
+                }
             }
         }
         //File.Delete(zm.filePath);
@@ -1620,6 +1628,15 @@ public class ZimbraAPI
 
         client.InvokeService(sb.ToString(), out rsp);
         retval = client.status;
+        if (client.status != 0)
+        {
+            string soapReason = ParseSoapFault(client.errResponseMessage);
+            if (soapReason.Length > 0)
+            {
+                lastError = soapReason;
+                Log.err("Error on appointment", appt["su"], "--", soapReason);
+            }
+        }
         return retval;
     }
 
@@ -1628,23 +1645,31 @@ public class ZimbraAPI
         writer.WriteStartElement("tz");
         writer.WriteAttributeString("id", appt["tid"]);
         writer.WriteAttributeString("stdoff", appt["stdoff"]);
-        writer.WriteAttributeString("dayoff", appt["dayoff"]);
-        writer.WriteStartElement("standard");
-        writer.WriteAttributeString("week", appt["sweek"]);
-        writer.WriteAttributeString("wkday", appt["swkday"]);
-        writer.WriteAttributeString("mon", appt["smon"]);
-        writer.WriteAttributeString("hour", appt["shour"]);
-        writer.WriteAttributeString("min", appt["smin"]);
-        writer.WriteAttributeString("sec", appt["ssec"]);
-        writer.WriteEndElement();   // standard
-        writer.WriteStartElement("daylight");
-        writer.WriteAttributeString("week", appt["dweek"]);
-        writer.WriteAttributeString("wkday", appt["dwkday"]);
-        writer.WriteAttributeString("mon", appt["dmon"]);
-        writer.WriteAttributeString("hour", appt["dhour"]);
-        writer.WriteAttributeString("min", appt["dmin"]);
-        writer.WriteAttributeString("sec", appt["dsec"]);
-        writer.WriteEndElement();   // daylight
+
+        // FBS bug 73047 -- 4/24/12 -- don't write standard/daylight nodes if no DST
+        if ((appt["sweek"] != "0") && (appt["smon"] != "0"))
+        {
+            writer.WriteAttributeString("dayoff", appt["dayoff"]);
+            writer.WriteStartElement("standard");
+            writer.WriteAttributeString("week", appt["sweek"]);
+            writer.WriteAttributeString("wkday", appt["swkday"]);
+            writer.WriteAttributeString("mon", appt["smon"]);
+            writer.WriteAttributeString("hour", appt["shour"]);
+            writer.WriteAttributeString("min", appt["smin"]);
+            writer.WriteAttributeString("sec", appt["ssec"]);
+            writer.WriteEndElement();   // standard
+        }
+        if ((appt["dweek"] != "0") && (appt["dmon"] != "0"))
+        {
+            writer.WriteStartElement("daylight");
+            writer.WriteAttributeString("week", appt["dweek"]);
+            writer.WriteAttributeString("wkday", appt["dwkday"]);
+            writer.WriteAttributeString("mon", appt["dmon"]);
+            writer.WriteAttributeString("hour", appt["dhour"]);
+            writer.WriteAttributeString("min", appt["dmin"]);
+            writer.WriteAttributeString("sec", appt["dsec"]);
+            writer.WriteEndElement();   // daylight
+        }
         writer.WriteEndElement();   // tz
     }
 

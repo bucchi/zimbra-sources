@@ -28,7 +28,7 @@ public class ZAttrProvisioning {
 
     ///// BEGIN-AUTO-GEN-REPLACE
 
-    /* build: 8.0.0_BETA1_1111 pburgu 20120418-1522 */
+    /* build: 8.0.0_BETA1_1111 pshao 20120502-1317 */
 
     public static enum AccountCalendarUserType {
         RESOURCE("RESOURCE"),
@@ -3407,7 +3407,7 @@ public class ZAttrProvisioning {
      *
      * @since ZCS 8.0.0
      */
-    @ZAttr(id=1409)
+    @ZAttr(id=1412)
     public static final String A_zimbraDeviceOfflineCacheEnabled = "zimbraDeviceOfflineCacheEnabled";
 
     /**
@@ -4826,7 +4826,7 @@ public class ZAttrProvisioning {
      *
      * @since ZCS 8.0.0
      */
-    @ZAttr(id=1410)
+    @ZAttr(id=1413)
     public static final String A_zimbraGalDefinitionLastModifiedTime = "zimbraGalDefinitionLastModifiedTime";
 
     /**
@@ -6922,7 +6922,7 @@ public class ZAttrProvisioning {
      *
      * @since ZCS 8.0.0
      */
-    @ZAttr(id=1408)
+    @ZAttr(id=1411)
     public static final String A_zimbraMobilePolicyApprovedApplicationList = "zimbraMobilePolicyApprovedApplicationList";
 
     /**
@@ -11109,12 +11109,28 @@ public class ZAttrProvisioning {
     public static final String A_zimbraUCCallControlURL = "zimbraUCCallControlURL";
 
     /**
-     * password for the user&#039;s UC service
+     * presence session id for Cisco presence service
      *
      * @since ZCS 8.0.0
      */
     @ZAttr(id=1407)
+    public static final String A_zimbraUCCiscoPresenceSessionId = "zimbraUCCiscoPresenceSessionId";
+
+    /**
+     * password for the user&#039;s UC service
+     *
+     * @since ZCS 8.0.0
+     */
+    @ZAttr(id=1409)
     public static final String A_zimbraUCPassword = "zimbraUCPassword";
+
+    /**
+     * presence service URL for the UC service
+     *
+     * @since ZCS 8.0.0
+     */
+    @ZAttr(id=1406)
+    public static final String A_zimbraUCPresenceURL = "zimbraUCPresenceURL";
 
     /**
      * provider for the UC service
@@ -11123,6 +11139,14 @@ public class ZAttrProvisioning {
      */
     @ZAttr(id=1402)
     public static final String A_zimbraUCProvider = "zimbraUCProvider";
+
+    /**
+     * Designated UC provider of the system
+     *
+     * @since ZCS 8.0.0
+     */
+    @ZAttr(id=1410)
+    public static final String A_zimbraUCProviderEnabled = "zimbraUCProviderEnabled";
 
     /**
      * UC service zimbraId
@@ -11137,7 +11161,7 @@ public class ZAttrProvisioning {
      *
      * @since ZCS 8.0.0
      */
-    @ZAttr(id=1406)
+    @ZAttr(id=1408)
     public static final String A_zimbraUCUsername = "zimbraUCUsername";
 
     /**
@@ -11155,6 +11179,22 @@ public class ZAttrProvisioning {
      */
     @ZAttr(id=1404)
     public static final String A_zimbraUCVoicemailURL = "zimbraUCVoicemailURL";
+
+    /**
+     * binary data
+     *
+     * @since ZCS 8.0.0
+     */
+    @ZAttr(id=10000)
+    public static final String A_zimbraUnittestBinary = "zimbraUnittestBinary";
+
+    /**
+     * binary data
+     *
+     * @since ZCS 8.0.0
+     */
+    @ZAttr(id=10001)
+    public static final String A_zimbraUnittestCertificate = "zimbraUnittestCertificate";
 
     /**
      * whether end-user services on SOAP and LMTP interfaces are enabled

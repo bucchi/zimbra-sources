@@ -107,6 +107,40 @@ function(mode) {
     var saveButton = this._toolbar.getButton(ZmOperation.SAVE);
     saveButton.setEnabled(false);
 
+    var editButton = this._toolbar.getButton(ZmOperation.EDIT),
+        forwardApptButton,
+        deleteButton;
+
+    if (editButton) {
+        if (mode === ZmCalItem.MODE_EDIT_SINGLE_INSTANCE) {
+            if (editButton.getText() !== ZmMsg.editInstance) {
+                editButton.setText(ZmMsg.editInstance);
+                forwardApptButton = this._toolbar.getButton(ZmOperation.FORWARD_APPT);
+                deleteButton = this._toolbar.getButton(ZmOperation.DELETE);
+                forwardApptButton && forwardApptButton.setText(ZmMsg.forwardInstance);
+                deleteButton && deleteButton.setText(ZmMsg.deleteApptInstance);
+            }
+        }
+        else if (mode === ZmCalItem.MODE_EDIT_SERIES) {
+            if (editButton.getText() !== ZmMsg.editSeries) {
+                editButton.setText(ZmMsg.editSeries);
+                forwardApptButton = this._toolbar.getButton(ZmOperation.FORWARD_APPT);
+                deleteButton = this._toolbar.getButton(ZmOperation.DELETE);
+                forwardApptButton && forwardApptButton.setText(ZmMsg.forwardSeries);
+                deleteButton && deleteButton.setText(ZmMsg.deleteApptSeries);
+            }
+        }
+        else {
+            if (editButton.getText() !== ZmMsg.edit) {
+                editButton.setText(ZmMsg.edit);
+                forwardApptButton = this._toolbar.getButton(ZmOperation.FORWARD_APPT);
+                deleteButton = this._toolbar.getButton(ZmOperation.DELETE);
+                forwardApptButton && forwardApptButton.setText(ZmMsg.forward);
+                deleteButton && deleteButton.setText(ZmMsg.del);
+            }
+        }
+    }
+
     // bug 68451: disabling edit options for trashed appointments
     var calItem = this.getCalItem();
     var calendar = calItem && calItem.getFolder();
@@ -141,11 +175,19 @@ function() {
     if(actionMenu){
         actionMenu.enable([
                         ZmOperation.EDIT,
+                        ZmOperation.TAG,
+                        ZmOperation.TAG_MENU,
+                        ZmOperation.REPLY,
+                        ZmOperation.REPLY_ALL,
                         ZmOperation.PROPOSE_NEW_TIME,
                         ZmOperation.DUPLICATE_APPT,
                         ZmOperation.FORWARD_APPT,
                         ZmOperation.DELETE
                         ], false);
+    }
+    var tagButton = this._toolbar.getButton(ZmOperation.TAG_MENU);
+	if (tagButton) {
+        tagButton.setEnabled(false);
     }
 };
 
@@ -418,11 +460,6 @@ function() {
 	return this._composeView;
 };
 
-ZmApptController.prototype.getCurrentViewId =
-function() {
-	return this._viewId;
-};
-
 ZmApptController.prototype.getCurrentToolbar =
 function() {
 	return this._toolbar;
@@ -433,7 +470,6 @@ function() {
 	ZmCalItemComposeController.prototype._postShowCallback.call(this);
     this._app.setOverviewPanelContent();
 };
-
 
 ZmApptController.prototype.saveCalItem =
 function(attId) {
@@ -458,6 +494,6 @@ function(attId) {
 
 ZmApptController.prototype._closeView =
 function() {
-	this._app.popView(true,this._currentViewId);
+	this._app.popView(true, this.getCurrentViewId());
     this._composeView.cleanup();
 };

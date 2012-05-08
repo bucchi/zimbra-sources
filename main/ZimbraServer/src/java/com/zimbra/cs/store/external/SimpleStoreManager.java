@@ -80,12 +80,16 @@ public class SimpleStoreManager extends ExternalStoreManager {
 
     @Override
     public boolean deleteFromStore(String locator, Mailbox mbox) throws IOException {
-        File deleteFile = new File(dirName(mbox)+"/"+locator);
+        File deleteFile = new File(locator);
         return deleteFile.delete();
     }
 
     @Override
-    protected boolean isCentralized() {
-        return false;
+    public boolean supports(StoreFeature feature) {
+        if (feature == StoreFeature.CENTRALIZED) {
+            return false;
+        } else {
+            return super.supports(feature);
+        }
     }
 }

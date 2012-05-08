@@ -340,7 +340,11 @@ function(response) {
 	this._voiceInfoCallbacks = null;
 	this._voiceInfoErrorCallbacks = null;
 	this._gettingVoiceInfo = false;
-	return returnValue;
+    if (!returnValue){
+        this.processErrors(response);
+    }
+	//return returnValue;
+    return true;  // Mark error handled
 };
 
 ZmVoiceApp.prototype.refreshFolders =
@@ -701,6 +705,14 @@ function() {
 	return [ZmOrganizer.VOICE];
 };
 
+ZmVoiceApp.prototype.registerUCProvider =
+    function(UCProvider) {
+          this._UCProvider = UCProvider;
+    }
+
+/*
+// todo - Voice app shouldn't know about click2call
+
 ZmVoiceApp.prototype.displayClickToCallDlg =
 function(toPhoneNumber) {
 	if(!this._click2CallZimlet) {
@@ -716,3 +728,36 @@ function(toPhoneNumber) {
 	}
 	this._click2CallZimlet.display(toPhoneNumber);
 };
+*/
+
+ZmVoiceApp.prototype.displayClickToCallDlg =
+    function(toPhoneNumber) {
+        if(this._UCProvider) {
+            this._UCProvider.display(toPhoneNumber);
+        }
+    };
+
+// todo - Move the vendor specific code out
+
+ZmVoiceApp.prototype.processErrors =
+    function(ex) {
+        var errorMessage = ZmMsg.voicemailErrorUnknown;
+        if (!ex.code){
+            return;
+        }
+        if (this._UCProvider) {
+            errorMessage = this._UCProvider.getErrorDescription(ex) || errorMessage;
+        }
+        var dialog = appCtxt.getErrorDialog();
+        dialog.setMessage(errorMessage, errorMessage, DwtMessageDialog.CRITICAL_STYLE);
+        dialog.popup();
+        return;
+    }
+
+ZmVoiceApp.prototype.hasVoicePIN =
+    function(ex) {
+        if (this._UCProvider) {
+            return this._UCProvider.hasVoicePIN();
+        }
+        return true;
+    }

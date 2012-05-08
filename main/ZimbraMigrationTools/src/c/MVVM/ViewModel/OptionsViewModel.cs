@@ -54,6 +54,7 @@ public class OptionsViewModel: BaseViewModel
         MigrateONRAfter = config.AdvancedImportOptions.MigrateOnOrAfter.ToLongDateString();
         IsOnOrAfter = config.AdvancedImportOptions.IsOnOrAfter;
         MaxMessageSize = config.AdvancedImportOptions.MaxMessageSize;
+        IsSkipPrevMigratedItems = config.AdvancedImportOptions.IsSkipPrevMigratedItems;
         IsMaxMessageSize = config.AdvancedImportOptions.IsMaxMessageSize;
         IsSkipFolders = config.AdvancedImportOptions.IsSkipFolders;
 
@@ -61,6 +62,7 @@ public class OptionsViewModel: BaseViewModel
         {
             LoggingVerbose = config.GeneralOptions.Verbose;
             LogLevel = config.GeneralOptions.LogLevel;
+            MaxThreadCount = config.GeneralOptions.MaxThreadCount;
         }
 
         string returnval = "";
@@ -344,6 +346,18 @@ public class OptionsViewModel: BaseViewModel
             OnPropertyChanged(new PropertyChangedEventArgs("IsMaxMessageSize"));
         }
     }
+    public bool IsSkipPrevMigratedItems
+    {
+        get { return m_config.AdvancedImportOptions.IsSkipPrevMigratedItems; }
+        set
+        {
+            if (value == m_config.AdvancedImportOptions.IsSkipPrevMigratedItems)
+                return;
+            m_config.AdvancedImportOptions.IsSkipPrevMigratedItems = value;
+
+            OnPropertyChanged(new PropertyChangedEventArgs("IsSkipPrevMigratedItems"));
+        }
+    }
     private string placeholderstring;
     public string Placeholderstring {
         get { return placeholderstring; }
@@ -414,6 +428,18 @@ public class OptionsViewModel: BaseViewModel
             OnPropertyChanged(new PropertyChangedEventArgs("LogLevel"));
         }
     }
+    public Int32 MaxThreadCount
+    {
+        get { return m_config.GeneralOptions.MaxThreadCount; }
+        set
+        {
+            if (value == m_config.GeneralOptions.MaxThreadCount)
+                return;
+            m_config.GeneralOptions.MaxThreadCount = value;
+
+            OnPropertyChanged(new PropertyChangedEventArgs("MaxThreadCount"));
+        }
+    }
     private bool oenableNext;
     public bool OEnableNext
     {
@@ -430,6 +456,18 @@ public class OptionsViewModel: BaseViewModel
                 oenableNext = value;
             }
             OnPropertyChanged(new PropertyChangedEventArgs("OEnableNext"));
+        }
+    }
+    private bool oenableRulesAndOOO;
+    public bool OEnableRulesAndOOO
+    {
+        get { return oenableRulesAndOOO; }
+        set
+        {
+            if (value == oenableRulesAndOOO)
+                return;
+            oenableRulesAndOOO = value;
+            OnPropertyChanged(new PropertyChangedEventArgs("OEnableRulesAndOOO"));
         }
     }
     public string ConvertToCSV(Folder[] objectarray, string delimiter)

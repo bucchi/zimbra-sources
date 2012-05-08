@@ -16,26 +16,19 @@
 package com.zimbra.cs.mailbox;
 
 import java.io.File;
-import java.util.Map;
 
 import javax.mail.internet.MimeMessage;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.Maps;
 import com.google.common.io.Files;
 import com.zimbra.common.localconfig.LC;
-import com.zimbra.common.mime.MimeConstants;
 import com.zimbra.common.service.ServiceException;
 import com.zimbra.cs.account.MockProvisioning;
 import com.zimbra.cs.account.Provisioning;
 import com.zimbra.cs.db.DbPool;
 import com.zimbra.cs.db.HSQLDB;
 import com.zimbra.cs.mime.Mime;
-import com.zimbra.cs.mime.MockMimeTypeInfo;
 import com.zimbra.cs.mime.ParsedMessage;
-import com.zimbra.cs.mime.handler.MessageRFC822Handler;
-import com.zimbra.cs.mime.handler.TextHtmlHandler;
-import com.zimbra.cs.mime.handler.TextPlainHandler;
 import com.zimbra.cs.store.MockStoreManager;
 import com.zimbra.cs.store.StoreManager;
 import com.zimbra.cs.store.http.HttpStoreManagerTest.MockHttpStoreManager;
@@ -69,12 +62,8 @@ public final class MailboxTestUtil {
         LC.zimbra_attrs_directory.setDefault(zimbraServerDir + "conf/attrs");
         LC.zimbra_rights_directory.setDefault(zimbraServerDir + "conf/rights");
 
-        // Initialize provisioning and set up default MIME handlers for indexing.
-        MockProvisioning prov = new MockProvisioning();
-        for (Map.Entry<String, MockMimeTypeInfo> entry : getMimeHandlers().entrySet()) {
-            prov.addMimeType(entry.getKey(), entry.getValue());
-        }
-        Provisioning.setInstance(prov);
+        // default MIME handlers are now set up in MockProvisioning constructor
+        Provisioning.setInstance(new MockProvisioning());
     }
 
     /**
@@ -109,27 +98,6 @@ public final class MailboxTestUtil {
 
         LC.zimbra_class_store.setDefault(storeManagerClass.getName());
         StoreManager.getInstance().startup();
-    }
-
-    private static Map<String, MockMimeTypeInfo> getMimeHandlers() {
-        Map<String, MockMimeTypeInfo> map = Maps.newHashMap();
-
-        MockMimeTypeInfo plain = new MockMimeTypeInfo();
-        plain.setHandlerClass(TextPlainHandler.class.getName());
-        plain.setIndexingEnabled(true);
-        map.put(MimeConstants.CT_TEXT_PLAIN, plain);
-
-        MockMimeTypeInfo html = new MockMimeTypeInfo();
-        html.setHandlerClass(TextHtmlHandler.class.getName());
-        html.setIndexingEnabled(true);
-        map.put(MimeConstants.CT_TEXT_HTML, html);
-
-        MockMimeTypeInfo message = new MockMimeTypeInfo();
-        message.setHandlerClass(MessageRFC822Handler.class.getName());
-        message.setIndexingEnabled(true);
-        map.put(MimeConstants.CT_MESSAGE_RFC822, message);
-
-        return map;
     }
 
     /**

@@ -5,6 +5,7 @@ package com.zimbra.qa.selenium.projects.ajax.ui.briefcase;
 
 import com.zimbra.qa.selenium.framework.ui.*;
 import com.zimbra.qa.selenium.framework.util.HarnessException;
+import com.zimbra.qa.selenium.framework.util.ZimbraSeleniumProperties;
 import com.zimbra.qa.selenium.projects.ajax.ui.AppAjaxClient;
 import com.zimbra.qa.selenium.projects.ajax.ui.DialogShare;
 import com.zimbra.qa.selenium.projects.ajax.ui.DialogShareRevoke;
@@ -46,7 +47,7 @@ public class DialogEditProperties extends AbsDialog {
 
 		logger.info(myPageName() + " zIsActive()");
 
-		String locator = "div." + Locators.zEditPropertiesDialogId;
+		String locator = "css=div[class=" + Locators.zEditPropertiesDialogId +"]";
 
 		if (!this.sIsElementPresent(locator)) {
 			return (false); // Not even present
@@ -164,8 +165,13 @@ public class DialogEditProperties extends AbsDialog {
 		// For some reason, the text doesn't get entered on the first try
 		this.sFocus(locator);
 		this.zClick(locator);
-		sType(locator, folder);
 		
+		if (ZimbraSeleniumProperties.isWebDriver()) {
+			this.clearField(locator);
+		}
+		
+		this.sType(locator, folder);
+				
 		this.zWaitForBusyOverlay();
 	}
 

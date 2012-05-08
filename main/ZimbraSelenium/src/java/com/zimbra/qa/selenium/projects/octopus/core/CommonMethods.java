@@ -1,8 +1,10 @@
 package com.zimbra.qa.selenium.projects.octopus.core;
 
+import com.zimbra.common.soap.Element;
 import com.zimbra.qa.selenium.framework.items.FolderItem;
 import com.zimbra.qa.selenium.framework.items.FolderItem.SystemFolder;
 import com.zimbra.qa.selenium.framework.util.HarnessException;
+import com.zimbra.qa.selenium.framework.util.SleepUtil;
 import com.zimbra.qa.selenium.framework.util.ZAssert;
 import com.zimbra.qa.selenium.framework.util.ZimbraAccount;
 import com.zimbra.qa.selenium.framework.util.ZimbraSeleniumProperties;
@@ -19,6 +21,8 @@ public class CommonMethods {
 			+ "' op='!grant' zid='" +  grantee.ZimbraId +"'" + ">"  
 			+ "</action>"
 			+ "</FolderActionRequest>");
+		
+		
 	}
 
 	
@@ -60,7 +64,7 @@ public class CommonMethods {
 			+ "<e a='"
 			+ grantee.EmailAddress
 			+ "'/>"
-			+ "<notes _content='share folder invitation'/>"
+			+ "<notes _content='You are invited to view my shared folder " + folder.getName() + " '/>"
 			+ "</SendShareNotificationRequest>");
 	}
 
@@ -83,7 +87,7 @@ public class CommonMethods {
 					+ "' view='document'/>" + "</CreateFolderRequest>");
 
 	    // verify folder creation on the server 
-	    return FolderItem.importFromSOAP(account, foldername);
+	    return FolderItem.importFromSOAP(account, foldername); 
 	}
 	
 	// create a new zimbra account
@@ -101,42 +105,59 @@ public class CommonMethods {
 		account.soapSend("<AddCommentRequest xmlns='urn:zimbraMail'> <comment parentId='"
 			+ fileId + "' text='" + comment + "'/></AddCommentRequest>");
 
-		// TODO: check if this call is redundant
-		// Get file comments through SOAP
-		account.soapSend("<GetCommentsRequest  xmlns='urn:zimbraMail'> <comment parentId='"
-			+ fileId + "'/></GetCommentsRequest>");
-		
-		
-		return account.soapSelectValue("//mail:comment", "id");
-
+		SleepUtil.sleepVerySmall();
+       
+		//TODO: verify valid id?
+		return account.soapSelectValue("//mail:AddCommentResponse//mail:comment", "id");		
 	}
 	
 
 	
 	protected String renameViaSoap(ZimbraAccount account, String fileId, String newName)
 	throws HarnessException {
-		// Add comments to the file using SOAP
+		// Rename file using SOAP
 		account.soapSend("<ItemActionRequest xmlns='urn:zimbraMail'> <action id='"
 			+ fileId + "' name='" + newName + "' op='rename' /></ItemActionRequest>");
 
-        //TODO: Check if the file is renamed on the server use GetActiviyStreamRequest?		
-	    return newName;
+		SleepUtil.sleepVerySmall();
+
+		//verification
+		ZAssert.assertTrue(account.soapMatch(
+				"//mail:ItemActionResponse//mail:action", "op", "rename"),
+				"Verify file is renamed to " + newName);
+
+		return newName;
 	}
 	
 
 	
+	
 	protected void markFileFavoriteViaSoap(ZimbraAccount account, String fileId)
 	throws HarnessException {
-	 account.soapSend
-       ("<DocumentActionRequest xmlns='urn:zimbraMail'>"
-		+ "<action id='" + fileId + "'  op='watch' /></DocumentActionRequest>");
+		account.soapSend("<DocumentActionRequest xmlns='urn:zimbraMail'>"
+				+ "<action id='" + fileId + "'  op='watch' /></DocumentActionRequest>");
+
+		SleepUtil.sleepVerySmall();
+
+		//verification
+		ZAssert.assertTrue(account.soapMatch(
+				"//mail:DocumentActionResponse//mail:action", "op", "watch"),
+				"Verify file is marked as favorite");
+		
 	} 
 
 	protected void unMarkFileFavoriteViaSoap(ZimbraAccount account, String fileId)
 	throws HarnessException {
-	 account.soapSend
-       ("<DocumentActionRequest xmlns='urn:zimbraMail'>"
-		+ "<action id='" + fileId + "'  op='!watch' /></DocumentActionRequest>");
+		account.soapSend("<DocumentActionRequest xmlns='urn:zimbraMail'>"
+				+ "<action id='" + fileId + "'  op='!watch' /></DocumentActionRequest>");
+
+		SleepUtil.sleepVerySmall();
+
+		//verification
+		ZAssert.assertTrue(account.soapMatch(
+				"//mail:DocumentActionResponse//mail:action", "op", "!watch"),
+				"Verify file is inmarked favorite");
+		
 	} 
 
 	

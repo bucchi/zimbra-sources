@@ -29,6 +29,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.zimbra.common.localconfig.LC;
+import com.zimbra.common.util.StringUtil;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
@@ -202,6 +204,8 @@ public class UserServlet extends ZimbraServlet {
      * Used by {@link OctopusPatchFormatter}
      */
     public static final String QP_MANIFEST = "manifest"; // selects whether server returns patch manifest or not
+
+    public static final String QP_DUMPSTER = "dumpster"; // whether search in dumpster
 
     /**
      * Used by {@link TarFormatter} to specify whether the <tt>.meta</tt>
@@ -485,6 +489,11 @@ public class UserServlet extends ZimbraServlet {
         // authentication, call the formatter and let it deal with preventing harvest attacks.
         if (mbox == null && context.formatter.requiresAuth())
             throw ServiceException.PERM_DENIED(L10nUtil.getMessage(MsgKey.errPermissionDenied, req));
+
+        String cacheControlValue = LC.rest_response_cache_control_value.value();
+        if (!StringUtil.isNullOrEmpty(cacheControlValue)) {
+            resp.addHeader("Cache-Control", cacheControlValue);
+        }
 
         context.formatter.format(context);
     }

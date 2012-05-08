@@ -761,6 +761,7 @@ public final class LC {
     public static final KnownKey pop3_max_idle_time = KnownKey.newKey(60);
     public static final KnownKey pop3_throttle_ip_limit = KnownKey.newKey(200);
     public static final KnownKey pop3_throttle_acct_limit = KnownKey.newKey(200);
+    public static final KnownKey pop3_max_consecutive_error = KnownKey.newKey(5);
 
     public static final KnownKey lmtp_throttle_ip_limit = KnownKey.newKey(0);
 
@@ -1199,6 +1200,8 @@ public final class LC {
     public static final KnownKey external_store_local_cache_min_lifetime = KnownKey.newKey(Constants.MILLIS_PER_MINUTE);
 
     public static final KnownKey triton_store_url = KnownKey.newKey("");
+
+    public static final KnownKey triton_hash_type = KnownKey.newKey("SHA0");
 
     public static final KnownKey uncompressed_cache_min_lifetime = KnownKey.newKey(Constants.MILLIS_PER_MINUTE);
 

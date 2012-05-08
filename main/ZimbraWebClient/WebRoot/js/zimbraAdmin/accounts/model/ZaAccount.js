@@ -209,6 +209,9 @@ ZaAccount.A_zimbraFeatureManageZimlets = "zimbraFeatureManageZimlets";
 ZaAccount.A_zimbraFeatureImportFolderEnabled = "zimbraFeatureImportFolderEnabled";
 ZaAccount.A_zimbraFeatureExportFolderEnabled = "zimbraFeatureExportFolderEnabled";
 ZaAccount.A_zimbraDumpsterEnabled = "zimbraDumpsterEnabled";
+ZaAccount.A_zimbraMailDumpsterLifetime = "zimbraMailDumpsterLifetime";
+ZaAccount.A_zimbraDumpsterUserVisibleAge = "zimbraDumpsterUserVisibleAge";
+ZaAccount.A_zimbraDumpsterPurgeEnabled = "zimbraDumpsterPurgeEnabled";
 ZaAccount.A_zimbraPrefCalendarReminderSoundsEnabled = "zimbraPrefCalendarReminderSoundsEnabled";
 ZaAccount.A_zimbraPrefCalendarSendInviteDeniedAutoReply = "zimbraPrefCalendarSendInviteDeniedAutoReply";
 ZaAccount.A_zimbraPrefCalendarAutoAddInvites = "zimbraPrefCalendarAutoAddInvites";
@@ -490,9 +493,9 @@ function(tmpObj) {
 				//show error msg
                 var maxpassMsg;
                 if (maxPwdLen > 1) {
-                    maxpassMsg =  String(ZaMsg.NAD_passMaxLengthMsg_p).replace("{0}",minPwdLen);
+                    maxpassMsg =  String(ZaMsg.NAD_passMaxLengthMsg_p).replace("{0}",maxPwdLen);
                 } else {
-                    maxpassMsg =  String(ZaMsg.NAD_passMaxLengthMsg_s).replace("{0}",minPwdLen);
+                    maxpassMsg =  String(ZaMsg.NAD_passMaxLengthMsg_s).replace("{0}",maxPwdLen);
                 }
 				ZaApp.getInstance().getCurrentController().popupErrorDialog(ZaMsg.ERROR_PASSWORD_TOOLONG+ "<br>" + maxpassMsg);
 				return false;		
@@ -1961,6 +1964,9 @@ ZaAccount.myXModel = {
         {id:ZaAccount.A_zimbraFeatureImportFolderEnabled, type:_COS_ENUM_, ref:"attrs/" + ZaAccount.A_zimbraFeatureImportFolderEnabled, choices:ZaModel.BOOLEAN_CHOICES},
         {id:ZaAccount.A_zimbraFeatureExportFolderEnabled, type:_COS_ENUM_, ref:"attrs/" + ZaAccount.A_zimbraFeatureExportFolderEnabled, choices:ZaModel.BOOLEAN_CHOICES},
         {id:ZaAccount.A_zimbraDumpsterEnabled, type:_COS_ENUM_, ref:"attrs/" + ZaAccount.A_zimbraDumpsterEnabled, choices:ZaModel.BOOLEAN_CHOICES},
+        {id:ZaAccount.A_zimbraDumpsterUserVisibleAge, type:_COS_MLIFETIME_, ref:"attrs/"+ZaAccount.A_zimbraDumpsterUserVisibleAge },
+        {id:ZaAccount.A_zimbraDumpsterPurgeEnabled, type:_COS_ENUM_, ref:"attrs/"+ZaAccount.A_zimbraDumpsterPurgeEnabled, choices:ZaModel.BOOLEAN_CHOICES},
+        {id:ZaAccount.A_zimbraMailDumpsterLifetime, type:_COS_MLIFETIME_, ref:"attrs/"+ZaAccount.A_zimbraMailDumpsterLifetime },
         {id:ZaAccount.A_zimbraFeatureMailPriorityEnabled, type:_COS_ENUM_, ref:"attrs/"+ZaAccount.A_zimbraFeatureMailPriorityEnabled, choices:ZaModel.BOOLEAN_CHOICES},
 		{id:ZaAccount.A_zimbraFeatureReadReceiptsEnabled, type:_COS_ENUM_, ref:"attrs/"+ZaAccount.A_zimbraFeatureReadReceiptsEnabled, choices:ZaModel.BOOLEAN_CHOICES},
         {id:ZaAccount.A_zimbraFeatureImapDataSourceEnabled, type:_COS_ENUM_, ref:"attrs/"+ZaAccount.A_zimbraFeatureImapDataSourceEnabled, choices:ZaModel.BOOLEAN_CHOICES},

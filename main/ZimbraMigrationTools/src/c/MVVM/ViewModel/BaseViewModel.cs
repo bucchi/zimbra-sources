@@ -168,6 +168,7 @@ public class BaseViewModel: INotifyPropertyChanged
 	}
         m_config.GeneralOptions.LogLevel = optionsModel.LogLevel;
         m_config.GeneralOptions.Verbose     = optionsModel.LoggingVerbose;
+        m_config.GeneralOptions.MaxThreadCount = optionsModel.MaxThreadCount;
         m_config.ImportOptions.Mail         = optionsModel.ImportMailOptions;
         m_config.ImportOptions.Calendar     = optionsModel.ImportCalendarOptions;
         m_config.ImportOptions.Contacts     = optionsModel.ImportContactOptions;
@@ -181,6 +182,7 @@ public class BaseViewModel: INotifyPropertyChanged
         m_config.AdvancedImportOptions.MigrateOnOrAfter =
             (optionsModel.IsOnOrAfter) ? DateTime.Parse(optionsModel.MigrateONRAfter)
             : DateTime.Now.AddMonths(-3);
+        m_config.AdvancedImportOptions.IsSkipPrevMigratedItems = optionsModel.IsSkipPrevMigratedItems;
         m_config.AdvancedImportOptions.IsMaxMessageSize = optionsModel.IsMaxMessageSize;
         m_config.AdvancedImportOptions.MaxMessageSize =
             (optionsModel.IsMaxMessageSize) ? optionsModel.MaxMessageSize

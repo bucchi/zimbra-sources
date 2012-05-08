@@ -152,6 +152,7 @@ ZmContact.F_workPostalCode			= "workPostalCode";
 ZmContact.F_workState				= "workState";
 ZmContact.F_workStreet				= "workStreet";
 ZmContact.F_workURL					= "workURL";
+ZmContact.F_imagepart               = "imagepart";          // New field for bug 73146 - Contacts call does not return the image information
 ZmContact.X_fileAs					= "fileAs";				// extra fields
 ZmContact.X_firstLast				= "firstLast";
 ZmContact.X_fullName				= "fullName";
@@ -828,7 +829,10 @@ function() {
 			}
 			else if(type == ZmContact.GROUP_CONTACT_REF || type == ZmContact.GROUP_GAL_REF) {
 				var contact = ZmContact.getContactFromCache(value);	 //TODO: handle contacts not cached?
-				var email = contact && contact.getEmail();
+				if (!contact) {
+					continue;
+				}
+				var email = contact.getEmail();
 				if (email && email != "") {
 					var ajxEmailAddress = new AjxEmailAddress(email, null, contact.getFileAs(), contact.getFullNameForDisplay(), false);
 					addrs.push(ajxEmailAddress.toString());
@@ -867,7 +871,10 @@ function() {
 		}
 		else if(type == ZmContact.GROUP_CONTACT_REF || type == ZmContact.GROUP_GAL_REF) {
 			var contact = ZmContact.getContactFromCache(value);  //TODO: handle contacts not cached?
-			var email = contact && contact.getEmail();
+			if (!contact) {
+				continue;
+			}
+			var email = contact.getEmail();
 			var ajxEmailAddress = new AjxEmailAddress(email, null, contact.getFileAs(), contact.getFullNameForDisplay(), false);
 			members.push({type : type, value : value, address : ajxEmailAddress.toString()});
 		}

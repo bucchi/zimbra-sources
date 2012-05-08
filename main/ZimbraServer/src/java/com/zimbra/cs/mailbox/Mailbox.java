@@ -5639,6 +5639,10 @@ public class Mailbox {
             if (!checkItemChangeID(msg)) {
                 throw MailServiceException.MODIFY_CONFLICT();
             }
+            
+            //make sure we purged the item from the cache as the item is going to get modified!!
+            uncache(msg);
+            
             // content changed, so we're obliged to change the IMAP uid
             int imapID = getNextItemId(redoPlayer == null ? ID_AUTO_INCREMENT : redoPlayer.getImapId());
             redoRecorder.setImapId(imapID);
@@ -7780,7 +7784,7 @@ public class Mailbox {
 
             // Process any folders that have retention policy set.
             for (Folder folder : getFolderList(octxt, SortBy.NONE)) {
-                RetentionPolicy rp = RetentionPolicyManager.getInstance().getCompleteRetentionPolicy(folder.getRetentionPolicy());
+                RetentionPolicy rp = RetentionPolicyManager.getInstance().getCompleteRetentionPolicy(acct, folder.getRetentionPolicy());
                 for (Policy policy : rp.getPurgePolicy()) {
                     long folderLifetime;
 
@@ -7799,7 +7803,7 @@ public class Mailbox {
 
             // Process any tags that have retention policy set.
             for (Tag tag : getTagList(octxt)) {
-                RetentionPolicy rp = RetentionPolicyManager.getInstance().getCompleteRetentionPolicy(tag.getRetentionPolicy());
+                RetentionPolicy rp = RetentionPolicyManager.getInstance().getCompleteRetentionPolicy(acct, tag.getRetentionPolicy());
                 for (Policy policy : rp.getPurgePolicy()) {
                     long tagLifetime;
                     try {
@@ -7924,6 +7928,8 @@ public class Mailbox {
 
         boolean success = false;
         try {
+            long start = System.currentTimeMillis();
+
             beginTransaction("createDoc", octxt, redoRecorder);
 
             SaveDocument redoPlayer = (octxt == null ? null : (SaveDocument) octxt.getPlayer());
@@ -7959,6 +7965,8 @@ public class Mailbox {
             index.add(doc);
 
             success = true;
+            long elapsed = System.currentTimeMillis() - start;
+            ZimbraLog.mailbox.debug("createDocument elapsed=" + elapsed);
             return doc;
         } catch (IOException ioe) {
             throw ServiceException.FAILURE("error writing document blob", ioe);

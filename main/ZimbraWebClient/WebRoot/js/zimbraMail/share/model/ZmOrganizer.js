@@ -88,6 +88,7 @@ ZmOrganizer = function(params) {
         ZmOrganizer.DEFAULT_COLOR[this.type] ||
         ZmOrganizer.C_NONE
     ;
+	this.isColorCustom = params.rgb != null; //set so we know if the user chose a custom color (to distiguish from basic color or none
 	this.rgb =
         params.rgb ||
         ZmOrganizer.COLOR_VALUES[this.color] ||
@@ -717,7 +718,7 @@ function(includeRoot, showUnread, maxLength, noMarkup, useSystemName, useOwnerNa
 };
 
 /**
- * Gets the tooltip. The tooltip shows number of items and total size.
+ * Gets the tooltip. The tooltip shows number of unread items, total messages and the total size.
  *
  * @param {Boolean}	force		if <code>true</code>, don't use cached tooltip
  * @return	{String}	the tooltip
@@ -727,9 +728,9 @@ function(force) {
 	if (this.noTooltip) {
 		return null;
 	}
-	if (!this._tooltip || force) {
+    if (!this._tooltip || force) {
 		var itemText = this._getItemsText();
-		var subs = {itemText:itemText, numTotal:this.numTotal, sizeTotal:this.sizeTotal};
+		var subs = {name:this.name, itemText:itemText, numTotal:this.numTotal, sizeTotal:this.sizeTotal, numUnread:this.numUnread};
 		this._tooltip = AjxTemplate.expand("share.App#FolderTooltip", subs);
 	}
 	return this._tooltip;
@@ -1398,6 +1399,7 @@ function(obj, details) {
 		doNotify = true;
 	}
 	if ((obj.rgb != null || obj.color != null) && !obj._isRemote) {
+		this.isColorCustom = obj.rgb != null;
 		var color = ZmOrganizer.checkColor(obj.color) || ZmOrganizer.DEFAULT_COLOR[this.type] || ZmOrganizer.ORG_DEFAULT_COLOR;
 		if (color != this.color) {
 			this.color = color;
@@ -1926,14 +1928,6 @@ function() {
 	return this.owner || (this.parent && this.parent.getOwner()) || appCtxt.get(ZmSetting.USERNAME);
 };
 
-/**
- * return the id to be used as part of DOM ids. This is overriden in ZmTag since the ID there is the name and we
- * replace it with a serial ID for use in the DOM.
- */
-ZmOrganizer.prototype.getDomId =
-function() {
-	return this.id;
-};
 
 
 /**
@@ -1972,14 +1966,7 @@ function(params) {
 	var soapDoc = AjxSoapDoc.create(cmd + "Request", "urn:zimbraMail");
 	var actionNode = soapDoc.set("action");
 	actionNode.setAttribute("op", params.action);
-	if (this.isZmTag) {
-		var tn = params.name || this.name;
-		tn = tn.replace(/,/g, "\\,"); //escape comma in tag name (since the server for some reason supports a comma separated list of tag names. I don't think there's a real client use case for that.
-		actionNode.setAttribute("tn", tn);
-	}
-	else {
-		actionNode.setAttribute("id", params.id || this.id);
-	}
+	actionNode.setAttribute("id", params.id || this.id);
 	for (var attr in params.attrs) {
 		if (AjxEnv.isIE) {
 			params.attrs[attr] += ""; //To string

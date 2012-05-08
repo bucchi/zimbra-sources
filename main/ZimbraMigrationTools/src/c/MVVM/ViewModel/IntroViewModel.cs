@@ -80,6 +80,7 @@ public class IntroViewModel: BaseViewModel
             {
                 m_scheduleViewModel.SchedList.Clear();
             }
+            m_optionsViewModel.OEnableRulesAndOOO = m_configViewModelU.Isprofile;
             m_optionsViewModel.OEnableNext = !m_scheduleViewModel.IsComplete();
         }
     }
@@ -98,6 +99,7 @@ public class IntroViewModel: BaseViewModel
             BaseViewModel.isServer = true;
             IsServerMigration = true;
             IsUserMigration = false;
+            m_optionsViewModel.OEnableRulesAndOOO = true;
             Application.Current.Properties["migrationmode"] = "server";
             AddViews(m_isBrowser);
         }
@@ -295,9 +297,12 @@ public class IntroViewModel: BaseViewModel
         m_optionsViewModel.ImportSentOptions = false;
         m_optionsViewModel.LoggingVerbose = false;
         m_optionsViewModel.LogLevel = LogLevel.Info.ToString();
+        m_optionsViewModel.MaxThreadCount = 0;
+        m_optionsViewModel.OEnableRulesAndOOO = true;
         m_optionsViewModel.OEnableNext = true;
         m_optionsViewModel.MigrateONRAfter = (DateTime.Now.AddMonths(-3)).ToShortDateString();
         m_optionsViewModel.IsMaxMessageSize = false;
+        m_optionsViewModel.IsSkipPrevMigratedItems = false;
         m_optionsViewModel.MaxMessageSize = "";
         m_optionsViewModel.IsSkipFolders = false;
 

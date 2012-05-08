@@ -31,7 +31,7 @@ ZmPriorityMessageFilterDialog.prototype.constructor = ZmPriorityMessageFilterDia
 
 ZmPriorityMessageFilterDialog.prototype._contentHtml = 
 function() {   
-	var html = "<div style='width: 400px; height: 225px' id='PRIORITYMESSAGE_PROMPT_FORM'>";
+	var html = "<div id='PRIORITYMESSAGE_PROMPT_FORM'>";
 	return html;			
 };
 
@@ -74,12 +74,6 @@ function() {
     this._advancedControls.setText(ZmMsg.advancedControls);
     this._advancedControls.getHtmlElement().onclick = advancedListener;
     this._advancedControls.replaceElement(document.getElementById("PriorityInboxAdvancedControls"));
-
-	var htmlEl = this._notToMe.getHtmlElement();
-	if (htmlEl) {
-		htmlEl.style.cssFloat = "left";
-		htmlEl.style.paddingRight = "3px";
-	}
 };
 
 ZmPriorityMessageFilterDialog.prototype.popup =
@@ -100,6 +94,7 @@ ZmPriorityMessageFilterDialog.prototype._onMoveMsgIntoStream =
 function() {
 	var enabled = this._moveMsgIntoStream.isSelected();
 	this._notToMe.setEnabled(enabled);
+	this._selectField.setEnabled(enabled);
 	this._notInMyAddrBk.setEnabled(enabled);
 	this._dlSubscribedTo.setEnabled(enabled);
 	this._massMarketing.setEnabled(enabled);
@@ -166,11 +161,11 @@ function() {
 						else if (c == ZmFilterRule.TEST_ME) {
 							if (header &&  header.toUpperCase() == ZmFilterRule.C_ADDRESS_VALUE[ZmFilterRule.C_TO].toUpperCase()) {
 								value = header;
-								this._selectField.setSelected(ZmMsg.to);
+								this._selectField.setSelected(0);
 							}
 							else if (header &&  header.toUpperCase() == ZmFilterRule.C_ADDRESS_VALUE[ZmFilterRule.C_TO_CC].toUpperCase()) {
 								value = header;
-								this._selectField.setSelected(ZmMsg.toOrCc);
+								this._selectField.setSelected(1);
 							}
 						}
 						//var value = (c == ZmFilterRule.TEST_ADDRBOOK) ? ZmFilterRule.C_FROM : ZmFilterRule.C_TO;
@@ -179,7 +174,7 @@ function() {
 							this._streamHash[c].control.setEnabled(true);
 						}
 					}
-					else if (!isNegative) {
+					else if (!isNegative && !(c == ZmFilterRule.TEST_ADDRBOOK || c == ZmFilterRule.TEST_ME)) {
 						this._streamHash[c].control.setSelected(true);
 						this._streamHash[c].control.setEnabled(true);
 					}

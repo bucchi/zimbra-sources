@@ -45,7 +45,11 @@ include $(DEFS_DIR)/proxytargets.def
 
 include $(DEFS_DIR)/ldaptargets.def
 
+ifeq ($(BUILD_PLATFORM), RHEL4_64)
+include $(DEFS_DIR)/mtatargets-rhel4.def
+else
 include $(DEFS_DIR)/mtatargets.def
+endif
 
 include $(DEFS_DIR)/loggertargets.def
 
@@ -73,11 +77,5 @@ include $(DEFS_DIR)/devclean.def
 
 ifeq (MACOSXx86,$(findstring MACOSXx86,$(BUILD_PLATFORM)))
 include $(DEFS_DIR)/isync.def
-include $(DEFS_DIR)/osync.def
-include $(DEFS_DIR)/ios.def
 include $(DEFS_DIR)/app-mactoaster.def
-endif
-
-ifeq (UBUNTU8,$(BUILD_PLATFORM))
-include $(DEFS_DIR)/android.def
 endif

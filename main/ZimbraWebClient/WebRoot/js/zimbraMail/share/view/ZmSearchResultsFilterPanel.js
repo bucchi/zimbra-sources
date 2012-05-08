@@ -766,9 +766,11 @@ ZmAttachmentSearchFilter.prototype._addAttachmentTypes =
 function(menu, attTypes) {
 
 	ZmSearchResultsFilterPanel.attTypes = attTypes;
+	var added = {};
 	if (attTypes && attTypes.length) {
 		for (var i = 0; i < attTypes.length; i++) {
 			var attType = attTypes[i];
+			if (added[attType.desc]) { continue; }
 			var menuItem = new DwtMenuItem({
 						parent:	menu,
 						id:		ZmId.getMenuItemId(this._viewId, this.id, attType.type.replace("/", ":"))
@@ -776,11 +778,29 @@ function(menu, attTypes) {
 			menuItem.setText(attType.desc);
 			menuItem.setImage(attType.image);
 			menuItem.setData(ZmSearchFilter.DATA_KEY, attType.query || attType.type);
+			added[attType.desc] = true;
 		}
 	}
 	menu.addSelectionListener(this._selectionListener.bind(this));
 };
 
+ZmAttachmentSearchFilter.prototype._selectionListener =
+function(ev) {
+	var data = ev && ev.dwtObj && ev.dwtObj.getData(ZmSearchFilter.DATA_KEY);
+	if (data && this._searchOp) {
+		var terms = [];
+		if (data == ZmMimeTable.APP_ZIP  || data == ZmMimeTable.APP_ZIP2) {
+			var other = (data == ZmMimeTable.APP_ZIP) ? ZmMimeTable.APP_ZIP2 : ZmMimeTable.APP_ZIP;
+			terms.push(new ZmSearchToken(this._searchOp, data));
+			terms.push(new ZmSearchToken(ZmParsedQuery.COND_OR));
+			terms.push(new ZmSearchToken(this._searchOp, other));
+		}
+		else {
+			terms.push(new ZmSearchToken(this._searchOp, data));
+		}
+		this._updateCallback(terms);
+	}
+};
 
 
 /**
@@ -889,6 +909,11 @@ function(menu) {
  */
 ZmTagSearchFilter = function(params) {
 	ZmSearchFilter.apply(this, arguments);
+
+	this._tagList = appCtxt.getTagTree();
+	if (this._tagList) {
+		this._tagList.addChangeListener(this._tagChangeListener.bind(this));
+	}
 };
 
 ZmTagSearchFilter.prototype = new ZmSearchFilter;
@@ -899,6 +924,8 @@ ZmTagSearchFilter.prototype.toString = function() { return "ZmTagSearchFilter"; 
 
 ZmTagSearchFilter.prototype._setUi =
 function(menu) {
+
+	this._menu = menu;
 	var tags = appCtxt.getTagTree().asList();
 	if (tags && tags.length) {
 		for (var i = 0; i < tags.length; i++) {
@@ -916,6 +943,14 @@ function(menu) {
 	menu.addSelectionListener(this._selectionListener.bind(this));
 };
 
+// for any change to tags, just re-render
+ZmTagSearchFilter.prototype._tagChangeListener =
+function(ev) {
+	if (this._menu) {
+		this._menu.removeChildren();
+		this._setUi(this._menu);
+	}
+};
 
 /**
  * Allows the user to search by folder.
@@ -924,6 +959,13 @@ function(menu) {
  */
 ZmFolderSearchFilter = function(params) {
 	ZmSearchFilter.apply(this, arguments);
+	
+	// set button title to appropriate organizer type
+	if (!ZmFolderSearchFilter.TEXT_KEY) {
+		ZmFolderSearchFilter._initConstants();
+	}
+	var title = ZmMsg[ZmFolderSearchFilter.TEXT_KEY[this._resultsApp]] || ZmMsg.filterFolder;
+	params.parent.setText(title);
 };
 
 ZmFolderSearchFilter.prototype = new ZmSearchFilter;
@@ -931,6 +973,16 @@ ZmFolderSearchFilter.prototype.constructor = ZmFolderSearchFilter;
 
 ZmFolderSearchFilter.prototype.isZmFolderSearchFilter = true;
 ZmFolderSearchFilter.prototype.toString = function() { return "ZmFolderSearchFilter"; };
+
+ZmFolderSearchFilter._initConstants =
+function(button) {
+	ZmFolderSearchFilter.TEXT_KEY = {};
+	ZmFolderSearchFilter.TEXT_KEY[ZmApp.MAIL]		= "filterFolder";
+	ZmFolderSearchFilter.TEXT_KEY[ZmApp.CALENDAR]	= "filterCalendar";
+	ZmFolderSearchFilter.TEXT_KEY[ZmApp.CONTACTS]	= "filterAddressBook";
+	ZmFolderSearchFilter.TEXT_KEY[ZmApp.TASKS]		= "filterTasksFolder";
+	ZmFolderSearchFilter.TEXT_KEY[ZmApp.BRIEFCASE]	= "filterBriefcase";
+};
 
 ZmFolderSearchFilter.prototype._setUi =
 function(button) {
@@ -955,7 +1007,7 @@ function(button) {
 ZmFolderSearchFilter.prototype._getMoveParams =
 function(dlg) {
 	return {
-		overviewId:		dlg.getOverviewId(this.toString()),
+		overviewId:		dlg.getOverviewId([this.toString(), this._resultsApp].join("_")),
 		treeIds:		[ZmApp.ORGANIZER[this._resultsApp]],
 		treeStyle:		DwtTree.SINGLE_STYLE
 	};

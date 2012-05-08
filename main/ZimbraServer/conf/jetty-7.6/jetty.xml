@@ -544,6 +544,7 @@
           <Set name="extended">true</Set>
           <Set name="filenameDateFormat">yyyy-MM-dd</Set>
           <Set name="preferProxiedForAddress">true</Set>
+          <Set name="logLatency">true</Set>
         </New>
       </Set>
     </Ref>
@@ -566,7 +567,7 @@
     <!-- extra options                                               -->
     <!-- =========================================================== -->
     <Set name="stopAtShutdown">true</Set>
-    <Set name="sendServerVersion">false</Set>
+    <Set name="sendServerVersion">true</Set>
     <Set name="sendDateHeader">true</Set>
 
     <!-- =========================================================== -->

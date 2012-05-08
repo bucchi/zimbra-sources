@@ -75,68 +75,75 @@ class Account: BackgroundWorker
             {
                 AccountArray[j] = new Account();
             }
-            
-
             for (int f = 0; f < userlist.Count; f++)
             {
                 //Use the thread array to process ech iteration  
-                //choose the first unused thread.    
-
-                Account myAccount = new Account();
-                string uname = (userlist[f].MappedName != "") ? userlist[f].MappedName : userlist[f].UserName;
-
-                myAccount.AccountName = uname +"@" + Domainname;// AcctName;
-                myAccount.AccountID = userlist[f].UserName;
-                myAccount.Countdown = countdown;
-                Currentuser = new MVVM.Model.Users();
-                Currentuser.UserName = userlist[f].UserName;
-                myAccount.Currentuser = Currentuser;
-                myAccount.TestObj = (CssLib.CSMigrationWrapper)wrapper;
-
-                myAccount.serverMigration = ServerMigrationflag;
-                myAccount.Mailoptions = MailOptions;
-                number = number + 1;
-                myAccount.num = number;
-
-
-                bool fileProcessed = false;
-                while ((!fileProcessed) && (!_shouldStop))
+                //choose the first unused thread.  
+                if (userlist[f].IsProvisioned)
                 {
-                    for (int threadNum = 0; threadNum < maxThreads; threadNum++)
+
+                    Account myAccount = new Account();
+                    string uname = (userlist[f].MappedName != "") ? userlist[f].MappedName : userlist[f].UserName;
+
+                    myAccount.AccountName = uname + "@" + Domainname;// AcctName;
+                    myAccount.AccountID = userlist[f].UserName;
+                    myAccount.Countdown = countdown;
+                    Currentuser = new MVVM.Model.Users();
+                    Currentuser.UserName = userlist[f].UserName;
+                    myAccount.Currentuser = Currentuser;
+                    myAccount.TestObj = (CssLib.CSMigrationWrapper)wrapper;
+
+                    myAccount.serverMigration = ServerMigrationflag;
+                    myAccount.Mailoptions = MailOptions;
+                    number = number + 1;
+                    myAccount.num = number;
+
+
+                    bool fileProcessed = false;
+                    while ((!fileProcessed) && (!_shouldStop))
                     {
-                        if (!AccountArray[threadNum].IsBusy)
-                        {   // This thread is available     
+                        for (int threadNum = 0; threadNum < maxThreads; threadNum++)
+                        {
+                            if (!AccountArray[threadNum].IsBusy)
+                            {   // This thread is available     
 
-                           // System.Console.WriteLine("Starting worker thread: " + threadNum + "account" + myAccount.AccountName);
+                                // System.Console.WriteLine("Starting worker thread: " + threadNum + "account" + myAccount.AccountName);
 
-                            AccountArray[threadNum] = myAccount;
-                            AccountArray[threadNum].DoWork += new DoWorkEventHandler(accountToMigrate_DoWork);
-                            AccountArray[threadNum].RunWorkerCompleted += new RunWorkerCompletedEventHandler(accountToMigrate_RunWorkerCompleted);
-                            //AccountArray[threadNum].ProgressChanged += new ProgressChangedEventHandler(accountToMigrate_ProgressChanged);
-                            AccountArray[threadNum].WorkerReportsProgress = true; 
-                            AccountArray[threadNum].WorkerSupportsCancellation = true;
-                            AccountArray[threadNum].RunWorkerAsync(myAccount);
+                                AccountArray[threadNum] = myAccount;
+                                AccountArray[threadNum].DoWork += new DoWorkEventHandler(accountToMigrate_DoWork);
+                                AccountArray[threadNum].RunWorkerCompleted += new RunWorkerCompletedEventHandler(accountToMigrate_RunWorkerCompleted);
+                                //AccountArray[threadNum].ProgressChanged += new ProgressChangedEventHandler(accountToMigrate_ProgressChanged);
+                                AccountArray[threadNum].WorkerReportsProgress = true;
+                                AccountArray[threadNum].WorkerSupportsCancellation = true;
+                                AccountArray[threadNum].RunWorkerAsync(myAccount);
 
-                            fileProcessed = true;
-                            break;
+                                fileProcessed = true;
+                                break;
+                            }
+                        }
+                        //If all threads are being used, sleep awhile before checking again  
+                        if (!fileProcessed)
+                        {
+                            Thread.Sleep(500);
                         }
                     }
-                    //If all threads are being used, sleep awhile before checking again  
-                    if (!fileProcessed)
+                    if (_shouldStop)
                     {
-                         Thread.Sleep(500);
+
+                        for (int i = 0; i < maxThreads; i++)
+                        {
+                            System.Console.WriteLine("cancelling in main callback");
+                            countdown.Signal();
+                            AccountArray[i].CancelAsync();
+                        }
+
                     }
                 }
-                if (_shouldStop)
+                else
                 {
-                    
-                    for (int i = 0; i < maxThreads; i++)
-                    {
-                        System.Console.WriteLine("cancelling in main callback");
-                        countdown.Signal();
-                        AccountArray[i].CancelAsync();
-                    }
-                    
+                    string msg =  userlist[f].MappedName + " is not provisioned. Exit Migration for the user " + userlist[f].UserName + "\n";
+                    System.Console.WriteLine(msg);
+                    countdown.Signal();
                 }
             }
         }
@@ -250,7 +257,7 @@ class Account: BackgroundWorker
                 System.Console.WriteLine();*/
               //  a.TotalItems = Convert.ToInt32(e.NewValue);
 
-                Currentuser.StatusMessage = "TotalItems to Migrate For UserAccount   " + a.AccountID + " is " + e.NewValue.ToString();
+                Currentuser.StatusMessage = "Total Items to Migrate For UserAccount   " + a.AccountID + " is " + e.NewValue.ToString();
                 /*System.Console.WriteLine();
                 System.Console.WriteLine();*/
 
@@ -264,7 +271,7 @@ class Account: BackgroundWorker
                /* ProgressUtil.RenderConsoleProgress(30, '\u2591', ConsoleColor.Yellow,
                     "TotalErrors For UserAccount   " + a.AccountID.ToString() + Numoferrors.ToString());*/  //donot use progressutil we want to have consistent logging.
 
-                Currentuser.StatusMessage = "TotalErrors For UserAccount   " + a.AccountID.ToString() + Numoferrors.ToString();
+                Currentuser.StatusMessage = "Total Errors For UserAccount " + a.AccountID.ToString() +"are"+ Numoferrors.ToString();
                 System.Console.WriteLine(Currentuser.StatusMessage);
                 System.Console.WriteLine();
                 System.Console.WriteLine();
@@ -279,7 +286,7 @@ class Account: BackgroundWorker
                     "TotalWarnings For UserAccount   " + a.AccountID.ToString() + NumofWarns.ToString());*/
                 //donot use progressutil we want to have consistent logging.
 
-                Currentuser.StatusMessage = "TotalWarnings For UserAccount   " + a.AccountID.ToString() + NumofWarns.ToString();
+                Currentuser.StatusMessage = "Total Warnings For UserAccount   " + a.AccountID.ToString() + NumofWarns.ToString();
                 System.Console.WriteLine(Currentuser.StatusMessage);
                 System.Console.WriteLine();
 
@@ -460,7 +467,7 @@ class Account: BackgroundWorker
             {
                 System.Console.WriteLine();
                 System.Console.WriteLine();
-                string mesg = "TotalErrors For UserAccount   " + argumentTest.AccountName + " are" + Numoferrors.ToString();
+                string mesg = "Total Errors For UserAccount " + argumentTest.AccountName + " are " + Numoferrors.ToString();
                 System.Console.WriteLine(mesg);
                 /*ProgressUtil.RenderConsoleProgress(30, '\u2591', ConsoleColor.Red,
                 "TotalErrors For UserAccount   " + argumentTest.AccountName + " are" + Numoferrors.ToString());*/

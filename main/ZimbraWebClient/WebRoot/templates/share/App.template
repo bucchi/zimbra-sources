@@ -54,7 +54,7 @@
 	<html>
 		<head>
 			<title><$= ZmMsg.zimbraLabel $> <$= data.username $></title>
-			<link rel='stylesheet' href='<$= data.appContextPath $>/css/msgview,zm,wiki.css?v=<$= data.cacheKillerVersion $>' media='screen'></link>
+			<link rel='stylesheet' href='<$= data.appContextPath $>/css/msgview,zm.css?v=<$= data.cacheKillerVersion $>' media='screen'></link>
 			<$ if (data.onloadStr) { $>
 				<script language='javascript'>
 					function handleOnload() {
@@ -88,9 +88,29 @@
 
 <template id="share.App#FolderTooltip">
 	<table>
+	    <tr>
+	        <th colspan=2 style='padding-bottom:5px; text-align:left'>
+                <$= AjxStringUtil.htmlEncode(data.name) $>
+            </th>
+	    </tr>
+<$ if (data.numUnread) { $>
+		<tr>
+			<td valign='top'>
+				<$= AjxMessageFormat.format(ZmMsg.makeLabel, ZmMsg.unread) $>
+			</td>
+			<td valign='top' style='font-weight:bold'>
+				<$= data.numUnread $>
+			</td>
+		</tr>
+<$ } $>
 		<tr>
 			<td valign='top' style='padding-right:20px'>
-				<$= AjxMessageFormat.format(ZmMsg.makeLabel, data.itemText) $>
+				<$ if (data.itemText == ZmMsg.messages) { $>
+				    <$= ZmMsg.totalMessagesLabel $>
+				<$ } $>
+				<$  else { $>
+                    <$= AjxMessageFormat.format(ZmMsg.makeLabel, data.itemText) $>
+			    <$ } $>
 			</td>
 			<td valign='top'>
 				<$= data.numTotal $>

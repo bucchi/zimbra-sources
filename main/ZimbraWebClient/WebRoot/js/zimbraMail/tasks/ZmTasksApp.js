@@ -187,6 +187,8 @@ ZmTasksApp.prototype.handleOp =
 function(op, params) {
 	switch (op) {
 		case ZmOperation.NEW_TASK: {
+            params = params || {};
+            params.folderId = params.folderId || this.getTaskListController()._folderId;
 			var loadCallback = new AjxCallback(this, this._handleLoadNewTask, [params]);
 			AjxDispatcher.require(["TasksCore", "Tasks"], false, loadCallback, null, true);
 			break;
@@ -382,13 +384,9 @@ function(mailItem, date, subject) {
  */
 ZmTasksApp.prototype.search =
 function(folder, startDate, endDate, callback, accountName) {
-    var query = "";
-    if(appCtxt.isExternalAccount()) {
-        query = "inid:" + this.getDefaultFolderId();
-    }
-    else {
-        query = folder ? folder.createQuery() : "in:tasks";
-    }
+    var query = folder ? folder.createQuery() : "";
+    query = query || (appCtxt.isExternalAccount() ? "inid:" + this.getDefaultFolderId() : "in:tasks");
+
 	var params = {
 		query:			query,
 		types:			[ZmItem.TASK],

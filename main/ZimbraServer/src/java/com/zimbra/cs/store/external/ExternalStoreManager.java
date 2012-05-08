@@ -143,7 +143,12 @@ public abstract class ExternalStoreManager extends StoreManager implements Exter
         if (mblob == null) {
             return null;
         }
-        return readStreamFromStore(mblob.getLocator(), mblob.getMailbox());
+        InputStream is = readStreamFromStore(mblob.getLocator(), mblob.getMailbox());
+        if (is == null) {
+            throw new IOException("Store " + this.getClass().getName() +" returned null for locator " + mblob.getLocator());
+        } else {
+            return is;
+        }
     }
 
     @Override
@@ -158,10 +163,13 @@ public abstract class ExternalStoreManager extends StoreManager implements Exter
         }
 
         InputStream is = readStreamFromStore(locator, mbox);
-        cached = localCache.put(locator, is);
-        return new ExternalBlob(cached);
+        if (is == null) {
+            throw new IOException("Store " + this.getClass().getName() +" returned null for locator " + locator);
+        } else {
+            cached = localCache.put(locator, is);
+            return new ExternalBlob(cached);
+        }
     }
-
 
     @Override
     public MailboxBlob getMailboxBlob(Mailbox mbox, int itemId, int revision, String locator) throws ServiceException {
@@ -244,15 +252,8 @@ public abstract class ExternalStoreManager extends StoreManager implements Exter
     public boolean supports(StoreFeature feature) {
         switch (feature) {
             case BULK_DELETE:  return false;
-            case CENTRALIZED:  return isCentralized();
+            case CENTRALIZED:  return true;
             default:           return false;
         }
     }
-
-    /**
-     *
-     * @return true if the store is centralized (i.e. one store for all mailbox servers), false otherwise
-     * used during mailbox move to avoid copying blobs if possible
-     */
-    protected abstract boolean isCentralized();
 }

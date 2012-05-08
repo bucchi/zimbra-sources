@@ -987,7 +987,7 @@ function(composeMode, switchPreface, dontReplaceContent) {
 	var htmlMode = (composeMode == DwtHtmlEditor.HTML);
 	if (!htmlMode || appCtxt.get(ZmSetting.HTML_COMPOSE_ENABLED)) {
 
-		var curMember = (this._composeMode == DwtHtmlEditor.TEXT) ? this._bodyField : this._htmlEditor;
+		var curMember = (this._composeMode == DwtHtmlEditor.TEXT) ? this._bodyField : this._htmlEditor.getEditorContainer();
 		// get these before we change mode so we can find them in current body
 		var sig = this.getSignatureContent(sigId);
 		var sigSep = this._getSignatureSeparator();
@@ -1079,11 +1079,7 @@ function(composeMode, switchPreface, dontReplaceContent) {
 		this._setFormValue();
 
 		// swap new body field into tab group
-		var newMember = (composeMode == DwtHtmlEditor.TEXT) ? this._bodyField : this._htmlEditor;
-        //        if (window.isTinyMCE) {
-        //            curMember = newMember = this._htmlEditor.getEditorContainer();
-        //            this._retryHtmlEditorFocus();
-        //        }
+        var newMember = (composeMode == DwtHtmlEditor.TEXT) ? this._bodyField : this._htmlEditor.getEditorContainer();
 		if (curMember && newMember && (curMember != newMember) && this._controller._tabGroup) {
 			this._controller._tabGroup.replaceMember(curMember, newMember);
 			// focus via replaceMember() doesn't take, try again
@@ -2059,8 +2055,11 @@ ZmComposeView.prototype._setAddresses =
 function(action, type, override) {
 	this._action = action;
 
-	if (action == ZmOperation.NEW_MESSAGE && override) {
-		this._recipients.setAddress(type, override);
+	if (override) {
+		override = AjxUtil.toArray(override);
+		for (var i = 0; i < override.length; i++) {
+			this._recipients.setAddress(type, override[i]);
+		}
 	} else if (this._isReply(action)) {
 		var ac = window.parentAppCtxt || window.appCtxt;
 
@@ -2831,18 +2830,18 @@ function(templateId, data) {
         var styleStr = "";
         var node = this._attButton.getHtmlElement().getElementsByClassName("ZWidgetTitle")[0];
 
-        if (AjxEnv.isChrome)
-            styleStr = "right:200px";
-        else if (AjxEnv.isSafari)
-            styleStr = "right: 45px;width: 21px";
-        else if (AjxEnv.isFirefox)
-            styleStr  = "right:185px";
         var newData = {
-            styleStr : styleStr,
             fileInputId : ZmId.getViewId(this._view, ZmId.CMP_ATT_INP)
         };
         node.innerHTML = AjxTemplate.expand("mail.Message#MailAttachmentAttachBtn", newData);
-        this._attcBtnFileInpId = data.fileInputId;
+        var fileInputNode = node.getElementsByClassName("BrowseAttachBtn")[0];
+        var attachTextWidth = node.getElementsByClassName("ComposeAttachBtn")[0].clientWidth;
+        if (fileInputNode && attachTextWidth){
+            if (AjxEnv.isFirefox)
+                fileInputNode.style.right = (fileInputNode.clientWidth - attachTextWidth) + "px";
+            fileInputNode.style.maxWidth = attachTextWidth;
+        }
+        this._attcBtnFileInpId = newData.fileInputId;
     } else {
              this._attButton._textEl.onclick = function(event){
                 var curView = appCtxt.getAppViewMgr().getCurrentView();
@@ -3103,7 +3102,9 @@ function(files, node) {
 
 ZmComposeView.prototype._checkMenuItems =
 function(menuItem) {
-    menuItem.setEnabled((this._composeMode == DwtHtmlEditor.HTML));
+    var isHTML = (this._composeMode === DwtHtmlEditor.HTML);
+    menuItem.setEnabled(isHTML);
+    document.getElementById(this._attcBtnInlineFileInpId).disabled = !isHTML;
 };
 
 ZmComposeView.prototype._attachButtonMenuCallback =
@@ -3122,7 +3123,11 @@ function() {
     if (AjxEnv.supportsHTML5File){
         div = document.createElement("DIV");
         var mi = this._createAttachMenuItem(menu, ZmMsg.attachInline);
-        div.innerHTML = AjxTemplate.expand("mail.Message#MailAttachmentMyComputer");
+        var data = {
+            inlineFileInputId : ZmId.getViewId(this._view, ZmId.CMP_ATT_INLINE_INP)
+        };
+        this._attcBtnInlineFileInpId = data.inlineFileInputId;
+        div.innerHTML = AjxTemplate.expand("mail.Message#MailAttachmentMyComputer", data);
         var fromElement = div.firstChild;
         fromElement.firstChild.style.top = "22px";
         fromElement.firstChild.isInline = true;
@@ -3882,10 +3887,18 @@ ZmHiddenComposeView.prototype.toString = function() { return "ZmHiddenComposeVie
 ZmHiddenComposeView.prototype.set =
 function(params) {
 
+	this.reset();
+	
 	var action = this._action = params.action;
 	var msg = this._msg = this._addressesMsg = params.msg;
 
 	this._setAddresses(action, AjxEmailAddress.TO, params.toOverride);
+	if (params.ccOverride) {
+		this._setAddresses(action, AjxEmailAddress.CC, params.ccOverride);
+	}
+	if (params.bccOverride) {
+		this._setAddresses(action, AjxEmailAddress.BCC, params.bccOverride);
+	}
 	this._setSubject(action, msg, params.subjectOverride);
 	this._setBody(action, msg, params.extraBodyText);
     var oboMsg = msg || (params.selectedMessages && params.selectedMessages.length && params.selectedMessages[0]);
@@ -3954,6 +3967,7 @@ function(bEnableInputs) {
 	this._subject = this._bodyContent = "";
 	this._controller._curIncOptions = null;
 	this._msgAttId = null;
+	this._addresses = {};
 
 	// remove extra mime parts
 	this._extraParts = null;
@@ -3972,8 +3986,8 @@ ZmHiddenRecipients = function() {
 ZmHiddenRecipients.prototype.setAddress =
 function(type, addr) {
 	if (type && addr) {
-		this._addresses[type] = [];
-		this._addresses[type].push(addr.isAjxEmailAddress ? addr.toString() : addr);
+		this._addresses[type] = this._addresses[type] || [];
+		this._addresses[type].push(addr);
 	}
 };
 
@@ -3989,13 +4003,16 @@ function(type, addrVec, used) {
 		}
 		for (var i = 0, len = addrs.length; i < len; i++) {
 			var addr = addrs[i];
-			var email = addr.isAjxEmailAddress ? addr && addr.getAddress() : addr;
-			if (!email) { continue; }
-			email = email.toLowerCase();
-			if (!used[email]) {
-				this._addresses[type].push(addr);
-				used[email] = true;
-				addrAdded = true;
+			addr = addr.isAjxEmailAddress ? addr : AjxEmailAddress.parse(addr);
+			if (addr) {
+				var email = addr.getAddress();
+				if (!email) { continue; }
+				email = email.toLowerCase();
+				if (!used[email]) {
+					this._addresses[type].push(addr);
+					used[email] = true;
+					addrAdded = true;
+				}
 			}
 		}
 	}

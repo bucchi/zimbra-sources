@@ -276,11 +276,13 @@ function(actionCode) {
 
     var lv = this._listView[this._currentViewId];
     var num = lv.getSelectionCount();
+    var isExternalAccount = appCtxt.isExternalAccount();
 
     switch(actionCode) {
 
         case ZmKeyMap.MARK_COMPLETE:
         case ZmKeyMap.MARK_UNCOMPLETE:
+            if (isExternalAccount) { break; }
             var task = this._listView[this._currentViewId].getSelection()[0];
             if ((task.isComplete() && actionCode == ZmKeyMap.MARK_UNCOMPLETE) ||
                     (!task.isComplete() && actionCode == ZmKeyMap.MARK_COMPLETE))
@@ -297,6 +299,7 @@ function(actionCode) {
             this.switchView(menuId);
 			break;
         case ZmKeyMap.MOVE_TO_TRASH:
+            if (isExternalAccount) { break; }
             if(num) {
                 var tasks = lv.getSelection();
                 var nId = ZmOrganizer.normalizeId(tasks[0].folderId);
@@ -425,12 +428,17 @@ function() {
 			ZmOperation.SEP,
             ZmOperation.SORTBY_MENU,
             ZmOperation.SEP,
-            ZmOperation.MARK_AS_COMPLETED,
-            ZmOperation.VIEW_MENU
+            ZmOperation.MARK_AS_COMPLETED
             );
 	
 	return toolbarOps;
 };
+
+ZmTaskListController.prototype._getRightSideToolBarOps =
+function(noViewMenu) {
+	return [ZmOperation.VIEW_MENU];
+};
+
 
 ZmTaskListController.prototype._initialize =
 function(view) {
@@ -647,6 +655,18 @@ function(parent, num) {
     if (parent.getOp(ZmOperation.SHOW_ORIG)){
         var tasks = this._taskListView.getSelection();
         parent.enable(ZmOperation.SHOW_ORIG, num == 1 && tasks && tasks.length && tasks[0].getRestUrl() != null);
+    }
+
+    if(appCtxt.isExternalAccount()) {
+        parent.enable ([
+                        ZmOperation.EDIT,
+                        ZmOperation.MARK_AS_COMPLETED,
+                        ZmOperation.MOVE,
+                        ZmOperation.MOVE_MENU,
+                        ZmOperation.TAG_MENU,
+                        ZmOperation.DELETE
+                        ], false);
+        parent.setItemVisible(ZmOperation.TAG_MENU, false);
     }
 };
 

@@ -857,6 +857,14 @@ function(details) {
 		if (this._evtMgr.isListenerRegistered(ZaEvent.E_REMOVE)) {
 			var evt = new ZaEvent(this.objType);
 			evt.set(ZaEvent.E_REMOVE, this);
+            /*
+             * Remove the last element if it is empty
+             */
+            if (!AjxUtil.isEmpty(details)) {
+                if (!details[details.length - 1]) {
+                    details.splice(details.length - 1,1);
+                }
+            }
 			evt.setDetails(details);
 			this._evtMgr.notifyListeners(ZaEvent.E_REMOVE, evt);
 		}
@@ -996,8 +1004,15 @@ function () {
 
     // For New UI
     if (appNewUI) {
+        var isCurrentController;
+        var currentController = ZaApp.getInstance().getCurrentController();
+        if ( currentController && this != currentController) {
+            isCurrentController = false;
+        } else {
+            isCurrentController = true;
+        }
         var settingMenu = ZaZimbraAdmin.getInstance().getSettingMenu();
-        if (this._popupOperations && settingMenu) {
+        if (isCurrentController && this._popupOperations && settingMenu) {
             for(var i in this._popupOperations) {
                 if(this._popupOperations[i] instanceof ZaOperation && !AjxUtil.isEmpty(settingMenu.getMenuItem(this._popupOperations[i].id))) {
                     settingMenu.getMenuItem(this._popupOperations[i].id).setEnabled(this._popupOperations[i].enabled);

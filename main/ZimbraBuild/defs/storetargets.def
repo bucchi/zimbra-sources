@@ -77,11 +77,7 @@ $(BUILD_ROOT)/zimbra-store.spec:
 		$(BUILD_ROOT)/zimbra-store.spec
 	echo "%attr(-, zimbra, zimbra) /opt/zimbra/zimlets" >> \
 		$(BUILD_ROOT)/zimbra-store.spec
-	echo "%attr(-, zimbra, zimbra) /opt/zimbra/zimlets-extra" >> \
-		$(BUILD_ROOT)/zimbra-store.spec
 	echo "%attr(-, zimbra, zimbra) /opt/zimbra/extensions-extra" >> \
-		$(BUILD_ROOT)/zimbra-store.spec
-	echo "%attr(-, zimbra, zimbra) /opt/zimbra/zimlets-experimental" >> \
 		$(BUILD_ROOT)/zimbra-store.spec
 	echo "%attr(-, zimbra, zimbra) /opt/zimbra/$(MAILBOXD_DIR)" >> \
 		$(BUILD_ROOT)/zimbra-store.spec
@@ -234,6 +230,12 @@ $(ZIMLET_DIR)/build/dist/zimlets/nofile:
 		-Dzimbra.buildinfo.host=$(HOST) package-zimlet ; )
 	(cd $(ADMIN_EXT_DIR); $(ANT) $(ANT_DEBUG)\
 		-Dzimbra.buildinfo.platform=$(BUILD_PLATFORM) \
+		-Dext.dir=ClientUploader -Dext.name=com_zimbra_clientuploader \
+		-Dzimbra.buildinfo.version=$(SOURCE_TAG) \
+		-Dzimbra.buildinfo.release=$(RELEASE) -Dzimbra.buildinfo.date=$(DATE) \
+		-Dzimbra.buildinfo.host=$(HOST) package-zimlet ; )
+	(cd $(ADMIN_EXT_DIR); $(ANT) $(ANT_DEBUG)\
+		-Dzimbra.buildinfo.platform=$(BUILD_PLATFORM) \
 		-Dext.dir=HelpTooltip -Dext.name=com_zimbra_tooltip \
 		-Dzimbra.buildinfo.version=$(SOURCE_TAG) \
 		-Dzimbra.buildinfo.release=$(RELEASE) -Dzimbra.buildinfo.date=$(DATE) \
@@ -252,8 +254,8 @@ $(ZIMLET_DIR)/build/dist/zimlets-experimental/nofile:
 		-Dzimbra.buildinfo.host=$(HOST) package-zimlets-experimental ; )
 
 $(STORE_DEST_DIR)/zimlets-experimental: $(ZIMLET_DIR)/build/dist/zimlets-experimental/nofile
-	mkdir -p $@
-	cp $(ZIMLET_DIR)/build/dist/zimlets-experimental/* $@
+#	mkdir -p $@
+#	cp $(ZIMLET_DIR)/build/dist/zimlets-experimental/* $@
 
 $(ZIMLET_DIR)/build/dist/zimlets-extra/nofile:
 	(cd $(ZIMLET_DIR); $(ANT) $(ANT_DEBUG)\
@@ -263,8 +265,8 @@ $(ZIMLET_DIR)/build/dist/zimlets-extra/nofile:
 		-Dzimbra.buildinfo.host=$(HOST) package-zimlets-extra ; )
 
 $(STORE_DEST_DIR)/zimlets-extra: $(ZIMLET_DIR)/build/dist/zimlets-extra/nofile
-	mkdir -p $@
-	cp $(ZIMLET_DIR)/build/dist/zimlets-extra/* $@
+#	mkdir -p $@
+#	cp $(ZIMLET_DIR)/build/dist/zimlets-extra/* $@
 
 $(STORE_DEST_DIR)/zimlets-admin-extra: $(POSIX_EXT_DIR)/build/zimlet/zimbra_posixaccount.zip $(SAMBA_EXT_DIR)/build/zimlet/zimbra_samba.zip
 	mkdir -p $@
@@ -349,11 +351,25 @@ $(ADMIN_EXT_DIR)/build/com_zimbra_bulkprovision.jar:
 		-Dzimbra.buildinfo.version=$(SOURCE_TAG) \
 		-Dzimbra.buildinfo.release=$(RELEASE) -Dzimbra.buildinfo.date=$(DATE) \
 		-Dzimbra.buildinfo.host=$(HOST) jar ; )
-	
+
 $(CORE_DEST_DIR)/lib/ext/com_zimbra_bulkprovision/com_zimbra_bulkprovision.jar: $(CORE_DEST_DIR)/lib/ext/com_zimbra_bulkprovision $(ADMIN_EXT_DIR)/build/com_zimbra_bulkprovision.jar
 	cp -f $(ADMIN_EXT_DIR)/build/com_zimbra_bulkprovision.jar $@
 
 $(CORE_DEST_DIR)/lib/ext/com_zimbra_bulkprovision:
+	mkdir -p $@
+
+$(ADMIN_EXT_DIR)/build/com_zimbra_clientuploader.jar:
+	(cd $(ADMIN_EXT_DIR); $(ANT) $(ANT_DEBUG)\
+		-Dzimbra.buildinfo.platform=$(BUILD_PLATFORM) \
+		-Dext.dir=ClientUploader -Dext.name=com_zimbra_clientuploader \
+		-Dzimbra.buildinfo.version=$(SOURCE_TAG) \
+		-Dzimbra.buildinfo.release=$(RELEASE) -Dzimbra.buildinfo.date=$(DATE) \
+		-Dzimbra.buildinfo.host=$(HOST) jar ; )
+	
+$(CORE_DEST_DIR)/lib/ext/com_zimbra_clientuploader/com_zimbra_clientuploader.jar: $(CORE_DEST_DIR)/lib/ext/com_zimbra_clientuploader $(ADMIN_EXT_DIR)/build/com_zimbra_clientuploader.jar
+	cp -f $(ADMIN_EXT_DIR)/build/com_zimbra_clientuploader.jar $@
+
+$(CORE_DEST_DIR)/lib/ext/com_zimbra_clientuploader:
 	mkdir -p $@
 
 $(ADMIN_EXT_DIR)/build/com_zimbra_cert_manager.jar:

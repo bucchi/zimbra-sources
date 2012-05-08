@@ -29,12 +29,17 @@ import com.zimbra.common.account.Key.AccountBy;
 import com.zimbra.common.account.Key.ShareLocatorBy;
 import com.zimbra.common.account.Key.UCServiceBy;
 import com.zimbra.common.account.ProvisioningConstants;
+import com.zimbra.common.mime.MimeConstants;
 import com.zimbra.common.service.ServiceException;
 import com.zimbra.cs.account.NamedEntry.Visitor;
 import com.zimbra.cs.account.auth.AuthContext;
 import com.zimbra.cs.account.auth.AuthContext.Protocol;
 import com.zimbra.cs.mime.MimeTypeInfo;
 import com.zimbra.cs.mime.MockMimeTypeInfo;
+import com.zimbra.cs.mime.handler.MessageRFC822Handler;
+import com.zimbra.cs.mime.handler.TextCalendarHandler;
+import com.zimbra.cs.mime.handler.TextHtmlHandler;
+import com.zimbra.cs.mime.handler.TextPlainHandler;
 import com.zimbra.cs.mime.handler.UnknownTypeHandler;
 import com.zimbra.cs.redolog.MockRedoLogProvider;
 import com.zimbra.soap.admin.type.CacheEntryType;
@@ -53,6 +58,8 @@ public final class MockProvisioning extends Provisioning {
 
     private final Map<String, Domain> id2domain = Maps.newHashMap();
 
+    private final Map<String, Cos> id2cos = Maps.newHashMap();
+
     private final Map<String, List<MimeTypeInfo>> mimeConfig = Maps.newHashMap();
     private final Config config = new Config(new HashMap<String, Object>(), this);
     private final Map<String, ShareLocator> shareLocators = Maps.newHashMap();
@@ -67,6 +74,8 @@ public final class MockProvisioning extends Provisioning {
         attrs.put(A_zimbraMailMode, MailMode.http.toString());
         attrs.put(A_zimbraSmtpPort, "7025");
         localhost = new Server("localhost", "localhost", attrs, Collections.<String, Object>emptyMap(), this);
+
+        initializeMimeHandlers();
     }
 
     @Override
@@ -136,6 +145,37 @@ public final class MockProvisioning extends Provisioning {
         list.add(info);
     }
 
+    private void initializeMimeHandlers() {
+        MockMimeTypeInfo plain = new MockMimeTypeInfo();
+        plain.setMimeTypes(MimeConstants.CT_TEXT_PLAIN);
+        plain.setHandlerClass(TextPlainHandler.class.getName());
+        plain.setIndexingEnabled(true);
+        addMimeType(MimeConstants.CT_TEXT_PLAIN, plain);
+
+        MockMimeTypeInfo html = new MockMimeTypeInfo();
+        html.setMimeTypes(MimeConstants.CT_TEXT_HTML);
+        html.setHandlerClass(TextHtmlHandler.class.getName());
+        html.setFileExtensions("html", "htm");
+        html.setIndexingEnabled(true);
+        addMimeType(MimeConstants.CT_TEXT_HTML, html);
+
+        MockMimeTypeInfo calendar = new MockMimeTypeInfo();
+        calendar.setMimeTypes(MimeConstants.CT_TEXT_CALENDAR);
+        calendar.setHandlerClass(TextCalendarHandler.class.getName());
+        calendar.setIndexingEnabled(true);
+        addMimeType(MimeConstants.CT_TEXT_CALENDAR, calendar);
+
+        MockMimeTypeInfo message = new MockMimeTypeInfo();
+        message.setMimeTypes(MimeConstants.CT_MESSAGE_RFC822);
+        message.setHandlerClass(MessageRFC822Handler.class.getName());
+        message.setIndexingEnabled(true);
+        addMimeType(MimeConstants.CT_MESSAGE_RFC822, message);
+    }
+
+    public void clearMimeHandlers() {
+        mimeConfig.clear();
+    }
+
     @Override
     public Config getConfig() {
         return config;
@@ -146,7 +186,16 @@ public final class MockProvisioning extends Provisioning {
         Map<String, Object> map = entry.getAttrs(false);
         for (Map.Entry<String, ? extends Object> attr : attrs.entrySet()) {
             if (attr.getValue() != null) {
-                map.put(attr.getKey(), attr.getValue());
+                Object value = attr.getValue();
+                if (value instanceof List) { // Convert list to string array.
+                    List<?> list = (List<?>) value;
+                    String[] strArray = new String[list.size()];
+                    for (int i = 0; i < list.size(); i++) { 
+                        strArray[i] = list.get(i).toString();
+                    }
+                    value = strArray;
+                }
+                map.put(attr.getKey(), value);
             } else {
                 map.remove(attr.getKey());
             }
@@ -177,7 +226,7 @@ public final class MockProvisioning extends Provisioning {
     public Set<String> getDistributionLists(Account acct) {
         throw new UnsupportedOperationException();
     }
-    
+
     @Override
     public Set<String> getDirectDistributionLists(Account acct)
             throws ServiceException {
@@ -335,8 +384,20 @@ public final class MockProvisioning extends Provisioning {
     }
 
     @Override
-    public Cos createCos(String name, Map<String, Object> attrs) {
-        throw new UnsupportedOperationException();
+    public Cos createCos(String name, Map<String, Object> attrs) throws ServiceException {
+        name = name.trim().toLowerCase();
+        if (get(Key.CosBy.name, name) != null) {
+            throw AccountServiceException.COS_EXISTS(name);
+        }
+
+        String id = (String) attrs.get(A_zimbraId);
+        if (id == null) {
+            attrs.put(A_zimbraId, id = UUID.randomUUID().toString());
+        }
+
+        Cos cos = new Cos(name, id, attrs, this);
+        id2cos.put(id, cos);
+        return cos;
     }
 
     @Override
@@ -351,7 +412,20 @@ public final class MockProvisioning extends Provisioning {
 
     @Override
     public Cos get(Key.CosBy keyType, String key) {
-        return new MockCos(key, UUID.randomUUID().toString(), new HashMap<String,Object>(), this);
+        switch (keyType) {
+            case id:
+                return id2cos.get(key);
+
+            case name:
+                for (Cos cos : id2cos.values()) {
+                    if (cos.getName().equals(key)) {
+                        return cos;
+                    }
+                }
+                break;
+        }
+
+        return null;
     }
 
     @Override
@@ -668,7 +742,7 @@ public final class MockProvisioning extends Provisioning {
 
     @Override
     public void deleteUCService(String zimbraId) throws ServiceException {
-        throw new UnsupportedOperationException();  
+        throw new UnsupportedOperationException();
     }
 
     @Override

@@ -56,6 +56,7 @@ import com.zimbra.cs.mailbox.OperationContext;
 import com.zimbra.cs.service.formatter.Formatter;
 import com.zimbra.cs.service.formatter.FormatterFactory.FormatType;
 import com.zimbra.cs.service.util.ItemId;
+import com.zimbra.cs.servlet.ZimbraServlet;
 
 public final class UserServletContext {
     public final HttpServletRequest req;

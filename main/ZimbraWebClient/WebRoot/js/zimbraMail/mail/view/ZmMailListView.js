@@ -80,7 +80,7 @@ ZmMailListView.SORTBY_HASH[ZmSearch.PRIORITY_DESC] = {field:ZmItem.F_PRIORITY, m
 // Reset row style
 ZmMailListView.prototype.markUIAsMute =
 function(item) {
-	this._setImage(item, ZmItem.F_MUTE, item.getMuteIcon());
+    //Removed
 };
 
 // Reset row style
@@ -99,6 +99,7 @@ function(item) {
 		var row2 = this._getElement(item, ZmItem.F_ITEM_ROW_3PANE);
 		if (row2) { row2.className = rowClass; }
 	}
+	this._controller._checkKeepReading();
 };
 
 ZmMailListView.prototype.set =
@@ -344,10 +345,8 @@ function(viewId, headerList) {
 	var headers = headerList;
 	if (userHeaders && isMultiColumn) {
 		headers = userHeaders.split(ZmListView.COL_JOIN);
-		if (headers.length != headerList.length) {
-			// this means a new column was added the user does not know about yet
-			headers = this._normalizeHeaders(headers, headerList);
-		}
+		//we have to do it regardless of the size of headers and headerList, as items could be added and removed, masking each other as far as length (previous code compared length) 
+		headers = this._normalizeHeaders(headers, headerList);
 	}
     // adding account header in _normalizeHeader method
     // sometimes doesn't work since we check for array length which is bad.
@@ -430,7 +429,13 @@ function(userHeaders, headerList) {
 			if (hdr == ZmId.FLD_ACCOUNT) {
 				starred[ZmItem.F_ACCOUNT] = true;
 			}
-			headers.splice(headers.length - 1, 0, hdr);
+			if (hdr = ZmId.FLD_SELECTION) {
+				//re-add selection checkbox at the beginning (no idea why the rest is added one before last item, but not gonna change it for now
+				headers.unshift(hdr); //unshift adds item at the beginning
+			}
+			else {
+				headers.splice(headers.length - 1, 0, hdr);
+			}
 		}
 	}
 

@@ -164,14 +164,17 @@ ZmBaseController.prototype.handleKeyAction =
 function(actionCode, ev) {
 
 	DBG.println(AjxDebug.DBG3, "ZmBaseController.handleKeyAction");
+    var isExternalAccount = appCtxt.isExternalAccount();
 
 	switch (actionCode) {
 
 		case ZmKeyMap.FLAG:
+            if (isExternalAccount) { break; }
 			this._doFlag(this.getItems());
 			break;
 
 		case ZmKeyMap.MOVE:
+            if (isExternalAccount) { break; }
 			if (!appCtxt.isChildWindow) {
 				this._moveListener();
 			}
@@ -184,6 +187,7 @@ function(actionCode, ev) {
 			break;
 
 		case ZmKeyMap.TAG:
+            if (isExternalAccount) { break; }
 			var items = this.getItems();
 			if (items && items.length && (appCtxt.getTagTree().size() > 0)) {
 				var dlg = appCtxt.getPickTagDialog();
@@ -192,6 +196,7 @@ function(actionCode, ev) {
 			break;
 
 		case ZmKeyMap.UNTAG:
+            if (isExternalAccount) { break; }
 			if (appCtxt.get(ZmSetting.TAGGING_ENABLED)) {
 				var items = this.getItems();
 				if (items && items.length) {
@@ -216,7 +221,7 @@ function() {
 
 ZmBaseController.prototype.supportsDnD =
 function() {
-	return !this.isSearchResults;
+	return !(this.isSearchResults || appCtxt.isExternalAccount());
 };
 
 // abstract protected methods
@@ -238,6 +243,9 @@ ZmBaseController.prototype._getToolBarOps 			= function() {};
 
 // Returns a list of secondary (non primary) toolbar operations
 ZmBaseController.prototype._getSecondaryToolBarOps 	= function() {};
+
+// Returns a list of buttons that align to the right, like view and detach
+ZmBaseController.prototype._getRightSideToolBarOps 	= function() {};
 
 
 // private and protected methods
@@ -288,12 +296,14 @@ function(view, className) {
 
 	var buttons = this._getToolBarOps();
 	var secondaryButtons = this._getSecondaryToolBarOps();
+	var rightSideButtons = this._getRightSideToolBarOps();
 	if (!(buttons || secondaryButtons)) { return; }
 
 	var tbParams = {
 		parent:				this._container,
 		buttons:			buttons,
 		secondaryButtons:	secondaryButtons,
+		rightSideButtons: 	rightSideButtons,
 		context:			view,
 		controller:			this,
 		refElementId:		ZmId.SKIN_APP_TOP_TOOLBAR,
@@ -1111,8 +1121,10 @@ function(moveButton) {
 };
 
 /**
- * Resets the available options on a toolbar or action menu.
+ * Resets the available operations on a toolbar or action menu.
  * 
+ * @param {DwtControl}	parent		toolbar or action menu
+ * @param {number}		num			number of items selected currently
  * @private
  */
 ZmBaseController.prototype._resetOperations =
@@ -1138,6 +1150,16 @@ function(parent, num) {
 	}
     this._resetQuickCommandOperations(parent);
 };
+
+/**
+ * Resets a single operation on a toolbar or action menu.
+ * 
+ * @param {DwtControl}	parent		toolbar or action menu
+ * @param {number}		num			number of items selected currently
+ * @param {constant}	op			operation
+ * @private
+ */
+ZmBaseController.prototype._resetOperation = function(parent, num, op) {};
 
 /**
  * Resets the available options on the toolbar.

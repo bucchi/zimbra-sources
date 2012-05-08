@@ -2012,20 +2012,25 @@ function(appt, mode) {
 ZmCalViewController.prototype._promptDeleteNotify =
 function(appt, mode) {
 	if (!this._deleteNotifyDialog) {
-		var msg = ZmMsg.confirmCancelAppt;
-		if (appt.isRecurring()) {
-			msg = (mode == ZmCalItem.MODE_DELETE_INSTANCE)
-				? AjxMessageFormat.format(ZmMsg.confirmCancelApptInst, appt.name)
-				: ZmMsg.confirmCancelApptSeries;
-		}
 		this._deleteNotifyDialog = new ZmApptDeleteNotifyDialog({
 			parent: this._shell,
 			title: AjxMsg.confirmTitle,
-			confirmMsg: msg,
-			choiceLabel1: ZmMsg.dontNotifyOrganizer,
+			confirmMsg: "",
+            choiceLabel1: ZmMsg.dontNotifyOrganizer,
 			choiceLabel2 : ZmMsg.notifyOrganizer
 		});
 	}
+    if(this._deleteMode != mode){
+        var msg = ZmMsg.confirmCancelAppt;
+        if(appt.isRecurring()){
+            msg = (mode == ZmCalItem.MODE_DELETE_INSTANCE)
+    			? AjxMessageFormat.format(ZmMsg.confirmCancelApptInst, appt.name)
+    			: ZmMsg.confirmCancelApptSeries;
+        }
+        var msgDiv = document.getElementById(this._deleteNotifyDialog._confirmMessageDivId);
+        msgDiv.innerHTML = msg;
+        this._deleteMode = mode;
+    }
 	this._deleteNotifyDialog.popup(new AjxCallback(this, this._deleteNotifyYesCallback, [appt,mode]));
 };
 
@@ -2440,7 +2445,7 @@ function(appt) {
 			// if simple appointment, no prompting necessary
             var isTrash = calendar.nId == ZmOrganizer.ID_TRASH;
 			if (appt.isReadOnly() || calendar.isReadOnly() || isSynced || isTrash) {
-				var mode = appt.isException ? ZmCalItem.MODE_EDIT_SINGLE_INSTANCE : ZmCalItem.MODE_EDIT_SERIES;
+                var mode = appt.isRecurring() ? (appt.isException ? ZmCalItem.MODE_EDIT_SINGLE_INSTANCE : ZmCalItem.MODE_EDIT_SERIES) : ZmCalItem.MODE_EDIT;
 				this.showApptReadOnlyView(appt, mode);
 			} else {
 				this.editAppointment(appt, ZmCalItem.MODE_EDIT);
@@ -3288,9 +3293,28 @@ function(appt, actionMenu) {
 	actionMenu.enable(ZmOperation.REPLY, isReplyable && !isOrganizer);
 	actionMenu.enable(ZmOperation.REPLY_ALL, isReplyable);
     if(appCtxt.isExternalAccount()) {
+	    actionMenu.enable(ZmOperation.REINVITE_ATTENDEES, false);
 	    actionMenu.enable(ZmOperation.PROPOSE_NEW_TIME, false);
         actionMenu.enable(ZmOperation.REPLY, false);
 	    actionMenu.enable(ZmOperation.REPLY_ALL, false);
+	    actionMenu.enable(ZmOperation.DUPLICATE_APPT, false);
+	    actionMenu.enable(ZmOperation.DELETE, false);
+	    actionMenu.enable(ZmOperation.DELETE_INSTANCE, false);
+	    actionMenu.enable(ZmOperation.DELETE_SERIES, false);
+    }
+
+    // bug:71007 Disabling unsupported options for shared calendar with view only rights
+    if(appt.isReadOnly() && appt.isShared()) {
+	    actionMenu.enable(ZmOperation.REINVITE_ATTENDEES, false);
+	    actionMenu.enable(ZmOperation.PROPOSE_NEW_TIME, false);
+        actionMenu.enable(ZmOperation.REPLY, false);
+	    actionMenu.enable(ZmOperation.REPLY_ALL, false);
+	    actionMenu.enable(ZmOperation.DELETE, false);
+	    actionMenu.enable(ZmOperation.DELETE_INSTANCE, false);
+	    actionMenu.enable(ZmOperation.DELETE_SERIES, false);
+        actionMenu.enable(ZmOperation.TAG_MENU, false);
+        actionMenu.enable(ZmOperation.MOVE, false);
+        actionMenu.enable(ZmOperation.MOVE_MENU, false);
     }
 
 	// edit reply menu

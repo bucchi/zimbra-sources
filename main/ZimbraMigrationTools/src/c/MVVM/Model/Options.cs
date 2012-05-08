@@ -85,15 +85,11 @@ public class AdvancedImportOptions
         get { return m_IsSkipFolders; }
         set { m_IsSkipFolders = value; }
     }
-}
-
-public class LoggingOptions
-{
-    private bool m_Verbose;
-    public bool Verbose
+    private bool m_IsSkipPrevMigratedItems;
+    public bool IsSkipPrevMigratedItems
     {
-        get { return m_Verbose; }
-        set { m_Verbose = value; }
+        get { return m_IsSkipPrevMigratedItems; }
+        set { m_IsSkipPrevMigratedItems = value; }
     }
 }
 

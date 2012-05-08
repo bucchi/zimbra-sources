@@ -75,6 +75,16 @@ function(msg) {
 	this._msg = msg;
 	var invite = this._invite = msg.invite;
 
+    // Can operate the toolbar if user is the invite recipient, or invite is in a
+    // non-trash shared folder with admin/workflow access permissions
+    var folder   =  appCtxt.getById(msg.folderId);
+    var enabled  = !appCtxt.isExternalAccount();
+    if (enabled && folder.isRemote()) {
+        var workflow = folder.isPermAllowed(ZmOrganizer.PERM_WORKFLOW);
+        var admin    = folder.isPermAllowed(ZmOrganizer.PERM_ADMIN);
+        var enabled  = (admin || workflow) &&
+                       (ZmOrganizer.normalizeId(msg.folderId) != ZmFolder.ID_TRASH);
+    }
 	if (invite && invite.hasAcceptableComponents() &&
 		msg.folderId != ZmFolder.ID_SENT)
 	{
@@ -87,7 +97,7 @@ function(msg) {
 				this._counterToolbar = this._getCounterToolbar();
 			}
 			this._counterToolbar.reparentHtmlElement(this.parent.getHtmlElement(), 0);
-			this._counterToolbar.setVisible(Dwt.DISPLAY_BLOCK);
+			this._counterToolbar.setVisible(enabled);
 		}
 		else if (!invite.isOrganizer() && invite.hasInviteReplyMethod()) {
 			var ac = window.parentAppCtxt || window.appCtxt;
@@ -99,8 +109,7 @@ function(msg) {
 			}
 
 			var inviteToolbar = this.getInviteToolbar();
-
-			inviteToolbar.setVisible(Dwt.DISPLAY_BLOCK);
+			inviteToolbar.setVisible(enabled);
 
 			// show on-behalf-of info?
 			this._respondOnBehalfLabel.innerHTML = msg.cif
@@ -243,7 +252,9 @@ function(dayViewCallback) {
 		if (!this._dayView) {
 			// create a new ZmCalDayView under msgview's parent otherwise, we
 			// cannot position the day view correctly.
-			this._dayView = new ZmCalDayView(this.parent.parent, DwtControl.ABSOLUTE_STYLE, cc, null,
+			var dayViewParent = (this.mode && (this.mode == ZmId.VIEW_CONV2)) ?
+			    this.parent : this.parent.parent;
+			this._dayView = new ZmCalDayView(dayViewParent, DwtControl.ABSOLUTE_STYLE, cc, null,
                 this.parent._viewId, null, true, true, this.isRight());
 			this._dayView.addSelectionListener(new AjxListener(this, this._apptSelectionListener));
 			this._dayView.setZIndex(Dwt.Z_VIEW); // needed by ZmMsgController's msgview
@@ -251,7 +262,7 @@ function(dayViewCallback) {
 
 		this._dayView.setDisplay(Dwt.DISPLAY_BLOCK);
 		this._dayView.setDate(inviteDate, 0, false);
-		this.resize();
+        this.resize();
 
         var acctFolderIds = [].concat(cc.getCheckedCalendarFolderIds()); // create a *copy*
         if(this._msg.cif) {
@@ -286,6 +297,16 @@ ZmInviteMsgView.prototype.isRight =
 function() {
 	return this.parent._controller.isReadingPaneOnRight();
 };
+
+ZmInviteMsgView.prototype.convResize =
+function() {
+	var parentSize = this.parent.getSize();
+	if (this._dayView) {
+		this._dayView.setSize(parentSize.x - 5, 218);
+		var el = this._dayView.getHtmlElement();
+		el.style.left = el.style.top = "auto";
+	}
+}
 
 /**
  * Resizes the view depending on whether f/b is being shown or not.
@@ -396,10 +417,10 @@ function(ptst) {
 	}
 	var inviteToolbar = this.getInviteToolbar();
 
-	var buttonIds = [ZmOperation.REPLY_ACCEPT, ZmOperation.REPLY_DECLINE, ZmOperation.REPLY_TENTATIVE];
+	var buttonIds = [ZmOperation.REPLY_ACCEPT, ZmOperation.REPLY_DECLINE, ZmOperation.REPLY_TENTATIVE, ZmOperation.PROPOSE_NEW_TIME];
 	for (var i = 0; i < buttonIds.length; i++) {
 		var buttonId = buttonIds[i];
-		inviteToolbar.getButton(buttonId).setEnabled(buttonId != disableButtonId);
+		inviteToolbar.getButton(buttonId).setEnabled(appCtxt.isExternalAccount() ? false : buttonId != disableButtonId);
 	}
 };
 

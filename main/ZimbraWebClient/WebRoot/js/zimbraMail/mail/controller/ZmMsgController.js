@@ -32,6 +32,7 @@
  */
 ZmMsgController = function(container, mailApp, type, sessionId) {
 
+    if (arguments.length == 0) { return; }
 	ZmMailListController.apply(this, arguments);
 	this._elementsToHide = ZmAppViewMgr.LEFT_NAV;
 };
@@ -72,7 +73,9 @@ ZmMsgController.prototype.show =
 function(msg, parentController, callback, markRead, hidePagination) {
 	this.setMsg(msg);
 	this._parentController = parentController;
-	this.setList(msg.list);
+	//if(msg.list) {
+        this.setList(msg.list);
+    //}
 	if (!msg._loaded) {
 		var respCallback = new AjxCallback(this, this._handleResponseShow, [callback, hidePagination]);
 		if (msg._loadPending) {
@@ -151,6 +154,11 @@ function(actionCode) {
 			this._goToMsg(this._currentViewId, false);
 			break;
 
+		// switching view not supported here
+		case ZmKeyMap.VIEW_BY_CONV:
+		case ZmKeyMap.VIEW_BY_MSG:
+			break;
+		
 		default:
 			return ZmMailListController.prototype.handleKeyAction.call(this, actionCode);
 			break;
@@ -168,7 +176,7 @@ function(map) {
 ZmMsgController.prototype._getToolBarOps = 
 function() {
 	var list = [ZmOperation.CLOSE, ZmOperation.SEP];
-	list = list.concat(ZmMailListController.prototype._getToolBarOps.call(this, true));
+	list = list.concat(ZmMailListController.prototype._getToolBarOps.call(this));
 	return list;
 };
 
@@ -397,6 +405,9 @@ function(ev) {
     if (appCtxt.isOffline) {
         var acctName = item.getAccount().name;
         url+="&acct=" + acctName ;
+    }
+    if (appCtxt.isExternalAccount()) {
+        url += "&isext=true";
     }
     window.open(appContextPath+url, "_blank");
 };

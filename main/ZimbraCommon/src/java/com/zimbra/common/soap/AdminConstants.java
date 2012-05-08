@@ -988,6 +988,7 @@ public final class AdminConstants {
     public static final String E_HOSTNAME = "hostname";
     public static final String E_LIFETIME = "lifetime";
     public static final String E_MESSAGE = "message";
+    public static final String E_USERNAME = "username";
     public static final String E_PASSWORD = "password";
     public static final String E_NEW_PASSWORD = "newPassword";
     public static final String E_QUERY = "query";
@@ -1083,6 +1084,7 @@ public final class AdminConstants {
     public static final String A_KEYATTR = "keyAttr";
     public static final String A_DYNAMIC = "dynamic";
     public static final String A_PERSIST_AUTH_TOKEN_COOKIE = "persistAuthTokenCookie";
+    public static final String A_ALL_SERVERS = "allServers";
 
     public static final String BY_ID = "id";
     public static final String BY_QUERY = "query";

@@ -672,6 +672,7 @@ ZmId.CMP_ATT_ROW			= "_attachments_row";
 ZmId.CMP_ATT_DIV			= "_attachments_div";
 ZmId.CMP_ATT_BTN			= "_attachments_btn";
 ZmId.CMP_ATT_INP			= "_file_input";
+ZmId.CMP_ATT_INLINE_INP		= "_file_input_inline";
 ZmId.CMP_ATT_INCL_ORIG_LINK	= "_show_orig";
 ZmId.CMP_DND_TOOLTIP        = "_zdnd_tooltip";
 
@@ -974,6 +975,7 @@ ZmId.OP_INVITE_REPLY_ACCEPT		= "INVITE_REPLY_ACCEPT";
 ZmId.OP_INVITE_REPLY_DECLINE	= "INVITE_REPLY_DECLINE";
 ZmId.OP_INVITE_REPLY_MENU		= "INVITE_REPLY_MENU";
 ZmId.OP_INVITE_REPLY_TENTATIVE	= "INVITE_REPLY_TENTATIVE";
+ZmId.OP_KEEP_READING			= "KEEP_READING";
 ZmId.OP_MARK_ALL_READ			= "MARK_ALL_READ";
 ZmId.OP_MARK_HEARD				= "MARK_HEARD";
 ZmId.OP_MARK_READ				= "MARK_READ";
