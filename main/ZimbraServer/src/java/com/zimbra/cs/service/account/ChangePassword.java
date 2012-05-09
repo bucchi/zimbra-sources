@@ -21,6 +21,7 @@ package com.zimbra.cs.service.account;
 import com.zimbra.common.service.ServiceException;
 import com.zimbra.common.soap.AccountConstants;
 import com.zimbra.common.soap.Element;
+import com.zimbra.common.util.StringUtil;
 import com.zimbra.common.util.ZimbraLog;
 import com.zimbra.cs.account.Account;
 import com.zimbra.cs.account.AccountServiceException.AuthFailedServiceException;
@@ -29,7 +30,6 @@ import com.zimbra.cs.account.Domain;
 import com.zimbra.cs.account.Provisioning;
 import com.zimbra.common.account.Key;
 import com.zimbra.common.account.Key.AccountBy;
-import com.zimbra.common.account.Key.DomainBy;
 import com.zimbra.cs.service.AuthProvider;
 import com.zimbra.soap.ZimbraSoapContext;
 
@@ -83,7 +83,15 @@ public class ChangePassword extends AccountDocumentHandler {
         
 		String oldPassword = request.getAttribute(AccountConstants.E_OLD_PASSWORD);
 		String newPassword = request.getAttribute(AccountConstants.E_PASSWORD);
-		prov.changePassword(acct, oldPassword, newPassword);
+        if (acct.isIsExternalVirtualAccount() && StringUtil.isNullOrEmpty(oldPassword)
+                && !acct.isVirtualAccountInitialPasswordSet() && acct.getId().equals(zsc.getAuthtokenAccountId())) {
+            // need a valid auth token in this case
+            AuthProvider.validateAuthToken(prov, zsc.getAuthToken(), false);
+            prov.setPassword(acct, newPassword, true);
+            acct.setVirtualAccountInitialPasswordSet(true);
+        } else {
+		    prov.changePassword(acct, oldPassword, newPassword);
+        }
         AuthToken at = AuthProvider.getAuthToken(acct);
 
         Element response = zsc.createElement(AccountConstants.CHANGE_PASSWORD_RESPONSE);

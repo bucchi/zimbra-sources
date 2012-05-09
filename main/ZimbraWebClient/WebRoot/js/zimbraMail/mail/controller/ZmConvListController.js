@@ -224,12 +224,14 @@ function(check, ev) {
 			var conv = msg && appCtxt.getById(msg.cid);
 			var msgList = conv && conv.msgs && conv.msgs.getArray();
 			var msgFound, item;
-			for (var i = 0; i < msgList.length; i++) {
-				var m = msgList[i];
-				msgFound = msgFound || (m.id == msg.id);
-				if (msgFound && m.isUnread) {
-					item = m;
-					break;
+			if (msgList && msgList.length) {
+				for (var i = 0; i < msgList.length; i++) {
+					var m = msgList[i];
+					msgFound = msgFound || (m.id == msg.id);
+					if (msgFound && m.isUnread) {
+						item = m;
+						break;
+					}
 				}
 			}
 			if (item) {
@@ -352,19 +354,29 @@ function(view) {
 };
 
 ZmConvListController.prototype._preHideCallback =
-function(view, force) {
-	return force ? true : this.popShield(view);
+function(viewId, force, newViewId) {
+	return force ? true : this.popShield(viewId, null, newViewId);
 };
 
+/**
+ * Figure out if the given view change is destructive. If so, put up pop shield.
+ * 
+ * @param {string}		viewId		ID of view being hidden
+ * @param {function}	callback	function to call if user agrees to leave
+ * @param {string}		newViewId	ID of view that will be shown
+ */
 ZmConvListController.prototype.popShield =
-function(view, callback) {
-	if (this._convView && this._convView.isDirty()) {
+function(viewId, callback, newViewId) {
+
+	var newViewType = newViewId && appCtxt.getViewTypeFromId(newViewId);
+	var switchingView = (newViewType == ZmId.VIEW_TRAD);
+	if (this._convView && this._convView.isDirty() && (!newViewType || switchingView)) {
 		var ps = this._popShield = this._popShield || appCtxt.getYesNoMsgDialog();
 		ps.reset();
-		var msg = view ? ZmMsg.convViewSwitch : ZmMsg.convViewCancel;
+		var msg = switchingView ? ZmMsg.convViewSwitch : ZmMsg.convViewCancel;
 		ps.setMessage(msg, DwtMessageDialog.WARNING_STYLE);
-		ps.registerCallback(DwtDialog.YES_BUTTON, this._popShieldYesCallback, this, [view, callback]);
-		ps.registerCallback(DwtDialog.NO_BUTTON, this._popShieldNoCallback, this, [view, callback]);
+		ps.registerCallback(DwtDialog.YES_BUTTON, this._popShieldYesCallback, this, [switchingView, callback]);
+		ps.registerCallback(DwtDialog.NO_BUTTON, this._popShieldNoCallback, this, [switchingView, callback]);
 		ps.popup();
 		return false;
 	}
@@ -373,11 +385,13 @@ function(view, callback) {
 	}
 };
 
+// yes, I want to leave even though I've typed some text
 ZmConvListController.prototype._popShieldYesCallback =
-function(view, callback) {
+function(switchingView, callback) {
 	this._convView._replyView.reset();
 	this._popShield.popdown();
-	if (view) {
+	if (switchingView) {
+		// tell app view mgr it's okay to show TV
 		appCtxt.getAppViewMgr().showPendingView(true);
 	}
 	else if (callback) {
@@ -385,15 +399,15 @@ function(view, callback) {
 	}
 };
 
+// no, I don't want to leave
 ZmConvListController.prototype._popShieldNoCallback =
-function(view, callback) {
+function(switchingView, callback) {
 	this._popShield.popdown();
-	if (view) {
+	if (switchingView) {
 		// attempt to switch to TV was canceled - need to undo changes
-		var viewType = appCtxt.getViewTypeFromId(view);
-		this._updateViewMenu(viewType);
+		this._updateViewMenu(ZmId.VIEW_TRAD);
 		if (!appCtxt.isExternalAccount() && !this.isSearchResults && !this._currentSearch.isOutboundFolder) {
-			this._app.setGroupMailBy(ZmMailListController.GROUP_BY_SETTING[viewType]);
+			this._app.setGroupMailBy(ZmMailListController.GROUP_BY_SETTING[ZmId.VIEW_TRAD]);
 		}
 	}
 	appCtxt.getKeyboardMgr().grabFocus(this._convView._replyView._input);
@@ -404,6 +418,8 @@ function(ev) {
 
 	var item = ev.item;
 	if (!item) { return; }
+	
+	this._mailListView._selectedMsg = null;
 	if (ev.field == ZmItem.F_EXPAND && this._mailListView._isExpandable(item)) {
 		this._toggle(item, false);
 		return true;
@@ -425,6 +441,12 @@ function(ev) {
 		}
 	}
 	return false;
+};
+
+ZmConvListController.prototype._menuPopdownActionListener =
+function(ev) {
+	ZmDoublePaneController.prototype._menuPopdownActionListener.apply(this, arguments);
+	this._mailListView._selectedMsg = null;
 };
 
 ZmConvListController.prototype._setSelectedItem =
@@ -488,7 +510,15 @@ function(items) {
  */
 ZmConvListController.prototype.getMsg =
 function(params) {
-	var sel = this._listView[this._currentViewId].getSelection();
+	
+	// First see if action is being performed on a msg in the conv view in the reading pane
+	var lv = this._listView[this._currentViewId];
+	var msg = lv && lv._selectedMsg;
+	if (msg && DwtMenu.menuShowing()) {
+		return msg;
+	}
+	
+	var sel = lv.getSelection();
 	var item = (sel && sel.length) ? sel[0] : null;
 	if (item) {
 		if (item.type == ZmItem.CONV) {

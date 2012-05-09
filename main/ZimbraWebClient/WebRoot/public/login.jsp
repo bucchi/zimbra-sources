@@ -25,9 +25,9 @@
 <c:set var="trimmedUserName" value="${fn:trim(param.username)}"/>
 
 <%--'virtualacctdomain' param is set only for external virtual accounts--%>
-<c:if test="${not empty param.email and not empty param.virtualacctdomain}">
+<c:if test="${not empty param.username and not empty param.virtualacctdomain}">
     <%--External login email address are mapped to internal virtual account--%>
-    <c:set var="trimmedUserName" value="${fn:replace(param.email,'@' ,'.')}@${param.virtualacctdomain}"/>
+    <c:set var="trimmedUserName" value="${fn:replace(param.username,'@' ,'.')}@${param.virtualacctdomain}"/>
 </c:if>
 
 <c:catch var="loginException">
@@ -359,8 +359,8 @@ if (application.getInitParameter("offlineMode") != null)  {
                                             <c:when test="${not empty virtualacctdomain or not empty param.virtualacctdomain}">
                                                 <%--External/Guest user login - *email* & password input fields--%>
                                                 <tr>
-                                                    <td><label for="email"><fmt:message key="email"/>:</label></td>
-                                                    <td><input id="email" class="zLoginField" name="email" type="text" value="${fn:escapeXml(param.username)}" size="40" maxlength="${domainInfo.webClientMaxInputBufferLength}"/></td>
+                                                    <td><label for="username"><fmt:message key="email"/>:</label></td>
+                                                    <td><input id="username" class="zLoginField" name="username" type="text" value="${fn:escapeXml(param.username)}" size="40" maxlength="${domainInfo.webClientMaxInputBufferLength}"/></td>
                                                 </tr>
                                             </c:when>
                                             <c:otherwise>
@@ -394,6 +394,7 @@ if (application.getInitParameter("offlineMode") != null)  {
                                         </tr>
                         </c:otherwise>
                     </c:choose>
+                    <c:if test="${empty param.virtualacctdomain}">
 					<tr>
 						<td colspan="2"><hr/></td>
 					</tr>
@@ -410,27 +411,6 @@ if (application.getInitParameter("offlineMode") != null)  {
 									<option value="mobile"  <c:if test="${client eq 'mobile'}">selected</c:if>> <fmt:message key="clientMobile"/></option>
 								</select>
 <script TYPE="text/javascript">
-	// show a message if they should be using the 'standard' client, but have chosen 'advanced' instead
-	function clientChange(selectValue) {
-		var useStandard = ${useStandard ? 'true' : 'false'};
-		useStandard = useStandard || (screen && (screen.width <= 800 && screen.height <= 600));
-		var div = document.getElementById("ZLoginUnsupported");
-		div.style.display = ((selectValue == 'advanced') && useStandard) ? 'block' : 'none';
-	}
-
-	// if they have JS, write out a "what's this?" link that shows the message below
-	function showWhatsThis() {
-		var div = document.getElementById("ZLoginWhatsThis");
-		div.style.display = (div.style.display == "block" ? "none" : "block");
-	}
-
-	function onLoad() {
-		var loginForm = document.loginForm;
-		if(loginForm.username){
-			loginForm.username.focus();
-		}
-		clientChange("${zm:cook(client)}");
-	}
 	document.write("<a href='#' onclick='showWhatsThis()' id='ZLoginWhatsThisAnchor'><fmt:message key="whatsThis"/><"+"/a>");
 </script>
 									<div id="ZLoginWhatsThis" class="ZLoginInfoMessage" style="display:none;"><fmt:message key="clientWhatsThisMessage"/></div>
@@ -441,6 +421,7 @@ if (application.getInitParameter("offlineMode") != null)  {
 						<tr>
 							<td colspan="2"><hr/></td>
 						</tr>
+                    </c:if>
 					</table>
 				<div class="offline"><fmt:message key="switchToOfflineClientEx"/></div>
 			</div>
@@ -482,6 +463,29 @@ if (application.getInitParameter("offlineMode") != null)  {
   resizeLoginPanel();
   if(window.attachEvent){ window.attachEvent("onresize",resizeLoginPanel);}
 </c:if>
+
+// show a message if they should be using the 'standard' client, but have chosen 'advanced' instead
+function clientChange(selectValue) {
+  var useStandard = ${useStandard ? 'true' : 'false'};
+  useStandard = useStandard || (screen && (screen.width <= 800 && screen.height <= 600));
+  var div = document.getElementById("ZLoginUnsupported");
+  if (div)
+    div.style.display = ((selectValue == 'advanced') && useStandard) ? 'block' : 'none';
+}
+
+// if they have JS, write out a "what's this?" link that shows the message below
+function showWhatsThis() {
+  var div = document.getElementById("ZLoginWhatsThis");
+  div.style.display = (div.style.display == "block" ? "none" : "block");
+}
+
+function onLoad() {
+  var loginForm = document.loginForm;
+  if(loginForm.username){
+      loginForm.username.focus();
+  }
+  clientChange("${zm:cook(client)}");
+}
 
 </script>
 </body>

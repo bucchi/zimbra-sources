@@ -9,8 +9,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeSuite;
 
-
-import com.thoughtworks.selenium.DefaultSelenium;
 import com.thoughtworks.selenium.SeleniumException;
 import com.zimbra.qa.selenium.framework.core.ClientSessionFactory;
 import com.zimbra.qa.selenium.framework.ui.AbsTab;
@@ -80,7 +78,7 @@ public class AdminCommonTest {
 			ClientSessionFactory.session().selenium().windowMaximize();
 			ClientSessionFactory.session().selenium().windowFocus();
 			ClientSessionFactory.session().selenium().allowNativeXpath("true");
-			ClientSessionFactory.session().selenium().setTimeout(timeout);
+			ClientSessionFactory.session().selenium().setTimeout("30000");
 			ClientSessionFactory.session().selenium().open(ZimbraSeleniumProperties.getBaseURL());
 			
 		} catch (SeleniumException e) {

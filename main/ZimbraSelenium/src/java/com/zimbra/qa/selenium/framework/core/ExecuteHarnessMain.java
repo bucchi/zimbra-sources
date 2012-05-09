@@ -3,25 +3,26 @@
  */
 package com.zimbra.qa.selenium.framework.core;
 
-import java.awt.Image;
-import java.awt.Rectangle;
-import java.awt.Robot;
-import java.awt.Toolkit;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.List;
 import java.util.jar.*;
 import java.util.regex.*;
+
 import javax.imageio.ImageIO;
+
 import org.apache.commons.cli.*;
 import org.apache.commons.cli.CommandLine;
 import org.apache.log4j.*;
 import org.testng.*;
 import org.testng.xml.*;
-import com.zimbra.qa.selenium.framework.util.performance.*;
+
 import com.zimbra.qa.selenium.framework.util.*;
 import com.zimbra.qa.selenium.framework.util.ZimbraSeleniumProperties.AppType;
+import com.zimbra.qa.selenium.framework.util.performance.PerfMetrics;
 
 
 
@@ -491,6 +492,7 @@ public class ExecuteHarnessMain {
 		// Configure the runner
 		ng.setXmlSuites(suites);
 		ng.addListener(new MethodListener(this.testoutputfoldername));
+		ng.addListener(new ErrorDialogListener());
 		ng.addListener(listener = new ResultListener(this.testoutputfoldername));
 		
 		try {
@@ -522,6 +524,77 @@ public class ExecuteHarnessMain {
 	
 
 
+	/**
+	 * This class checks for the Zimbra error dialog after each test
+	 * method.  If present, it marks the test case as failed, then
+	 * logs out of the application.
+	 * 
+	 * @author Matt Rhoades
+	 *
+	 */
+	protected static class ErrorDialogListener implements IInvokedMethodListener {
+
+		@Override
+		public void afterInvocation(IInvokedMethod method, ITestResult result) {
+			logger.debug("ErrorDialogListener:afterInvocation ...");
+
+			boolean check = "true".equals(ZimbraSeleniumProperties.getStringProperty("dialog.error.aftertest.check", "true"));
+			boolean dismiss = "true".equals(ZimbraSeleniumProperties.getStringProperty("dialog.error.aftertest.dismiss", "true"));
+			if ( !check ) {
+				return;
+			}
+			
+			
+			String locator = "css=div#ErrorDialog";
+
+			ZimbraSelenium selenium = ClientSessionFactory.session().selenium();
+
+			boolean present = selenium.isElementPresent(locator);
+			if ( present ) {
+
+				logger.info("ErrorDialogListener:afterInvocation ... present="+ present);
+
+				Number left = selenium.getElementPositionLeft(locator);
+				if ( left.intValue() > 0 ) {
+
+					logger.info("ErrorDialogListener:afterInvocation ... left="+ left);
+
+					Number top = selenium.getElementPositionTop(locator);
+
+					if ( top.intValue()>0 ) {
+
+						logger.info("ErrorDialogListener:afterInvocation ... top="+ top);
+
+						if ( dismiss ) {
+							
+							String bLocator = locator + " td[id^='OK_'] td[id$='_title']";
+							selenium.mouseDownAt(bLocator, "");
+							selenium.mouseUpAt(bLocator, "");
+							
+						} else {
+							
+							// Log the error
+							// Take a snapshot
+							logger.error(new HarnessException("Error Dialog is visible"));
+							
+							// Set the test as failed
+							result.setStatus(ITestResult.FAILURE);
+
+						}
+
+					}
+				}
+
+			}
+
+			logger.debug("ErrorDialogListener:afterInvocation ... done");
+		}
+
+		@Override
+		public void beforeInvocation(IInvokedMethod arg0, ITestResult arg1) {
+		}
+		
+	}
 
 	
 	/**

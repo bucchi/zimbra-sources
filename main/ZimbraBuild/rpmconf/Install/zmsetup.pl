@@ -364,6 +364,7 @@ sub checkPortConflicts {
     7306 => 'zimbra-store',
     7307 => 'zimbra-store',
     7780 => 'zimbra-spell',
+    8465 => 'zimbra-mta', 
     10024 => 'zimbra-mta',
     10025 => 'zimbra-mta',
   );
@@ -1539,15 +1540,26 @@ sub setDefaults {
         foreach my $a (@answer) {
           if ($a->type eq "MX") {
             my $h = getDnsRecords ($a->exchange,'A');
+            my $ipv6 = 0;
+            if (!defined $h) {
+              $h = getDnsRecords ($a->exchange, 'AAAA');
+              $ipv6 = 1;
+            }
             if (defined $h) {
               my @ha = $h->answer;
               foreach $h (@ha) {
-                if ($h->type eq 'A') {
-                  progress "\tMX: ".$a->exchange." (".$h->address.")\n";
+                if ($ipv6) {
+                  if ($h->type eq 'AAAA') {
+                    progress "\tMX: ".$a->exchange." (".$h->address.")\n";
+                  }
+                } else {
+                  if ($h->type eq 'A') {
+                    progress "\tMX: ".$a->exchange." (".$h->address.")\n";
+                  }
                 }
               }
             } else {
-              progress "\n\nDNS ERROR - No A record for $config{CREATEDOMAIN}.\n";
+              progress "\n\nDNS ERROR - No A or AAAA record for $config{CREATEDOMAIN}.\n";
             }
           }
         }

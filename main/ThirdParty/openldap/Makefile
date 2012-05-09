@@ -16,9 +16,10 @@ INDEX_PATCH	:= patch -g0 -N -p1 < ../patches/0001-trial.patch; patch -g0 -N -p1 
 
 ifdef BETA
 	include $(OPENLDAP_ROOT)/../beta_versions.def
-	PATCH	:= patch -g0 -N -p1 < ../patches/ITS7255.patch
+	PATCH	:= patch -g0 -N -p1 < ../patches/ITS7255.patch; patch -g0 -N -p1 < ../patches/mdb-leaf.patch; patch -g0 -N -p1 < ../patches/mdb-pgfree.patch
 else
 	include $(OPENLDAP_ROOT)/../versions.def
+	PATCH	:= patch -g0 -N -p1 < ../patches/ITS7255.patch
 endif
 
 ifeq (MACOSX,$(findstring MACOSX,$(BUILD_PLATFORM)))
@@ -56,7 +57,6 @@ build:
 	$(INDEX_PATCH) \
 	$(PATCH) \
 	patch -g0 -N -p1 < ../patches/leopard.fix; \
-	patch -g0 -N -p1 < ../patches/index-slot-increase.patch; \
 	$(LDFLAGS) \
 	LD_LIBRARY_PATH=$(OPENSSL_LIB_DIR):$(BDB_LIB_DIR):$(CYRUS_LIB_DIR):$(LIBTOOL_LIB_DIR) \
 	CPPFLAGS="-I$(ZIMBRA_HOME)/bdb-$(BDB_VERSION)/include -I$(ZIMBRA_HOME)/cyrus-sasl-$(CYRUS_VERSION)/include \

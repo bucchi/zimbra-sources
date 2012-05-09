@@ -746,8 +746,8 @@ function() {
 };
 
 ZmFreeBusySchedulerView.prototype.updateFreeBusy =
-function() {
-    this._updateFreeBusy();    
+function(onlyUpdateTable) {
+    this._updateFreeBusy();
 };
 
 ZmFreeBusySchedulerView.prototype._updateFreeBusy =
@@ -756,12 +756,9 @@ function() {
 	this._resetFullDateField();
 
 	// clear the schedules for existing attendees
-	var uids = [];
 	for (var i = 0; i < this._schedTable.length; i++) {
 		var sched = this._schedTable[i];
 		if (!sched) continue;
-		if (sched.uid)
-			uids.push(sched.uid);
 		while (sched._coloredCells && sched._coloredCells.length > 0) {
 			sched._coloredCells[0].className = ZmFreeBusySchedulerView.FREE_CLASS;
 			sched._coloredCells.shift();
@@ -771,9 +768,10 @@ function() {
 
 	this._resetAttendeeCount();
 
-	if (uids.length) {
+    // Set in updateAttendees
+	if (this._allAttendeeEmails.length) {
         //all attendees status need to be update even for unshown attendees
-		var emails = uids.join(",");
+		var emails = this._allAttendeeEmails.join(",");
 		this._getFreeBusyInfo(this._getStartTime(), emails);
 	}
 };
@@ -2111,7 +2109,7 @@ function(ev) {
 	ev = DwtUiEvent.getEvent(ev);
 
 	var el = DwtUiEvent.getTarget(ev);
-	var svp = AjxCore.objectWithId(el._schedViewPageId);
+	var svp = el && el._schedViewPageId ? AjxCore.objectWithId(el._schedViewPageId) : null;
 	if (!svp) { return; }
 
 	svp._fbToolTipInfo = null;

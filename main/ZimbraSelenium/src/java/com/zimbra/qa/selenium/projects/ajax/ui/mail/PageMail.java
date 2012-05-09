@@ -10,6 +10,7 @@ import com.zimbra.qa.selenium.framework.ui.*;
 import com.zimbra.qa.selenium.framework.util.*;
 import com.zimbra.qa.selenium.projects.ajax.ui.*;
 import com.zimbra.qa.selenium.projects.ajax.ui.DialogTag;
+//import com.zimbra.qa.selenium.projects.ajax.ui.preferences.trustedaddresses.DisplayTrustedAddress.Locators;
 
 
 
@@ -51,6 +52,16 @@ public class PageMail extends AbsTab {
 		
 		public static final String ProposeNewTimeButtonMsgView = "id=zb__TV-main__Inv__PROPOSE_NEW_TIME_title";
 
+		///////
+		public static final String zMsgViewDisplayImgLink = "css=a#zv__TV__TV-main_MSG_displayImages_dispImgs";
+		public static final String zMsgViewDomainLink = "css=a#zv__TV__TV-main_MSG_displayImages_domain";
+		public static final String zMsgViewWarningIcon = "css=div#zv__TV__TV-main_MSG_displayImages.DisplayImages div div.ImgWarning";
+		public static final String zConViewDisplayImgLink = "css=a[id$='_displayImages_dispImgs']";
+		public static final String zConViewDomainLink = "css=a[id$='_displayImages_domain']";
+		public static final String zConViewWarningIcon = "css=div[id$='_displayImages'] div div[class='ImgWarning']";
+
+		
+		
 		public static class CONTEXT_MENU {
 			// TODO: Until https://bugzilla.zimbra.com/show_bug.cgi?id=56273 is fixed, ContextMenuItem will be defined using the text content
 			public static String stringToReplace = "<ITEM_NAME>";
@@ -333,26 +344,29 @@ public class PageMail extends AbsTab {
 
 		} else if ( button == Button.B_NEWWINDOW ) {
 
-			page = null;
-			if ( zGetPropMailView() == PageMailView.BY_MESSAGE ) {
-				locator = "css=div#ztb__TV-main div[id$='__DETACH'] div.ImgOpenInNewWindow";
-			} else {
-				locator = "css=div#ztb__CLV-main div[id$='__DETACH'] div.ImgOpenInNewWindow";
-			}
-
-			if ( !this.sIsElementPresent(locator) ) {
-				throw new HarnessException("Detach icon not present "+ button);
-			}
+			// 8.0: http://bugzilla.zimbra.com/show_bug.cgi?id=73721
+			//
+//			page = null;
+//			if ( zGetPropMailView() == PageMailView.BY_MESSAGE ) {
+//				locator = "css=div#ztb__TV-main div[id$='__DETACH'] div.ImgOpenInNewWindow";
+//			} else {
+//				locator = "css=div#ztb__CLV-main div[id$='__DETACH'] div.ImgOpenInNewWindow";
+//			}
+//
+//			if ( !this.sIsElementPresent(locator) ) {
+//				throw new HarnessException("Detach icon not present "+ button);
+//			}
+//			
+//			this.zClickAt(locator, "");
+//			page = new SeparateWindowDisplayMail(this.MyApplication);
+//			
+//			// We don't know the window title at this point (However, the test case should.)
+//			// Don't check that the page is active, let the test case do that.
+//
+//			return (page);
 			
-			this.zClickAt(locator, "");
-			page = new SeparateWindowDisplayMail(this.MyApplication);
+			return (this.zToolbarPressPulldown(Button.B_ACTIONS, Button.B_LAUNCH_IN_SEPARATE_WINDOW));
 			
-			// We don't know the window title at this point (However, the test case should.)
-			// Don't check that the page is active, let the test case do that.
-
-			return (page);
-			
-
 		} else if ( button == Button.B_LISTVIEW ) {
 
 			// For "TAG" without a specified pulldown option, just click on the pulldown
@@ -526,21 +540,24 @@ public class PageMail extends AbsTab {
 			} else if ( option == Button.B_LAUNCH_IN_SEPARATE_WINDOW ) {
 				
 				// 8.0, 4/25/2012: separate window moved from Actions menu to Toolbar
-//				optionLocator += " div[id^='DETACH'] td[id$='_title']";
-//				page = new SeparateWindowDisplayMail(this.MyApplication);
-//
-//				// We don't know the window title at this point (However, the test case should.)
-//				// Don't check that the page is active, let the test case do that.
-//
-//				this.zClickAt(pulldownLocator, "0,0");
-//				zWaitForBusyOverlay();
-//
-//				this.zClickAt(optionLocator, "0,0");
-//				zWaitForBusyOverlay();
-//
-//				return (page);
+				//
+				
+				// 8.0: http://bugzilla.zimbra.com/show_bug.cgi?id=73721
+				// 				return (this.zToolbarPressButton(Button.B_NEWWINDOW));
+				
+				optionLocator += " div[id^='DETACH'] td[id$='_title']";
+				page = new SeparateWindowDisplayMail(this.MyApplication);
 
-				return (this.zToolbarPressButton(Button.B_NEWWINDOW));
+				// We don't know the window title at this point (However, the test case should.)
+				// Don't check that the page is active, let the test case do that.
+
+				this.zClickAt(pulldownLocator, "0,0");
+				zWaitForBusyOverlay();
+
+				this.zClickAt(optionLocator, "0,0");
+				zWaitForBusyOverlay();
+
+				return (page);
 
 			} else if ( option == Button.O_MARK_AS_READ ) {
 				
@@ -891,8 +908,8 @@ public class PageMail extends AbsTab {
 		// Return the list of items
 		return (items);
 	}
-
-
+	
+	
 
 	@Override
 	public AbsPage zListItem(Action action, String subject) throws HarnessException {
@@ -1684,7 +1701,55 @@ public class PageMail extends AbsTab {
 		
 		return (tooltip);
 	}
+	
 
 
+	/**
+	 * Check warning icon,Display Image link,Domain link
+	 * 
+	 * @return
+	 * @throws HarnessException
+	 */
+	public boolean zHasWDDLinks()throws HarnessException {
 
+		if (zGetPropMailView() == PageMailView.BY_MESSAGE){
+			List<String> locators = Arrays.asList(
+					Locators.zMsgViewDisplayImgLink,
+					Locators.zMsgViewDomainLink, Locators.zMsgViewWarningIcon);
+			for (String locator : locators) {
+				if (!this.sIsElementPresent(locator))
+					return (false);
+			}
+
+			return (true);
+		} else if (zGetPropMailView() == PageMailView.BY_CONVERSATION) {
+			List<String> locators = Arrays.asList(
+					Locators.zConViewDisplayImgLink,
+					Locators.zConViewDomainLink, Locators.zConViewWarningIcon);
+
+			for (String locator : locators) {
+				if (!this.sIsElementPresent(locator))
+					return (false);
+			}
+
+			return (true);
+		} else {
+			throw new HarnessException("no logic defined  ");
+		}
+	}
+
+
+	/*public String zDisplayImageLink()throws HarnessException {
+
+		String DisplayImgLink = null;
+		if (zGetPropMailView() == PageMailView.BY_MESSAGE) {
+			DisplayImgLink = sGetEval("selenium.browserbot.getCurrentWindow().document.getElementById('zv__TV-main__MSG_displayImages').style.display");
+			return DisplayImgLink;
+		} else if (zGetPropMailView() == PageMailView.BY_CONVERSATION) {
+			DisplayImgLink = sGetEval("selenium.browserbot.getCurrentWindow().document.getElementById('zv__CLV-main__MSG_displayImages').style.display");
+			return DisplayImgLink;
+		} else {
+			throw new HarnessException("no logic defined  ");
+		}
+	}*/
 }

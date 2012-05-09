@@ -579,11 +579,13 @@ TODO - add support for multi-line values in globalConfigValue and defaultCOSValu
 
 <attr id="55" name="zimbraPrefIncludeSpamInSearch" type="boolean" cardinality="single" optionalIn="account,cos" flags="accountInherited,domainAdminModifiable">
   <defaultCOSValue>FALSE</defaultCOSValue>
+  <defaultExternalCOSValue>TRUE</defaultExternalCOSValue>
   <desc>whether or not to include spam in search by default</desc>
 </attr>
 
 <attr id="56" name="zimbraPrefIncludeTrashInSearch" type="boolean" cardinality="single" optionalIn="account,cos" flags="accountInherited,domainAdminModifiable">
   <defaultCOSValue>FALSE</defaultCOSValue>
+  <defaultExternalCOSValue>TRUE</defaultExternalCOSValue>
   <desc>whether or not to include trash in search by default</desc>
 </attr>
 
@@ -7035,6 +7037,12 @@ TODO: delete them permanently from here
 
 <attr id="1413" name="zimbraGalDefinitionLastModifiedTime" type="gentime" cardinality="single" optionalIn="domain" since="8.0.0">
   <desc>the time at which GAL definition is last modified.</desc>
+</attr>
+
+<attr id="1414" name="zimbraVirtualAccountInitialPasswordSet" type="boolean" cardinality="single" optionalIn="account" flags="accountInfo,octopus" since="8.0.0">
+  <desc>
+    Whether virtual user set/changed his password after an external virtual account for him is provisioned.
+    This attribute is applicable for accounts having zimbraIsExternalVirtualAccount set to TRUE.</desc>
 </attr>
 
 </attrs>

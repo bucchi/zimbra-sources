@@ -180,6 +180,20 @@ function() {
 	return list;
 };
 
+ZmMsgController.prototype._getRightSideToolBarOps =
+function() {
+	if (appCtxt.isChildWindow || !appCtxt.get(ZmSetting.DETACH_MAILVIEW_ENABLED) || appCtxt.isExternalAccount()) {
+		return [];
+	}
+	return [ZmOperation.DETACH];
+};
+
+
+ZmMsgController.prototype._showDetachInSecondary =
+function() {
+	return false;
+};
+
 ZmMsgController.prototype._initializeToolBar =
 function(view) {
 	var className = appCtxt.isChildWindow ? "ZmMsgViewToolBar_cw" : null;
@@ -405,9 +419,6 @@ function(ev) {
     if (appCtxt.isOffline) {
         var acctName = item.getAccount().name;
         url+="&acct=" + acctName ;
-    }
-    if (appCtxt.isExternalAccount()) {
-        url += "&isext=true";
     }
     window.open(appContextPath+url, "_blank");
 };
