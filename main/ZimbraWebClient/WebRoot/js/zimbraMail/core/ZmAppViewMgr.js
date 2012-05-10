@@ -638,7 +638,6 @@ function(viewId, force) {
 	// if same view, no need to hide previous view or check for callbacks
 	//also no need to make the view visible, it already is.
 	if (viewId == this._currentViewId) {
-		this._setViewVisible(viewId, true);
 		// make sure the new content has focus
 		if (viewController) {
 			viewController._restoreFocus();
@@ -1056,6 +1055,9 @@ function(cidList, isIeTimerHack) {
 			}
 		}
 	}
+
+    //bug 71111: On resizing window, the nav tree position does not get updated
+    this._checkTree(this.getCurrentViewId());
 
 	if (window.DBG && DBG.getDebugLevel() >= AjxDebug.DBG2) {
 		this._debugShowMetrics(cidList);

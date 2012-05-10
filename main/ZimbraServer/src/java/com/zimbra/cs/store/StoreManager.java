@@ -21,9 +21,10 @@ import com.zimbra.common.localconfig.LC;
 import com.zimbra.common.service.ServiceException;
 import com.zimbra.common.util.ZimbraLog;
 import com.zimbra.cs.account.Provisioning;
+import com.zimbra.cs.account.Server;
+import com.zimbra.cs.extension.ExtensionUtil;
 import com.zimbra.cs.mailbox.MailItem;
 import com.zimbra.cs.mailbox.Mailbox;
-import com.zimbra.cs.account.Server;
 import com.zimbra.cs.store.file.FileBlobStore;
 import com.zimbra.cs.util.Zimbra;
 
@@ -41,7 +42,11 @@ public abstract class StoreManager {
                 String className = LC.zimbra_class_store.value();
                 try {
                     if (className != null && !className.equals("")) {
-                        sInstance = (StoreManager) Class.forName(className).newInstance();
+                        try {
+                            sInstance = (StoreManager) Class.forName(className).newInstance();
+                        } catch (ClassNotFoundException e) {
+                            sInstance = (StoreManager) ExtensionUtil.findClass(className).newInstance();
+                        }
                     } else {
                         sInstance = new FileBlobStore();
                     }
@@ -92,7 +97,18 @@ public abstract class StoreManager {
         /** The store is reachable from any {@code mailboxd} host.  When
          *  moving mailboxes between hosts, the store should be left untouched,
          *  as there is no need to move the blobs along with the metadata. */
-        CENTRALIZED
+        CENTRALIZED,
+        /**
+         * The store supports resumable upload
+         */
+        RESUMABLE_UPLOAD,
+        /**
+         * The store supports deduping based on blob content; aka SIS create.
+         * If two users upload the same file, only one copy is stored.
+         * The remote store must track reference count internally
+         * and delete the actual file only when ref-count reaches 0
+         */
+        SINGLE_INSTANCE_SERVER_CREATE
     };
 
     /**

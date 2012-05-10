@@ -242,7 +242,7 @@ function() {
     if(appCtxt.get(ZmSetting.TASKS_ENABLED)) {
         list.push(ZmOperation.CREATE_TASK);        
     }
-    list.push(ZmOperation.QUICK_COMMANDS);
+    //list.push(ZmOperation.QUICK_COMMANDS);
 	return list;
 };
 
@@ -574,8 +574,6 @@ function(params) {
 	var selCnt = this._listView[this._currentViewId].getSelectionCount();
 	if (selCnt == 1) {
 		var respCallback = this._handleResponseSetSelectedItem.bind(this);
-		params = params || {};
-		params.markRead = (params.markRead != null) ? params.markRead : (appCtxt.get(ZmSetting.MARK_MSG_READ) == ZmSetting.MARK_READ_NOW);
 		this._getLoadedMsg(params, respCallback);
 	}
 };

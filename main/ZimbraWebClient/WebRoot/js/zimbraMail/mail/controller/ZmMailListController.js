@@ -295,6 +295,7 @@ function(actionCode, ev) {
 
 		case ZmKeyMap.SELECT_ALL:
 			lv.selectAll(true);
+			this._resetToolbarOperations();
 			break;
 	
 		case ZmKeyMap.SPAM:
@@ -588,7 +589,7 @@ function() {
 	    if(appCtxt.get(ZmSetting.TASKS_ENABLED)) {
 	        list.push(ZmOperation.CREATE_TASK);
 	    }
-	    list.push(ZmOperation.QUICK_COMMANDS);
+	    //list.push(ZmOperation.QUICK_COMMANDS);
 	}
 
 
@@ -1191,26 +1192,39 @@ function() {
     appCtxt.setStatusMsg(ZmMsg.redirectSent, ZmStatusView.LEVEL_INFO, null);
 };
 
+/**
+ * Marks a mail item read if appropriate, possibly after a delay. An arg can be passed so that this function
+ * just returns whether the item can be marked read now, which typically results in the setting of the "read"
+ * flag in a retrieval request to the server. After that, it can be called without that arg in order to mark
+ * the item read after a delay if necessary.
+ * 
+ * @param {ZmMailItem}	item		msg or conv
+ * @param {boolean}		check		if true, return true if msg can be marked read now, without marking it read
+ */
 ZmMailListController.prototype._handleMarkRead =
-function(msg) {
+function(item, check) {
 
-	if (msg.isUnread) {
-		var folder = appCtxt.getById(msg.folderId);
-		var readOnly = folder && folder.isReadOnly();
-		if (!readOnly && !appCtxt.isExternalAccount()) {
+	if (item && item.isUnread) {
+		if (!item.isReadOnly() && !appCtxt.isExternalAccount()) {
 			var markRead = appCtxt.get(ZmSetting.MARK_MSG_READ);
 			if (markRead == ZmSetting.MARK_READ_NOW) {
-				// msg was cached as unread, mark it read now
-				this._doMarkRead([msg], true);
+				if (check) {
+					return true;
+				}
+				else {
+					// msg was cached as unread, mark it read now
+					this._doMarkRead([item], true);
+				}
 			} else if (markRead > 0) {
 				if (!appCtxt.markReadAction) {
 					appCtxt.markReadAction = new AjxTimedAction(this, this._markReadAction);
 				}
-				appCtxt.markReadAction.args = [ msg ];
+				appCtxt.markReadAction.args = [item];
 				appCtxt.markReadActionId = AjxTimedAction.scheduleAction(appCtxt.markReadAction, markRead * 1000);
 			}
 		}
 	}
+	return false;
 };
 
 ZmMailListController.prototype._markReadAction =
@@ -1607,6 +1621,7 @@ function(params, callback) {
 		if (msg.id == this._pendingMsg) { return; }
 		msg._loadPending = true;
 		this._pendingMsg = msg.id;
+		params.markRead = (params.markRead != null) ? params.markRead : this._handleMarkRead(msg, true);
 		// use prototype in callback because these functions are overridden by ZmConvListController
 		var respCallback = new AjxCallback(this, ZmMailListController.prototype._handleResponseGetLoadedMsg, [callback, msg]);
 		msg.load({getHtml:params.getHtml, markRead:params.markRead, callback:respCallback, noBusyOverlay:false, forceLoad: params.forceLoad, noTruncate: params.noTruncate});
@@ -2024,11 +2039,11 @@ function(parent, num) {
 
 	parent.enable(ZmOperation.DETACH, (appCtxt.get(ZmSetting.DETACH_MAILVIEW_ENABLED) && !isDrafts && num == 1));
 
-	if (parent instanceof ZmActionMenu) {
+	/*if (parent instanceof ZmActionMenu) {
 		parent.setItemVisible(ZmOperation.QUICK_COMMANDS, !isDrafts && parent._hasQuickCommands);
 	} else {
 		parent.setItemVisible(ZmOperation.QUICK_COMMANDS, !isDrafts);
-	}
+	} */
 
 	parent.setItemVisible(ZmOperation.ADD_FILTER_RULE, !isDrafts);
 	parent.setItemVisible(ZmOperation.CREATE_APPT, !isDrafts);
@@ -2364,7 +2379,7 @@ function() {
 	return id && appCtxt.getById(id);
 };
 
-ZmMailListController.prototype._quickCommandMenuHandler = function(evt, batchCmd) {
+/* ZmMailListController.prototype._quickCommandMenuHandler = function(evt, batchCmd) {
     var selectedItems = this.getItems();
 
     ZmListController.prototype._quickCommandMenuHandler.call(this, evt);
@@ -2388,7 +2403,7 @@ ZmMailListController.prototype._quickCommandMenuHandler = function(evt, batchCmd
         }
     }
 };
-
+*/
 
 /**
 * Deletes one or more items from the list.
