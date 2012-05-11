@@ -119,11 +119,18 @@ public abstract class DocumentHandler {
     }
 
     public static OperationContext getOperationContext(ZimbraSoapContext zsc, Session session) throws ServiceException {
+        OperationContext octxt = (session == null) ? null : session.getOperationContext();
+        if (octxt != null) {
+            return octxt;
+        }
         AuthToken at = zsc.getAuthToken();
-        OperationContext octxt = new OperationContext(at);
+        octxt = new OperationContext(at);
         octxt.setChangeConstraint(zsc.getChangeConstraintType(), zsc.getChangeConstraintLimit());
         octxt.setRequestIP(zsc.getRequestIP()).setSession(session);
         octxt.setUserAgent(zsc.getUserAgent());
+        if (session != null) {
+            session.setOperationContext(octxt);
+        }
         return octxt;
     }
 
@@ -169,17 +176,6 @@ public abstract class DocumentHandler {
         }
         return mbox;
     }
-
-    private static boolean isRequestLocal(ZimbraSoapContext zsc) {
-        try {
-            Account acct = getAuthenticatedAccount(zsc);
-            return (acct != null && Provisioning.onLocalServer(acct));
-        } catch (ServiceException e) {
-            ZimbraLog.session.info("error determining whether authenticated account is local", e);
-            return false;
-        }
-    }
-
 
     /** Returns whether the command's caller must be authenticated. */
     public boolean needsAuth(Map<String, Object> context) {
@@ -331,7 +327,7 @@ public abstract class DocumentHandler {
         }
 
         // if they asked for a SOAP session on a remote host and it's a non-proxied request, we don't notify
-        boolean isLocal = isRequestLocal(zsc);
+        boolean isLocal = zsc.isAuthUserOnLocalhost();
         if (stype == Session.Type.SOAP && !isLocal && !zsc.isSessionProxied()) {
             return null;
         }
@@ -356,7 +352,7 @@ public abstract class DocumentHandler {
         if (s == null) {
             try {
                 if (stype == Session.Type.SOAP) {
-                    s = SoapSessionFactory.getInstance().getSoapSession(authAccountId, isLocal, zsc.isUsingAdminPrivileges()).register();
+                    s = SoapSessionFactory.getInstance().getSoapSession(zsc).register();
                 } else if (stype == Session.Type.ADMIN) {
                     s = new AdminSession(authAccountId).register();
                 }
