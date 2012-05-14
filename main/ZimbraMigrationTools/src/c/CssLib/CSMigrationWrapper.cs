@@ -529,20 +529,10 @@ public class CSMigrationWrapper
                                     {
                                         msf = Int32.Parse(options.MessageSizeFilter);
                                         msf *= 1000000;
-                                        try
+                                        if (dict["wstrmimeBuffer"].Length > msf)    // FBS bug 74000 -- 5/14/12 
                                         {
-                                            FileInfo f = new FileInfo(dict["filePath"]);
-                                            if (f.Length > msf)
-                                            {
-                                                bSkipMessage = true;
-                                                File.Delete(dict["filePath"]);
-                                                // FBS -- When logging implemented, we should log this
-                                                // Should we put a message in the UI as well?
-                                            }
-                                        }
-                                        catch (Exception)
-                                        {
-                                            Log.info("File exception on ", dict["filePath"]);
+                                            bSkipMessage = true;
+                                            Log.debug("Skipping", dict["Subject"], "-- message size exceeds size filter value");
                                         }
                                     }
                                 }
@@ -555,6 +545,7 @@ public class CSMigrationWrapper
                                         if (DateTime.Compare(dtm, filterDtm) < 0)
                                         {
                                             bSkipMessage = true;
+                                            Log.debug("Skipping", dict["Subject"], "-- message older than date filter value");
                                         }
                                     }
                                     catch (Exception)
@@ -619,11 +610,12 @@ public class CSMigrationWrapper
                                 {
                                     try
                                     {
-                                        DateTime dtm = DateTime.Parse(dict["sCommon"]);
+                                        DateTime dtm = DateTime.Parse(dict["sFilterDate"]);
                                         DateTime filterDtm = Convert.ToDateTime(options.DateFilter);
                                         if (DateTime.Compare(dtm, filterDtm) < 0)
                                         {
                                             bSkipMessage = true;
+                                            Log.debug("Skipping", dict["su"], "-- appointment older than date filter value");
                                         }
                                     }
                                     catch (Exception)
@@ -660,11 +652,14 @@ public class CSMigrationWrapper
                                 {
                                     try
                                     {
-                                        DateTime dtm = DateTime.Parse(dict["sCommon"]);
+                                        DateTime dtm = DateTime.Parse(dict["sFilterDate"]);
                                         DateTime filterDtm = Convert.ToDateTime(options.DateFilter);
 
                                         if (DateTime.Compare(dtm, filterDtm) < 0)
+                                        {
                                             bSkipMessage = true;
+                                            Log.debug("Skipping", dict["su"], "-- task older than date filter value");
+                                        }
                                     }
                                     catch (Exception)
                                     {
