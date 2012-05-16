@@ -23,7 +23,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement(name="ns-delta", namespace="urn:ZimbraTest4")
 public class NamespaceDeltaElem {
-    //@XmlElementRef(name="strAttrStrElem", namespace="urn:ZimbraTest5", type=StringAttrStringElem.class)
     @XmlElement(name="strAttrStrElem", namespace="urn:ZimbraTest5")
     private StringAttrStringElem sase;
     public NamespaceDeltaElem() { }

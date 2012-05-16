@@ -910,6 +910,11 @@ TD.gridGroupBodyLabel {
 /* -- Dialogs -- */
 
 /* New Account Dialog */
+.AdminOutputTabClick {
+	min-height:18px;
+	padding:3px 15px 2px;
+    @ActiveCursor@
+}
 
 .AdminOutputTab {
 	min-height:18px;
@@ -1061,7 +1066,9 @@ TD.gridGroupBodyLabel {
 	padding:12px;
 }
 
-
+.ZaHomePanelPage {
+    vertical-align: top;
+}
 
 .ZaHomeTabView .xform_label {
 	text-align:left;
