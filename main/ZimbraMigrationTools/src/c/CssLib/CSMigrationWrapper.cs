@@ -449,7 +449,7 @@ public class CSMigrationWrapper
         }
         int iProcessedItems = 0;
         string historyfile = Path.GetTempPath() + Acct.AccountName.Substring(0,Acct.AccountName.IndexOf('@')) + "history.log";
-        string historyid = "";
+       // string historyid = "";
 
         if (itemobjectarray.GetLength(0) > 0)
         {
@@ -467,16 +467,32 @@ public class CSMigrationWrapper
                         Dictionary<string, string> dict = new Dictionary<string, string>();
                         string[,] data = null;
                         string itemtype = type.ToString();
-                        historyid = itemtype + itemobject.IDasString;
+                        /*try
+                        {
+
+                            if (itemobject.IDasString != null)
+                            {
+                                historyid = itemtype + itemobject.IDasString;
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                           Log.err("exception in ProcessItems->itemobject.GetDataForItemID", e.Message);
+                            
+                       
+                        }
                         if (options.SkipPrevMigrated)
                         {
-                              if (CheckifAlreadyMigrated(historyfile, historyid))
-                              {
-                                  bSkipMessage = true;
-                                  return;
-                              }
+                            if (historyid != "")
+                            {
+                                if (CheckifAlreadyMigrated(historyfile, historyid))
+                                {
+                                    bSkipMessage = true;
+                                    return;
+                                }
+                            }
                             //uncomment after more testing
-                        }
+                        }*/
                         try
                         {
                             data = itemobject.GetDataForItemID(user.GetInternalUser(),
@@ -696,8 +712,11 @@ public class CSMigrationWrapper
                                 : Acct.migrationFolder.CurrentCountOfItems + 1;
                         }
                     }
-                    File.AppendAllText(historyfile, historyid); //uncomment after more testing
-                    File.AppendAllText(historyfile, "\n");
+                    /*if (historyid != "")
+                    {
+                        File.AppendAllText(historyfile, historyid); //uncomment after more testing
+                        File.AppendAllText(historyfile, "\n");
+                    }*/
                     iProcessedItems++;
                 }
             }

@@ -275,16 +275,19 @@ STDMETHODIMP CMapiAccessWrap::GetItemsList(IFolderObject *FolderObj, VARIANT cre
                 SafeArrayUnaccessData(var.parray);
             }
             pIItemObject->put_ItemID(var);
-            Zimbra::Util::ScopedArray<CHAR> spUid(new CHAR[(Itemid.cb * 2) + 1]);
+            /*Zimbra::Util::ScopedArray<CHAR> spUid(new CHAR[(Itemid.cb * 2) + 1]);
     if (spUid.get() != NULL)
     {
 	Zimbra::Util::HexFromBin(Itemid.lpb, Itemid.cb, spUid.get());
-    }
-            
-    CComBSTR str=spUid.getref();
+        CComBSTR str=spUid.getref();
       pIItemObject->put_IDasString(str);
       SysFreeString(str);
 
+        
+    }*/
+    
+            
+    
         }
         if (FAILED(hr))
             return S_FALSE;
