@@ -204,7 +204,7 @@ function(params) {
 
 	AjxTimedAction.scheduleAction(new AjxTimedAction(this, function() {
 		this.getHtmlEditor().moveCaretToTop(params.extraBodyText ? params.extraBodyText.length : 0);
-	}), 1000);
+	}), 200);
 
 	if (action != ZmOperation.FORWARD_ATT) {
 		this._saveExtraMimeParts();
@@ -2492,7 +2492,7 @@ function(msg, htmlMode, incWhat) {
 				content = html ? this._htmlToText(html) : "";
 			}
 			content = content || msg.getBodyContent();	// just grab first body part
-			body = getOrig ? AjxStringUtil.getOriginalContent(content, true) : content;
+			body = getOrig ? AjxStringUtil.getOriginalContent(content, false) : content;
 		}
 	}
 

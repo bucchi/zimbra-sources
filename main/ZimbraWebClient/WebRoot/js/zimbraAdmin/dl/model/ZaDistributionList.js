@@ -47,6 +47,7 @@ ZaItem.loadMethods["ZaDistributionList"] = new Array();
 ZaItem.initMethods["ZaDistributionList"] = new Array();
 ZaItem.createMethods["ZaDistributionList"] = new Array();
 ZaItem.ObjectModifiers["ZaDistributionList"] = new Array();
+ZaItem.getRelatedMethods["ZaDistributionList"] = new Array();
 
 ZaDistributionList.EMAIL_ADDRESS = "ZDLEA";
 ZaDistributionList.DESCRIPTION = "ZDLDESC";
@@ -434,44 +435,45 @@ ZaDistributionList.addRemoveAliases = function (mods, obj) {
 		if(ZaItem.hasRight(ZaDistributionList.ADD_DL_ALIAS_RIGHT, this)) {
 			try {
 				for(var ix=0; ix < tmpObjCnt; ix++) {
+					var aliasName = obj.attrs[ZaAccount.A_zimbraMailAlias][ix];
 					try {
-						if(obj.attrs[ZaAccount.A_zimbraMailAlias][ix]) {
-							if(obj.attrs[ZaAccount.A_zimbraMailAlias][ix].indexOf("@") != obj.attrs[ZaAccount.A_zimbraMailAlias][ix].lastIndexOf("@")) {
+						if(aliasName) {
+							if(aliasName.indexOf("@") != aliasName.lastIndexOf("@")) {
 								//show error msg
-								ZaApp.getInstance().getCurrentController()._errorDialog.setMessage(AjxMessageFormat.format(ZaMsg.ERROR_ALIAS_INVALID,[obj.attrs[ZaAccount.A_zimbraMailAlias][ix]]), null, DwtMessageDialog.CRITICAL_STYLE, null);
+								ZaApp.getInstance().getCurrentController()._errorDialog.setMessage(AjxMessageFormat.format(ZaMsg.ERROR_ALIAS_INVALID,[aliasName]), null, DwtMessageDialog.CRITICAL_STYLE, null);
 								ZaApp.getInstance().getCurrentController()._errorDialog.popup();		
 								break;						
 							}						
-							this.addAlias(obj.attrs[ZaAccount.A_zimbraMailAlias][ix]);
+							this.addAlias(aliasName);
 						}
 					} catch (ex) {
-						if(ex.code == ZmCsfeException.ACCT_EXISTS) {
+						if((ex.code == ZmCsfeException.ACCT_EXISTS) && aliasName) {
 							//if failed because account exists just show a warning
-							var account = this._findAlias(obj.attrs[ZaAccount.A_zimbraMailAlias][ix]);
+							var account = ZaXFormViewController.prototype._findAlias.call(this, aliasName);
 							switch(account.type) {
 								case ZaItem.DL:
-									if(account.name == obj.attrs[ZaAccount.A_zimbraMailAlias][ix]) {
+									if(account.name == aliasName) {
 										failedAliases += "<br>" +AjxMessageFormat.format(ZaMsg.WARNING_EACH_ALIAS3,[account.name]);								
 									} else {
-										failedAliases += "<br>" +AjxMessageFormat.format(ZaMsg.WARNING_EACH_ALIAS4,[account.name, obj.attrs[ZaAccount.A_zimbraMailAlias][ix]]);								
+										failedAliases += "<br>" +AjxMessageFormat.format(ZaMsg.WARNING_EACH_ALIAS4,[account.name, aliasName]);
 									}
 								break;
 								case ZaItem.ACCOUNT:
-									if(account.name == obj.attrs[ZaAccount.A_zimbraMailAlias][ix]) {
+									if(account.name == aliasName) {
 										failedAliases += "<br>" +AjxMessageFormat.format(ZaMsg.WARNING_EACH_ALIAS2,[account.name]);								
 									} else {
-										failedAliases += "<br>" +AjxMessageFormat.format(ZaMsg.WARNING_EACH_ALIAS1,[account.name, obj.attrs[ZaAccount.A_zimbraMailAlias][ix]]);								
+										failedAliases += "<br>" +AjxMessageFormat.format(ZaMsg.WARNING_EACH_ALIAS1,[account.name, aliasName]);
 									}							
 								break;	
 								case ZaItem.RESOURCE:
-									if(account.name == obj.attrs[ZaAccount.A_zimbraMailAlias][ix]) {
+									if(account.name == aliasName) {
 										failedAliases += "<br>" +AjxMessageFormat.format(ZaMsg.WARNING_EACH_ALIAS5,[account.name]);								
 									} else {
-										failedAliases += "<br>" +AjxMessageFormat.format(ZaMsg.WARNING_EACH_ALIAS6,[account.name, obj.attrs[ZaAccount.A_zimbraMailAlias][ix]]);								
+										failedAliases += "<br>" +AjxMessageFormat.format(ZaMsg.WARNING_EACH_ALIAS6,[account.name, aliasName]);
 									}							
 								break;							
 								default:
-									failedAliases += "<br>" +AjxMessageFormat.format(ZaMsg.WARNING_EACH_ALIAS0,[obj.attrs[ZaAccount.A_zimbraMailAlias][ix]]);							
+									failedAliases += "<br>" +AjxMessageFormat.format(ZaMsg.WARNING_EACH_ALIAS0,[aliasName]);
 								break;
 							}
 							failedAliasesCnt++;
@@ -514,44 +516,45 @@ ZaDistributionList.addAliases = function (obj, dl) {
 		var failedAliasesCnt = 0;
 		try {
 			for(var ix=0; ix < tmpObjCnt; ix++) {
+				var aliasName = obj.attrs[ZaAccount.A_zimbraMailAlias][ix];
 				try {
-					if(obj.attrs[ZaAccount.A_zimbraMailAlias][ix]) {
-						if(obj.attrs[ZaAccount.A_zimbraMailAlias][ix].indexOf("@") != obj.attrs[ZaAccount.A_zimbraMailAlias][ix].lastIndexOf("@")) {
+					if(aliasName) {
+						if(aliasName.indexOf("@") != aliasName.lastIndexOf("@")) {
 							//show error msg
-							ZaApp.getInstance().getCurrentController()._errorDialog.setMessage(AjxMessageFormat.format(ZaMsg.ERROR_ALIAS_INVALID,[obj.attrs[ZaAccount.A_zimbraMailAlias][ix]]), null, DwtMessageDialog.CRITICAL_STYLE, null);
+							ZaApp.getInstance().getCurrentController()._errorDialog.setMessage(AjxMessageFormat.format(ZaMsg.ERROR_ALIAS_INVALID,[aliasName]), null, DwtMessageDialog.CRITICAL_STYLE, null);
 							ZaApp.getInstance().getCurrentController()._errorDialog.popup();		
 							break;						
 						}						
-						dl.addAlias(obj.attrs[ZaAccount.A_zimbraMailAlias][ix]);
+						dl.addAlias(aliasName);
 					}
 				} catch (ex) {
-					if(ex.code == ZmCsfeException.ACCT_EXISTS) {
+					if((ex.code == ZmCsfeException.ACCT_EXISTS) && aliasName) {
 						//if failed because account exists just show a warning
-						var account = this._findAlias(obj.attrs[ZaAccount.A_zimbraMailAlias][ix]);
+						var account =  ZaXFormViewController.prototype._findAlias.call(this, aliasName);
 						switch(account.type) {
 							case ZaItem.DL:
-								if(account.name == obj.attrs[ZaAccount.A_zimbraMailAlias][ix]) {
+								if(account.name == aliasName) {
 									failedAliases += "<br>" +AjxMessageFormat.format(ZaMsg.WARNING_EACH_ALIAS3,[account.name]);								
 								} else {
-									failedAliases += "<br>" +AjxMessageFormat.format(ZaMsg.WARNING_EACH_ALIAS4,[account.name, obj.attrs[ZaAccount.A_zimbraMailAlias][ix]]);								
+									failedAliases += "<br>" +AjxMessageFormat.format(ZaMsg.WARNING_EACH_ALIAS4,[account.name, aliasName]);
 								}
 							break;
 							case ZaItem.ACCOUNT:
-								if(account.name == obj.attrs[ZaAccount.A_zimbraMailAlias][ix]) {
+								if(account.name == aliasName) {
 									failedAliases += "<br>" +AjxMessageFormat.format(ZaMsg.WARNING_EACH_ALIAS2,[account.name]);								
 								} else {
-									failedAliases += "<br>" +AjxMessageFormat.format(ZaMsg.WARNING_EACH_ALIAS1,[account.name, obj.attrs[ZaAccount.A_zimbraMailAlias][ix]]);								
+									failedAliases += "<br>" +AjxMessageFormat.format(ZaMsg.WARNING_EACH_ALIAS1,[account.name, aliasName]);
 								}							
 							break;	
 							case ZaItem.RESOURCE:
-								if(account.name == obj.attrs[ZaAccount.A_zimbraMailAlias][ix]) {
+								if(account.name == aliasName) {
 									failedAliases += "<br>" +AjxMessageFormat.format(ZaMsg.WARNING_EACH_ALIAS5,[account.name]);								
 								} else {
-									failedAliases += "<br>" +AjxMessageFormat.format(ZaMsg.WARNING_EACH_ALIAS6,[account.name, obj.attrs[ZaAccount.A_zimbraMailAlias][ix]]);								
+									failedAliases += "<br>" +AjxMessageFormat.format(ZaMsg.WARNING_EACH_ALIAS6,[account.name, aliasName]);
 								}							
 							break;							
 							default:
-								failedAliases += "<br>" +AjxMessageFormat.format(ZaMsg.WARNING_EACH_ALIAS0,[obj.attrs[ZaAccount.A_zimbraMailAlias][ix]]);							
+								failedAliases += "<br>" +AjxMessageFormat.format(ZaMsg.WARNING_EACH_ALIAS0,[aliasName]);
 							break;
 						}
 						failedAliasesCnt++;
@@ -1380,3 +1383,40 @@ ZaDistributionList.prototype.schedulePostLoading = function (controller) {
     var act = new AjxTimedAction(this, ZaDistributionList.prototype.getAllMembers, {controller:controller});
     AjxTimedAction.scheduleAction(act, 100);
 }
+
+ZaDistributionList.getRelatedList =
+function (parentPath) {
+    var alias = this.attrs[ZaAccount.A_zimbraMailAlias];
+    var membersNum = this[ZaDistributionList.A2_numMembers];
+    var Tis = [];
+    if(alias.length > 0) {
+        var aliasTi = new ZaTreeItemData({
+                    text: ZaMsg.TABT_Aliases,
+                    //type: 1,
+                    count:alias.length,
+                    image:"AccountAlias",
+                    mappingId: ZaZimbraAdmin._DL_ALIAS_LIST_VIEW,
+                    path: parentPath + ZaTree.SEPERATOR + this.name + ZaTree.SEPERATOR + ZaMsg.TABT_Aliases
+                    }
+                );
+        aliasTi.setData("aliasTargetId", this.id);
+        ZaOverviewPanelController.overviewTreeListeners[ZaZimbraAdmin._DL_ALIAS_LIST_VIEW] = ZaOverviewPanelController.aliasListTreeListener;
+        Tis.push(aliasTi);
+    }
+    if(membersNum > 0) {
+        var membersTi = new ZaTreeItemData({
+                    text: ZaMsg.DLXV_LabelListMembers,
+                    count:membersNum,
+                    image:"DistributionList",
+                    mappingId: ZaZimbraAdmin._DL_MEMBERS_LIST_VIEW,
+                    path: parentPath + ZaTree.SEPERATOR + this.name + ZaTree.SEPERATOR + ZaMsg.DLXV_LabelListMembers
+                    }
+                );
+        membersTi.setData("dlItem", this);
+        ZaOverviewPanelController.overviewTreeListeners[ZaZimbraAdmin._DL_MEMBERS_LIST_VIEW] = ZaOverviewPanelController.memberListInDLTreeListener;
+        Tis.push(membersTi);
+    }
+    return Tis;
+
+}
+ZaItem.getRelatedMethods["ZaDistributionList"].push(ZaDistributionList.getRelatedList);
