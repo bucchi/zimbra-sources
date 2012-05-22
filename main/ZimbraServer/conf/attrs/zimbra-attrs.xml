@@ -6762,7 +6762,7 @@ TODO: delete them permanently from here
 </attr>
 
 <attr id="1360" name="zimbraReverseProxySSLToUpstreamEnabled" type="boolean" cardinality="single" optionalIn="globalConfig,server" flags="serverInherited" since="8.0.0">
-  <globalConfigValue>FALSE</globalConfigValue>
+  <globalConfigValue>TRUE</globalConfigValue>
   <desc>If set as TRUE, proxy will use SSL to connect to the upstream mail servers for web and mail proxy. Note admin console proxy always use https no matter how this attr is set.</desc>
 </attr>
 
@@ -7048,6 +7048,15 @@ TODO: delete them permanently from here
 <attr id="1415" name="zimbraMessageChannelPort" type="integer" cardinality="single" optionalIn="globalConfig,server" flags="serverInherited" callback="CheckPortConflict" requiresRestart="mailbox" since="8.0.0">
   <globalConfigValue>7285</globalConfigValue>
   <desc>port number on which message channel should listen</desc>
+</attr>
+
+<attr id="1416" name="zimbraClientTypeRegex" type="cstring" max="256" cardinality="multi" optionalIn="globalConfig" flags="octopus" since="8.0.0">
+  <globalConfigValue>Web UI:(.*)ZimbraWebClient(.*)</globalConfigValue>
+  <globalConfigValue>ipad:(.*)iPad(.*)</globalConfigValue>
+  <globalConfigValue>iphone:(.*)iPhone(.*)</globalConfigValue>
+  <globalConfigValue>Android:(.*)Android(.*)</globalConfigValue>
+  <globalConfigValue>SyncClient:(.*)\\((.*)\\)$</globalConfigValue>
+  <desc>Regex for identifying client types</desc>
 </attr>
 
 </attrs>
