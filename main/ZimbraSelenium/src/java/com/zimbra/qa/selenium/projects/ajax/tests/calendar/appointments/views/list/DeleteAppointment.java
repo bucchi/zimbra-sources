@@ -21,13 +21,12 @@ import com.zimbra.qa.selenium.framework.util.ZDate;
 import com.zimbra.qa.selenium.framework.util.ZTimeZone;
 import com.zimbra.qa.selenium.framework.util.ZimbraSeleniumProperties;
 import com.zimbra.qa.selenium.projects.ajax.core.AjaxCommonTest;
-import com.zimbra.qa.selenium.projects.ajax.ui.calendar.DialogConfirmDeleteAppointment;
+import com.zimbra.qa.selenium.projects.ajax.ui.calendar.*;
 
 
 public class DeleteAppointment extends AjaxCommonTest {
 
 
-	@SuppressWarnings("serial")
 	public DeleteAppointment() {
 		logger.info("New "+ DeleteAppointment.class.getCanonicalName());
 
@@ -35,7 +34,9 @@ public class DeleteAppointment extends AjaxCommonTest {
 		super.startingPage = app.zPageCalendar;
 
 		// Make sure we are using an account with message view
-		super.startingAccountPreferences = new HashMap<String, String>() {{
+		super.startingAccountPreferences = new HashMap<String, String>() {
+			private static final long serialVersionUID = -5268509108302506830L;
+		{
 			put("zimbraPrefCalendarInitialView", "list");
 		}};
 

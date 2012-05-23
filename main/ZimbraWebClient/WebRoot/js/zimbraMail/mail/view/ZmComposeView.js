@@ -782,35 +782,8 @@ function(msg, isDraft, bodyContent) {
 		else {
 			htmlPart.setContent(bodyContent);
 		}
-        
-        //set img src to cid for inline or dfsrc if external image and remove dfsrc before sending
-        var content = htmlPart.getContent();
-        var imgContent = content.match(/<img/i) && content.split(/<img/i);
-		if (imgContent && imgContent.length) {
-			for (var i = 0; i < imgContent.length; i++) {
-				var externalImage = false;
-				var dfsrc = imgContent[i].match(/dfsrc=[\"|\'](cid:[^\"\']+)/); //look for CID assignment in image
-				if (dfsrc && dfsrc.length > 1) {
-					dfsrc = [dfsrc[1]]; //the cid is the 2nd element, but next lines expect it as first 
-				}
-				if (!dfsrc) {
-					dfsrc = imgContent[i].match(/\s+dfsrc=[\"\'][^\"\']+[\"\']+/); //look for dfsrc="" in image
-					externalImage = dfsrc ? true : false;
-				}
-				if (dfsrc && dfsrc.length > 0 && !externalImage) {
-					var tempStr = imgContent[i].replace(/\s+src=[\"\'][^\"\']+[\"\']/," src=\""+dfsrc[0]+"\""); //set src to cid
-					tempStr = tempStr.replace(/\s+dfsrc=[\"\'][^\"\']+[\"\']+/,"");
-					content = content.replace(imgContent[i], tempStr);
-				}
-				else if (dfsrc && dfsrc.length > 0 && externalImage) {
-					var tempArr = imgContent[i].match(/\s+dfsrc=[\"\']([^\"\']+)[\"\']/); //match dfsrc
-					if (tempArr && tempArr.length > 1) {
-					   var tempStr = imgContent[i].replace(/\s+dfsrc=[\"\'][^\"\']+[\"\']/," src=\""+tempArr[1]+"\"");
-					   content = content.replace(imgContent[i], tempStr);
-					}
-				}
-			}
-		}
+
+        var content = AjxStringUtil.defangHtmlContent(htmlPart.getContent());
 
         htmlPart.setContent(content);
 
@@ -862,7 +835,8 @@ function(msg, isDraft, bodyContent) {
 		}
 	}
 
-	// store text-content of the current email
+	// store text-content of the current email for zimlets to work with
+	// TODO: zimlets are being lazy here, and text content could be large; zimlets should get content from parts
 	msg.textBodyContent = this.isHidden ? textContent : (this._composeMode == DwtHtmlEditor.HTML)
 		? this._htmlEditor.getTextVersion()
 		: this._htmlEditor.getContent();
