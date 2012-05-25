@@ -124,7 +124,7 @@ if(ZaAccount) {
 	ZaAccount.A2_zimbraExternalShareLimitLifetime = "zimbraExternalShareLimitLifetime";
 	ZaAccount.A_zimbraFileExternalShareLifetime = "zimbraFileExternalShareLifetime";
 	ZaAccount.A2_zimbraInternalShareLimitLifetime = "zimbraInternalShareLimitLifetime";
-	ZaAccount.A_zimbraShareLifetime = "zimbraShareLifetime";
+	ZaAccount.A_zimbraFileShareLifetime = "zimbraFileShareLifetime";
 	ZaAccount.A_zimbraExternalSharingEnabled = "zimbraExternalSharingEnabled";
 	ZaAccount.A_zimbraExternalShareWhitelistDomain = "zimbraExternalShareWhitelistDomain";
 	ZaAccount.A_zimbraExternalShareDomainWhitelistEnabled = "zimbraExternalShareDomainWhitelistEnabled";
@@ -155,7 +155,7 @@ if(ZaAccount) {
 		ZaAccount.myXModel.items.push({id:ZaAccount.A2_zimbraExternalShareLimitLifetime, type:_COS_ENUM_, ref:ZaAccount.A2_zimbraExternalShareLimitLifetime,  choices:ZaModel.BOOLEAN_CHOICES});
 		ZaAccount.myXModel.items.push({id:ZaAccount.A_zimbraExternalSharingEnabled, type:_COS_ENUM_, ref:"attrs/"+ZaAccount.A_zimbraExternalSharingEnabled,  choices:ZaModel.BOOLEAN_CHOICES});
 		ZaAccount.myXModel.items.push({id:ZaAccount.A2_zimbraInternalShareLimitLifetime, type:_COS_ENUM_, ref:ZaAccount.A2_zimbraInternalShareLimitLifetime,  choices:ZaModel.BOOLEAN_CHOICES});
-		ZaAccount.myXModel.items.push({id:ZaAccount.A_zimbraShareLifetime, type:_COS_MLIFETIME_, ref:"attrs/"+ZaAccount.A_zimbraShareLifetime});
+		ZaAccount.myXModel.items.push({id:ZaAccount.A_zimbraFileShareLifetime, type:_COS_MLIFETIME_, ref:"attrs/"+ZaAccount.A_zimbraFileShareLifetime});
 		ZaAccount.myXModel.items.push({id:ZaAccount.A_zimbraExternalShareDomainWhitelistEnabled, type:_COS_ENUM_, ref:"attrs/"+ZaAccount.A_zimbraExternalShareDomainWhitelistEnabled,  choices:ZaModel.BOOLEAN_CHOICES});
 		ZaAccount.myXModel.items.push({id:ZaAccount.A_zimbraExternalShareWhitelistDomain, ref:"attrs/" + ZaAccount.A_zimbraExternalShareWhitelistDomain, type:_COS_LIST_,  itemDelimiter:"\n", dataType:_STRING_,outputType:_STRING_});
 		
@@ -183,7 +183,7 @@ if(ZaCos) {
 	ZaCos.A2_zimbraExternalShareLimitLifetime = "zimbraExternalShareLimitLifetime"; 
 	ZaCos.A_zimbraFileExternalShareLifetime = "zimbraFileExternalShareLifetime";
 	ZaCos.A2_zimbraInternalShareLimitLifetime = "zimbraInternalShareLimitLifetime";
-	ZaCos.A_zimbraShareLifetime = "zimbraShareLifetime";
+	ZaCos.A_zimbraFileShareLifetime = "zimbraFileShareLifetime";
 	ZaCos.A_zimbraExternalSharingEnabled = "zimbraExternalSharingEnabled";
 	ZaCos.A_zimbraExternalShareWhitelistDomain = "zimbraExternalShareWhitelistDomain";
 	ZaCos.A_zimbraExternalShareDomainWhitelistEnabled = "zimbraExternalShareDomainWhitelistEnabled";
@@ -210,7 +210,7 @@ if(ZaCos) {
 		ZaCos.myXModel.items.push({id:ZaCos.A2_zimbraExternalShareLimitLifetime, type:_ENUM_, ref:ZaCos.A2_zimbraExternalShareLimitLifetime,  choices:ZaModel.BOOLEAN_CHOICES});
 		ZaCos.myXModel.items.push({id:ZaCos.A_zimbraExternalSharingEnabled, type:_ENUM_, ref:"attrs/"+ZaCos.A_zimbraExternalSharingEnabled,  choices:ZaModel.BOOLEAN_CHOICES});
 		ZaCos.myXModel.items.push({id:ZaCos.A2_zimbraInternalShareLimitLifetime, type:_ENUM_, ref:ZaCos.A2_zimbraInternalShareLimitLifetime,  choices:ZaModel.BOOLEAN_CHOICES});
-		ZaCos.myXModel.items.push({id:ZaCos.A_zimbraShareLifetime, type:_MLIFETIME_, ref:"attrs/"+ZaCos.A_zimbraShareLifetime});
+		ZaCos.myXModel.items.push({id:ZaCos.A_zimbraFileShareLifetime, type:_MLIFETIME_, ref:"attrs/"+ZaCos.A_zimbraFileShareLifetime});
 		ZaCos.myXModel.items.push({id:ZaCos.A_zimbraExternalShareWhitelistDomain, ref:"attrs/" + ZaCos.A_zimbraExternalShareWhitelistDomain, type:_LIST_, itemDelimiter:"\n", dataType:_STRING_,outputType:_STRING_});
 		ZaCos.myXModel.items.push({id:ZaCos.A_zimbraExternalShareDomainWhitelistEnabled, type:_ENUM_, ref:"attrs/"+ZaCos.A_zimbraExternalShareDomainWhitelistEnabled,  choices:ZaModel.BOOLEAN_CHOICES});
 		
@@ -326,7 +326,7 @@ if(ZaTabView.ObjectModifiers["ZaAccountXFormView"]) {
         }
         defaultShareLife = null;
         if (this._containedObject._defaultValues) {
-            defaultShareLife = this._containedObject._defaultValues.attrs[ZaAccount.A_zimbraShareLifetime];
+            defaultShareLife = this._containedObject._defaultValues.attrs[ZaAccount.A_zimbraFileShareLifetime];
         }
         if (defaultShareLife && (parseInt(defaultShareLife) != 0)) {
             this._containedObject._defaultValues[ZaAccount.A2_zimbraInternalShareLimitLifetime] = "TRUE";
@@ -334,7 +334,7 @@ if(ZaTabView.ObjectModifiers["ZaAccountXFormView"]) {
             this._containedObject._defaultValues[ZaAccount.A2_zimbraInternalShareLimitLifetime] = "FALSE";
         }
 
-        var shareLife = this._containedObject.attrs[ZaAccount.A_zimbraShareLifetime];
+        var shareLife = this._containedObject.attrs[ZaAccount.A_zimbraFileShareLifetime];
         if (shareLife) {
             if (parseInt(shareLife) != 0) {
                 this._containedObject[ZaAccount.A2_zimbraInternalShareLimitLifetime] = "TRUE";
@@ -362,10 +362,10 @@ if(ZaTabView.ObjectModifiers["ZaCosXFormView"]) {
         this._containedObject[ZaCos.A2_zimbraExternalShareLimitLifetime] =  shareLifeTime;
         
         shareLifeTime = null;
-        if (!this._containedObject.attrs[ZaCos.A_zimbraShareLifetime]) {
+        if (!this._containedObject.attrs[ZaCos.A_zimbraFileShareLifetime]) {
             shareLifeTime = "FALSE";
         }  else {
-            if (parseInt(this._containedObject.attrs[ZaCos.A_zimbraShareLifetime]) == 0 ) {
+            if (parseInt(this._containedObject.attrs[ZaCos.A_zimbraFileShareLifetime]) == 0 ) {
                 shareLifeTime = "FALSE";
             } else {
                 shareLifeTime = "TRUE";
@@ -512,8 +512,8 @@ if(ZaTabView.XFormModifiers["ZaCosXFormView"]) {
         	    	label:com_zimbra_octopus.NAD_InternalShareExpirationGrouper,
         	    	items:[
         	    	       {type:_GROUP_,
-        	    	    	   visibilityChecks:[[XFormItem.prototype.hasReadPermission,ZaCos.A_zimbraShareLifetime]],
-        	    	    	   visibilityChangeEventSources:[ZaCos.A_zimbraShareLifetime],
+        	    	    	   visibilityChecks:[[XFormItem.prototype.hasReadPermission,ZaCos.A_zimbraFileShareLifetime]],
+        	    	    	   visibilityChangeEventSources:[ZaCos.A_zimbraFileShareLifetime],
         	    	    	   colSpan:2,numCols:5,colSizes:["50px", "auto","5px", "auto", "auto"],
         	    	           items:[
 									{ref:ZaCos.A2_zimbraInternalShareLimitLifetime, 
@@ -524,14 +524,14 @@ if(ZaTabView.XFormModifiers["ZaCosXFormView"]) {
 									    enableDisableChecks:[],
                                         elementChanged: function(elementValue,instanceValue, event) {
                                             if(elementValue != "TRUE") {
-                                                this.setInstanceValue("0d", ZaCos.A_zimbraShareLifetime);
+                                                this.setInstanceValue("0d", ZaCos.A_zimbraFileShareLifetime);
                                             }
                                             this.getForm().itemChanged(this, elementValue, event);
                                         },
 									    visibilityChecks:[]
 									},
 									{type:_CELLSPACER_, height:"100%"},
-									{ref:ZaCos.A_zimbraShareLifetime, type:_LIFETIME_,
+									{ref:ZaCos.A_zimbraFileShareLifetime, type:_LIFETIME_,
 			                               label:null, labelLocation:_NONE_,  bmolsnr: true,
 			                               labelCssStyle:"white-space:normal;",nowrap:false,labelWrap:true,
 			                               enableDisableChangeEventSources:[ZaCos.A2_zimbraInternalShareLimitLifetime],
@@ -917,13 +917,13 @@ if(ZaTabView.XFormModifiers["ZaAccountXFormView"]) {
 										},
                                         elementChanged: function(elementValue,instanceValue, event) {
                                             if(elementValue != "TRUE") {
-                                                this.setInstanceValue("0d", ZaAccount.A_zimbraShareLifetime);
+                                                this.setInstanceValue("0d", ZaAccount.A_zimbraFileShareLifetime);
                                             }
                                             this.getForm().itemChanged(this, elementValue, event);
                                         },
 										visibilityChecks:[]
 									},
-									{ref:ZaAccount.A_zimbraShareLifetime, type:_LIFETIME_,
+									{ref:ZaAccount.A_zimbraFileShareLifetime, type:_LIFETIME_,
 									   id:"account_internal_share_lifetime",
 		                               label:null, labelLocation:_NONE_,
 		                               bmolsnr:true,
@@ -939,16 +939,16 @@ if(ZaTabView.XFormModifiers["ZaAccountXFormView"]) {
 										type:_DWT_BUTTON_,
 										ref:".", label:ZaMsg.NAD_ResetToCOS,
 										visibilityChecks:[
-										    [XFormItem.prototype.hasReadPermission,ZaAccount.A_zimbraShareLifetime],
+										    [XFormItem.prototype.hasReadPermission,ZaAccount.A_zimbraFileShareLifetime],
 										        function(){
 										       		var rad1 = (this.getForm().getItemsById("account_internal_share_lifetime")[0].getModelItem().getLocalValue(this.getInstance()) != null);
 										       		var rad2 = (this.getForm().getItemsById("account_limit_internal_share_lifetime")[0].getModelItem().getLocalValue(this.getInstance()) != null);	
 										       		return (rad1 || rad2);										                	  
 										         }
 										],
-										visibilityChangeEventSources:[ZaAccount.A_zimbraShareLifetime,ZaAccount.A2_zimbraInternalShareLimitLifetime],
+										visibilityChangeEventSources:[ZaAccount.A_zimbraFileShareLifetime,ZaAccount.A2_zimbraInternalShareLimitLifetime],
 										onActivate:function(ev) {
-											this.setInstanceValue(null, ZaAccount.A_zimbraShareLifetime);
+											this.setInstanceValue(null, ZaAccount.A_zimbraFileShareLifetime);
 											this.setInstanceValue(null,ZaAccount.A2_zimbraInternalShareLimitLifetime);
                                             this.getForm().parent.setDirty(true);
 			                            },
@@ -1578,7 +1578,7 @@ function(viewId) {
 
 ZaOctopus.cosInitMethod = function() {
 	this[ZaCos.A2_zimbraExternalShareLimitLifetime] = this.attrs[ZaCos.A_zimbraFileExternalShareLifetime] ? "TRUE" : "FALSE";
-	this[ZaCos.A2_zimbraInternalShareLimitLifetime] = this.attrs[ZaCos.A_zimbraShareLifetime] ? "TRUE" : "FALSE";
+	this[ZaCos.A2_zimbraInternalShareLimitLifetime] = this.attrs[ZaCos.A_zimbraFileShareLifetime] ? "TRUE" : "FALSE";
 }
 
 /*

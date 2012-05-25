@@ -112,7 +112,7 @@ public class ScheduleViewModel: BaseViewModel
         proc.StartInfo.Arguments +=
             ((IntroViewModel)ViewModelPtrs[(int)ViewType.INTRO]).InstallDir;
         proc.StartInfo.Arguments += @"\";
-        proc.StartInfo.Arguments += "ZimbraMigrationConsole";
+        proc.StartInfo.Arguments += "ZimbraMigrationConsole.exe";
         proc.StartInfo.Arguments += @"\";
         proc.StartInfo.Arguments += @"""";
         proc.StartInfo.Arguments += " ";
@@ -268,7 +268,8 @@ public class ScheduleViewModel: BaseViewModel
 
                         }
 
-                        if (zimbraAPI.CreateAccount(accountName, displayName, givenName, sn, zfp, defaultPWD, cosID) == 0)
+                        bool mustChangePW = usersViewModel.UsersList[i].MustChangePassword;
+                        if (zimbraAPI.CreateAccount(accountName, displayName, givenName, sn, zfp, defaultPWD, mustChangePW, cosID) == 0)
                         {
                             tempMessage += string.Format("{0} Provisioned", userName) + "\n";
                             // MessageBox.Show(string.Format("{0} Provisioned", userName), "Zimbra Migration", MessageBoxButton.OK, MessageBoxImage.Information);

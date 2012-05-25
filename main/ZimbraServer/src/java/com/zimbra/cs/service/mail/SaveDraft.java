@@ -112,7 +112,7 @@ public class SaveDraft extends MailDocumentHandler {
                 Date d = new Date();
                 mm.setSentDate(d);
                 date = d.getTime();
-            } catch (Exception e) { }
+            } catch (Exception ignored) { }
 
             try {
                 mm.saveChanges();
@@ -122,15 +122,17 @@ public class SaveDraft extends MailDocumentHandler {
 
             ParsedMessage pm = new ParsedMessage(mm, date, mbox.attachmentsIndexingEnabled());
 
-            Account acct = mbox.getAccount();
-            long acctQuota = AccountUtil.getEffectiveQuota(acct);
-            if (autoSendTime != 0 && acct.isMailAllowReceiveButNotSendWhenOverQuota() && acctQuota != 0 && mbox.getSize() > acctQuota) {
-                throw MailServiceException.QUOTA_EXCEEDED(acctQuota);
-            }
-            Domain domain = Provisioning.getInstance().getDomain(acct);
-            if (domain != null &&
-                    AccountUtil.isOverAggregateQuota(domain) && !AccountUtil.isSendAllowedOverAggregateQuota(domain)) {
-                throw MailServiceException.DOMAIN_QUOTA_EXCEEDED(domain.getDomainAggregateQuota());
+            if (autoSendTime != 0) {
+                Account acct = mbox.getAccount();
+                long acctQuota = AccountUtil.getEffectiveQuota(acct);
+                if (acct.isMailAllowReceiveButNotSendWhenOverQuota() && acctQuota != 0 && mbox.getSize() > acctQuota) {
+                    throw MailServiceException.QUOTA_EXCEEDED(acctQuota);
+                }
+                Domain domain = Provisioning.getInstance().getDomain(acct);
+                if (domain != null && !AccountUtil.isSendAllowedOverAggregateQuota(domain) &&
+                        AccountUtil.isOverAggregateQuota(domain)) {
+                    throw MailServiceException.DOMAIN_QUOTA_EXCEEDED(domain.getDomainAggregateQuota());
+                }
             }
 
             String origid = iidOrigid == null ? null : iidOrigid.toString(account == null ?
