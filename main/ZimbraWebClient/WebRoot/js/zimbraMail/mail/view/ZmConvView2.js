@@ -534,6 +534,10 @@ function(ev) {
 	if (!msg) { return; }
 
 	if (ev.event == ZmEvent.E_CREATE && this._item && (msg.cid == this._item.id) && !msg.isDraft) {
+		var index = ev.getDetail("sortIndex");
+		var replyViewIndex = this.getReplyViewIndex();
+		// bump index by one if reply view comes before it
+		index = (replyViewIndex != -1 && index > replyViewIndex) ? index + 1 : index; 
 		var params = {
 			parent:			this,
 			parentElement:	document.getElementById(this._messagesDivId),
@@ -541,7 +545,7 @@ function(ev) {
 			actionsMenu:	this._actionsMenu,
 			forceCollapse:	true,
 			forceExpand:	msg.isSent,	// trumps forceCollapse
-			index:			ev.getDetail("sortIndex")
+			index:			index
 		}
 		this._renderMessage(msg, params);
 		var msgView = this._msgViews[msg.id];
@@ -593,13 +597,30 @@ function(msg, msgView, op) {
  */
 ZmConvView2.prototype.getMsgViewIndex =
 function(msgView) {
+
 	var el = msgView && msgView.getHtmlElement();
-	for (var i = 0; i < this._messagesDiv.childNodes.length; i++) {
-		if (this._messagesDiv.childNodes[i] == el) {
-			return i;
+	if (msgView && this._messagesDiv) {
+		for (var i = 0; i < this._messagesDiv.childNodes.length; i++) {
+			if (this._messagesDiv.childNodes[i] == el) {
+				return i;
+			}
 		}
 	}
-	return null;
+	return -1;
+};
+
+ZmConvView2.prototype.getReplyViewIndex =
+function(msgView) {
+
+	if (this._messagesDiv && this._replyView) {
+		var children = this._messagesDiv.childNodes;
+		for (var i = 0; i < children.length; i++) {
+			if (children[i].id == this._replyView._htmlElId) {
+				return i;
+			}
+		}
+	}
+	return -1;
 };
 
 ZmConvView2.prototype.getController = function() {
@@ -671,7 +692,8 @@ function(msg, msgView, op) {
 	Dwt.setVisible(this._replyCcDiv, gotCc);
 
 	var index = this._convView.getMsgViewIndex(msgView);
-	this.reparentHtmlElement(this._convView._messagesDiv, (index != null) ? index + 1 : index);
+	index = this._index = (index != -1) ? index + 1 : null;
+	this.reparentHtmlElement(this._convView._messagesDiv, index);
 	msgView.addClassName("Reply");
 
 	// Argghhh - it's very messed up that we have to go through a zimlet to create bubbles
@@ -1124,19 +1146,15 @@ function(msg, container, callback, index) {
 		// invite header
 		bodyEl.insertBefore(this._headerElement.parentNode, bodyEl.firstChild);
 	}
-
-	if (!this._beenHere) {
-		this._addLine();
-	}
 	
 	this._beenHere = true;
 };
 
 ZmMailMsgCapsuleView.prototype._addLine =
 function() {
-	var hr = document.createElement("hr");
-	hr.className = "separator";
-	this.getHtmlElement().appendChild(hr);
+	var div = document.createElement("div");
+	div.className = "separator";
+	this.getHtmlElement().appendChild(div);
 };
 
 ZmMailMsgCapsuleView.prototype._getBodyContent =
@@ -1536,7 +1554,6 @@ function(ev) {
 ZmMailMsgCapsuleView.prototype._changeFolderName = 
 function(oldFolderId) {
 
-	this._header._setFolderIcon();
 	var msg = this._msg;
 	var folder = appCtxt.getById(msg.folderId);
 	if (folder && (folder.nId == ZmFolder.ID_TRASH || oldFolderId == ZmFolder.ID_TRASH)) {
@@ -1632,7 +1649,6 @@ function(state, force) {
 
 	var folder = appCtxt.getById(msg.folderId);
 	msg.showImages = msg.showImages || (folder && folder.isFeed());
-	this._folderCellId = id + "_folderCell";
 	this._idToAddr = {};
 
 	this._dateCellId = id + "_dateCell";
@@ -1661,28 +1677,8 @@ function(state, force) {
 		html = AjxTemplate.expand("mail.Message#Conv2MsgHeader-collapsed", subs);
 	}
 	else {
-		var folder = this._msg.folderId && appCtxt.getById(this._msg.folderId);
-		if (folder) {
-			var title = this._browserToolTip ? "title='" + folder.getName() + "'" : "";
-			var folderIcon = AjxImg.getImageHtml(folder.getIconWithColor(), null, title);
-			if (ai.addressTypes[0]) {
-				ai.participants[ai.addressTypes[0]].folderIcon = folderIcon;
-				ai.participants[ai.addressTypes[0]].folderCellId = this._folderCellId;
-			}
-			else {
-				ai.addressTypes.push(AjxEmailAddress.TO);
-				ai.participants[AjxEmailAddress.TO] = {
-					prefix:			"",
-					partStr:		"",
-					folderIcon:		folderIcon,
-					folderCellId:	this._folderCellId
-				};
-			}
-		}
-		var hdrTableId = this._msgView._hdrTableId = id + "_hdrTable";
-		
 		subs = {
-			hdrTableId:		hdrTableId,
+			hdrTableId:		this._msgView._hdrTableId = id + "_hdrTable",
 			readCellId:		this._readCellId,
 			sentBy:			ai.sentBy,
 			sentByAddr:		ai.sentByAddr,
@@ -1723,11 +1719,7 @@ function(ev) {
 	if (el && el.id) {
 		var id = el.id;
 		if (!id) { return ""; }
-		if (id == this._folderCellId) {
-			var folder = this._msg.folderId && appCtxt.getById(this._msg.folderId);
-			return folder && folder.getName();
-		}
-		else if (id == this._dateCellId) {
+		if (id == this._dateCellId) {
 			return this._fullDateString;
 		}
 		else {
@@ -1860,15 +1852,5 @@ function(ev) {
 	var msg = ev.dwtObj && ev.dwtObj.parent && ev.dwtObj.parent._msg;
 	if (msg) {
 		AjxDispatcher.run("GetMsgController", msg && msg.nId).show(msg, this._controller, null, true);
-	}
-};
-
-ZmMailMsgCapsuleViewHeader.prototype._setFolderIcon =
-function() {
-	var cell = document.getElementById(this._folderCellId);
-	var folder = this._msg.folderId && appCtxt.getById(this._msg.folderId);
-	if (cell && folder) {
-		AjxImg.setImage(cell, folder.getIconWithColor());
-		cell.title = folder.getName();
 	}
 };
