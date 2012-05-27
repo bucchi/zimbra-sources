@@ -11,11 +11,7 @@ TMPDIR	:= tmp
 BUILD_PLATFORM ?= $(shell sh $(P4_ROOT)/ZimbraBuild/rpmconf/Build/get_plat_tag.sh)
 PERL_TGZ_DEST_DIR := $(P4_ROOT)/ThirdPartyBuilds/$(BUILD_PLATFORM)/perl
 PERL_BIN_TGZ_DEST := $(PERL_TGZ_DEST_DIR)/perlbin.tgz
-ifndef OCTOPUS
-	PERL_TGZ_DEST	:= $(PERL_TGZ_DEST_DIR)/perllib.tgz
-else
-	PERL_TGZ_DEST	:= $(PERL_TGZ_DEST_DIR)/perllib-octopus.tgz
-endif
+PERL_TGZ_DEST	:= $(PERL_TGZ_DEST_DIR)/perllib.tgz
 
 ifeq ($(BUILD_PLATFORM), )
         BUILD_PLATFORM := "UNKNOWN"
@@ -204,7 +200,6 @@ PERL_LIBS 	:= \
 	S/SB/SBECK/Date-Manip-5.56.tar.gz \
 	Time::HiRes \
 	Convert::ASN1 \
-	M/MA/MARSCHAP/perl-ldap-0.44.tar.gz \
 	Unix::Syslog \
 	Parallel::ForkManager \
 	Package::Constants \
@@ -275,6 +270,9 @@ XML_PARSER := \
 
 NET_SERVER := \
 	Net-Server-0.99
+
+PERL_LDAP := \
+	perl-ldap-0.44
 
 DBD_PERL_LIBS 	:= \
 	DBD-mysql-4.020
@@ -347,6 +345,16 @@ build:
 		if [ $$? -ne 0 ]; then  echo "FAILED.";  else  echo "done.";  fi \
 	done
 	
+	@for lib in $(PERL_LDAP); do \
+		echo -n "Compiling perl lib $$lib ..."; \
+		cp $(PERL_ROOT)/$$lib.tar.gz $(TMPDIR); \
+		(cd $(TMPDIR); tar xfz $$lib.tar.gz; cd $$lib; \
+		patch -g0 -N -p1 < $(PERL_ROOT)/patches/net-ldap-ipv6.patch; \
+		$(PERL) -I$(DEST_LIB_DIR) Makefile.PL PREFIX=$(DEST_DIR) LIB=$(DEST_LIB_DIR); \
+		$(MAKE); $(MAKE) install;) >>$(LOGFILE) 2>&1; \
+		if [ $$? -ne 0 ]; then  echo "FAILED.";  else  echo "done.";  fi \
+	done
+	
 	@for lib in $(NET_SERVER); do \
 		echo -n "Compiling perl lib $$lib ..."; \
 		cp $(PERL_ROOT)/$$lib.tar.gz $(TMPDIR); \
@@ -383,7 +391,6 @@ build:
 		if [ $$? -ne 0 ]; then echo "FAILED."; else echo "done."; fi \
 	done
 
-ifndef OCTOPUS
 	@for lib in $(BDB_PERL_LIBS); do \
 		echo -n "Compiling perl lib $$lib ..."; \
 		cp $(PERL_ROOT)/$$lib.tar.gz $(TMPDIR); \
@@ -398,7 +405,6 @@ ifndef OCTOPUS
 		LD_RUN_PATH=$(ZIMBRA_HOME)/$(BDB_LIB_DIR) DB_FILE_INCLUDE=$(BDB_INCLUDE) DB_FILE_LIB=$(BDB_LIB_DIR) $(DB_FILE_ARGS) $(PERL) -I$(DEST_LIB_DIR) -MCPAN -e "force (\"install\", \"$$lib\")" >> $(LOGFILE) 2>&1; \
 		if [ $$? -ne 0 ]; then  echo "FAILED.";  else  echo "done.";  fi \
 	done
-endif
 
 	@for lib in $(DBD_PERL_LIBS); do \
 		echo -n "Compiling perl lib $$lib ..."; \
@@ -427,7 +433,6 @@ endif
 		if [ $$? -ne 0 ]; then  echo "FAILED.";  else  echo "done.";  fi \
 	done
 
-ifndef OCTOPUS
 	@for lib in $(SA_PERL_LIBS); do \
 		echo -n "Compiling perl lib $$lib" ...; \
 		cp $(PERL_ROOT)/$$lib.tar.gz $(TMPDIR); \
@@ -438,7 +443,6 @@ ifndef OCTOPUS
 			rm -rf $(DEST_DIR)/opt;) >> $(LOGFILE) 2>&1; \
 		if [ $$? -ne 0 ]; then  echo "FAILED.";  else  echo "done.";  fi \
 	done
-endif
 
 	@for lib in $(SWATCH); do \
 		echo -n "Compiling perl lib $$lib ..."; \
@@ -453,23 +457,17 @@ endif
 
 check:
 	@echo "Verifying perl module build...";
-ifndef OCTOPUS
 	$(PERL_ROOT)/zmcheckbuiltmodules.pl >> $(LOGFILE) 2>&1;
-else
-	$(PERL_ROOT)/zmcheckbuiltmodules-octopus.pl >> $(LOGFILE) 2>&1;
-endif
 
 tarball:
 	@echo -n "Creating $(PERL_TGZ_DEST)..."; \
 	(cd $(DEST_LIB_DIR); rm -f i386-linux-thread-multi/goferperf.pl; \
 	tar czf $(PERL_TGZ_DEST) .); \
 	if [ $$? -ne 0 ]; then  echo "FAILED.";  else  echo "done.";  fi
-ifndef OCTOPUS
 	@echo -n "Creating $(PERL_BIN_TGZ_DEST)..."; \
 	(cd $(DEST_BIN_DIR); \
 	tar cfz $(PERL_BIN_TGZ_DEST) sa-compile sa-learn sa-update spamassassin spamc spamd); \
 	if [ $$? -ne 0 ]; then  echo "FAILED.";  else  echo "done.";  fi
-endif
 	chmod -R a+w $(PERL_TGZ_DEST_DIR)/*
 
 $(PERL_TGZ_DEST_DIR):
