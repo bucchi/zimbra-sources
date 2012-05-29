@@ -31,7 +31,7 @@ import org.codehaus.jackson.annotate.JacksonAnnotation;
  * A JSON element added via {@code addElement} is always serialized as an array, because there could be
  * further {@code addElement} calls with the same element name.  On the other hand, a JSON element added via
  * <br />{@code addUniqueElement}<br />
- * won't be serialized as an array as their is an implicit assumption that there will be only one element with that name.
+ * won't be serialized as an array as there is an implicit assumption that there will be only one element with that name.
  * This marker goes with {@link XmlElement} or {@link XmlElementRef} annotations to flag that they should be
  * serialized in the same way as a {@code JSONElement} which has been added via {@code addUniqueElement}
  *
