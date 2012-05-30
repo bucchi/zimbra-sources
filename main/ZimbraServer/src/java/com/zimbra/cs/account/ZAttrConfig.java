@@ -42,7 +42,7 @@ public abstract class ZAttrConfig extends Entry {
 
     ///// BEGIN-AUTO-GEN-REPLACE
 
-    /* build: 8.0.0_BETA1_1111 pshao 20120518-1322 */
+    /* build: 8.0.0_BETA1_1111 administrator 20120529-1036 */
 
     /**
      * RFC2256: descriptive information
@@ -20208,6 +20208,78 @@ public abstract class ZAttrConfig extends Entry {
     }
 
     /**
+     * whether message channel servie is enabled on this server
+     *
+     * @return zimbraMessageChannelEnabled, or true if unset
+     *
+     * @since ZCS 8.0.0
+     */
+    @ZAttr(id=1417)
+    public boolean isMessageChannelEnabled() {
+        return getBooleanAttr(Provisioning.A_zimbraMessageChannelEnabled, true);
+    }
+
+    /**
+     * whether message channel servie is enabled on this server
+     *
+     * @param zimbraMessageChannelEnabled new value
+     * @throws com.zimbra.common.service.ServiceException if error during update
+     *
+     * @since ZCS 8.0.0
+     */
+    @ZAttr(id=1417)
+    public void setMessageChannelEnabled(boolean zimbraMessageChannelEnabled) throws com.zimbra.common.service.ServiceException {
+        HashMap<String,Object> attrs = new HashMap<String,Object>();
+        attrs.put(Provisioning.A_zimbraMessageChannelEnabled, zimbraMessageChannelEnabled ? Provisioning.TRUE : Provisioning.FALSE);
+        getProvisioning().modifyAttrs(this, attrs);
+    }
+
+    /**
+     * whether message channel servie is enabled on this server
+     *
+     * @param zimbraMessageChannelEnabled new value
+     * @param attrs existing map to populate, or null to create a new map
+     * @return populated map to pass into Provisioning.modifyAttrs
+     *
+     * @since ZCS 8.0.0
+     */
+    @ZAttr(id=1417)
+    public Map<String,Object> setMessageChannelEnabled(boolean zimbraMessageChannelEnabled, Map<String,Object> attrs) {
+        if (attrs == null) attrs = new HashMap<String,Object>();
+        attrs.put(Provisioning.A_zimbraMessageChannelEnabled, zimbraMessageChannelEnabled ? Provisioning.TRUE : Provisioning.FALSE);
+        return attrs;
+    }
+
+    /**
+     * whether message channel servie is enabled on this server
+     *
+     * @throws com.zimbra.common.service.ServiceException if error during update
+     *
+     * @since ZCS 8.0.0
+     */
+    @ZAttr(id=1417)
+    public void unsetMessageChannelEnabled() throws com.zimbra.common.service.ServiceException {
+        HashMap<String,Object> attrs = new HashMap<String,Object>();
+        attrs.put(Provisioning.A_zimbraMessageChannelEnabled, "");
+        getProvisioning().modifyAttrs(this, attrs);
+    }
+
+    /**
+     * whether message channel servie is enabled on this server
+     *
+     * @param attrs existing map to populate, or null to create a new map
+     * @return populated map to pass into Provisioning.modifyAttrs
+     *
+     * @since ZCS 8.0.0
+     */
+    @ZAttr(id=1417)
+    public Map<String,Object> unsetMessageChannelEnabled(Map<String,Object> attrs) {
+        if (attrs == null) attrs = new HashMap<String,Object>();
+        attrs.put(Provisioning.A_zimbraMessageChannelEnabled, "");
+        return attrs;
+    }
+
+    /**
      * port number on which message channel should listen
      *
      * @return zimbraMessageChannelPort, or 7285 if unset
@@ -30033,7 +30105,7 @@ public abstract class ZAttrConfig extends Entry {
     /**
      * Log level for NGINX Proxy error log
      *
-     * <p>Valid values: [warn, debug, error, notice, crit, info]
+     * <p>Valid values: [warn, debug_http, error, crit, debug_mail, debug, debug_zimbra, notice, debug_core, info]
      *
      * @return zimbraReverseProxyLogLevel, or ZAttrProvisioning.ReverseProxyLogLevel.info if unset and/or has invalid value
      *
@@ -30047,7 +30119,7 @@ public abstract class ZAttrConfig extends Entry {
     /**
      * Log level for NGINX Proxy error log
      *
-     * <p>Valid values: [warn, debug, error, notice, crit, info]
+     * <p>Valid values: [warn, debug_http, error, crit, debug_mail, debug, debug_zimbra, notice, debug_core, info]
      *
      * @return zimbraReverseProxyLogLevel, or "info" if unset
      *
@@ -30061,7 +30133,7 @@ public abstract class ZAttrConfig extends Entry {
     /**
      * Log level for NGINX Proxy error log
      *
-     * <p>Valid values: [warn, debug, error, notice, crit, info]
+     * <p>Valid values: [warn, debug_http, error, crit, debug_mail, debug, debug_zimbra, notice, debug_core, info]
      *
      * @param zimbraReverseProxyLogLevel new value
      * @throws com.zimbra.common.service.ServiceException if error during update
@@ -30078,7 +30150,7 @@ public abstract class ZAttrConfig extends Entry {
     /**
      * Log level for NGINX Proxy error log
      *
-     * <p>Valid values: [warn, debug, error, notice, crit, info]
+     * <p>Valid values: [warn, debug_http, error, crit, debug_mail, debug, debug_zimbra, notice, debug_core, info]
      *
      * @param zimbraReverseProxyLogLevel new value
      * @param attrs existing map to populate, or null to create a new map
@@ -30096,7 +30168,7 @@ public abstract class ZAttrConfig extends Entry {
     /**
      * Log level for NGINX Proxy error log
      *
-     * <p>Valid values: [warn, debug, error, notice, crit, info]
+     * <p>Valid values: [warn, debug_http, error, crit, debug_mail, debug, debug_zimbra, notice, debug_core, info]
      *
      * @param zimbraReverseProxyLogLevel new value
      * @throws com.zimbra.common.service.ServiceException if error during update
@@ -30113,7 +30185,7 @@ public abstract class ZAttrConfig extends Entry {
     /**
      * Log level for NGINX Proxy error log
      *
-     * <p>Valid values: [warn, debug, error, notice, crit, info]
+     * <p>Valid values: [warn, debug_http, error, crit, debug_mail, debug, debug_zimbra, notice, debug_core, info]
      *
      * @param zimbraReverseProxyLogLevel new value
      * @param attrs existing map to populate, or null to create a new map
@@ -30131,7 +30203,7 @@ public abstract class ZAttrConfig extends Entry {
     /**
      * Log level for NGINX Proxy error log
      *
-     * <p>Valid values: [warn, debug, error, notice, crit, info]
+     * <p>Valid values: [warn, debug_http, error, crit, debug_mail, debug, debug_zimbra, notice, debug_core, info]
      *
      * @throws com.zimbra.common.service.ServiceException if error during update
      *
@@ -30147,7 +30219,7 @@ public abstract class ZAttrConfig extends Entry {
     /**
      * Log level for NGINX Proxy error log
      *
-     * <p>Valid values: [warn, debug, error, notice, crit, info]
+     * <p>Valid values: [warn, debug_http, error, crit, debug_mail, debug, debug_zimbra, notice, debug_core, info]
      *
      * @param attrs existing map to populate, or null to create a new map
      * @return populated map to pass into Provisioning.modifyAttrs
@@ -31778,13 +31850,13 @@ public abstract class ZAttrConfig extends Entry {
      * servers for web and mail proxy. Note admin console proxy always use
      * https no matter how this attr is set.
      *
-     * @return zimbraReverseProxySSLToUpstreamEnabled, or false if unset
+     * @return zimbraReverseProxySSLToUpstreamEnabled, or true if unset
      *
      * @since ZCS 8.0.0
      */
     @ZAttr(id=1360)
     public boolean isReverseProxySSLToUpstreamEnabled() {
-        return getBooleanAttr(Provisioning.A_zimbraReverseProxySSLToUpstreamEnabled, false);
+        return getBooleanAttr(Provisioning.A_zimbraReverseProxySSLToUpstreamEnabled, true);
     }
 
     /**

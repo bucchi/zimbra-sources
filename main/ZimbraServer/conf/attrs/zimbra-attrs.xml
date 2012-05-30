@@ -3776,7 +3776,7 @@ TODO - add support for multi-line values in globalConfigValue and defaultCOSValu
   <desc>NGINX reverse proxy pop3 capabilities</desc>
 </attr>
 
-<attr id="723" name="zimbraReverseProxyLogLevel" type="enum" value="debug,info,notice,warn,error,crit" cardinality="single" optionalIn="globalConfig,server" flags="serverInherited" requiresRestart="nginxproxy" since="5.0.10">
+<attr id="723" name="zimbraReverseProxyLogLevel" type="enum" value="debug,info,notice,warn,error,crit,debug_http,debug_mail,debug_core,debug_zimbra" cardinality="single" optionalIn="globalConfig,server" flags="serverInherited" requiresRestart="nginxproxy" since="5.0.10">
   <globalConfigValue>info</globalConfigValue>
   <desc>Log level for NGINX Proxy error log</desc>
 </attr>
@@ -7057,6 +7057,11 @@ TODO: delete them permanently from here
   <globalConfigValue>Android:(.*)Android(.*)</globalConfigValue>
   <globalConfigValue>SyncClient:(.*)\\((.*)\\)$</globalConfigValue>
   <desc>Regex for identifying client types</desc>
+</attr>
+
+<attr id="1417" name="zimbraMessageChannelEnabled" type="boolean" cardinality="single" optionalIn="globalConfig,server" flags="serverInherited" requiresRestart="mailbox" since="8.0.0">
+  <globalConfigValue>TRUE</globalConfigValue>
+  <desc>whether message channel servie is enabled on this server</desc>
 </attr>
 
 </attrs>

@@ -42,10 +42,9 @@ import javax.xml.bind.annotation.XmlType;
     testDlInfo.class,
     testUcServiceInfo.class,
     testServerInfo.class,
-    testAccountInfo.class,
     testCalendarResourceInfo.class,
-    testZimletInfo.class,
-    testCosInfo.class
+    testAccountInfo.class,
+    testZimletInfo.class
 })
 public class testAdminObjectInfo {
 
