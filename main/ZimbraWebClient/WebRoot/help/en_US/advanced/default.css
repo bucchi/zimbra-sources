@@ -1,19 +1,18 @@
-﻿/*Created with Adobe RoboHelp 8.*/
+﻿/*Created with Adobe RoboHelp 9.*/
 BODY {
 	font-family: Arial;
 	background-color: #ffffff;
 }
 H1 {
 	font-weight: bold;
-	color: #000080;
 	font-size: 14pt;
+	color: #000000;
 }
 LI.H1 {
 	font-weight: bold;
 	color: #000080;
 	font-size: 14pt;
 }
-
 H2 {
 	font-weight: bold;
 	color: #000080;
@@ -24,7 +23,6 @@ LI.H2 {
 	color: #000080;
 	font-size: 12pt;
 }
-
 H3 {
 	font-weight: bold;
 	color: #000080;
@@ -35,7 +33,6 @@ LI.H3 {
 	color: #000080;
 	font-size: 11pt;
 }
-
 H4 {
 	font-weight: bold;
 	font-size: 11pt;
@@ -45,7 +42,6 @@ LI.H4 {
 	font-weight: bold;
 	font-size: 11pt;
 }
-
 H5 {
 	font-weight: bold;
 	font-size: 10.0pt;
@@ -54,7 +50,6 @@ LI.H5 {
 	font-weight: bold;
 	font-size: 10.0pt;
 }
-
 H6 {
 	font-weight: bold;
 	background-color: Transparent;
@@ -68,7 +63,6 @@ LI.H6 {
 	font-size: 10pt;
 	color: #000080;
 }
-
 P {
 	margin-top: 0pt;
 	font-size: 10pt;
@@ -77,7 +71,6 @@ P {
 LI.P {
 	font-size: 10pt;
 }
-
 A.expandspot {
 	cursor: hand;
 	font-weight: bold;
@@ -113,8 +106,8 @@ OL,
 UL {
 	margin-top: 0px;
 	margin-bottom: 0px;
-	font-size: 11pt;
 	font-family: Arial, sans-serif;
+	font-size: 10pt;
 }
 P.Reviewstatements {
 	color: #ff0000;
@@ -124,7 +117,6 @@ P.Reviewstatements {
 LI.P-Reviewstatements {
 	color: #ff0000;
 }
-
 SPAN.REVIEWFOLLOWUP {
 	font-style: italic;
 	font-weight: normal;
@@ -156,6 +148,6 @@ P.note {
 }
 LI.P-note {
 }
-
 li.Style1 {
+	font-size: 10pt;
 }

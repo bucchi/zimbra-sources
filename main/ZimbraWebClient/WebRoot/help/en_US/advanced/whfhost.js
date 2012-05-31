@@ -1,5 +1,5 @@
 ﻿//	WebHelp 5.10.003
-var gsNoTopics="No Topics Found.";
+var gsNoTopics="No topics found";
 var gsLoadXmlFailed="Error: Failed to load xml file.";
 var gsInitDatabaseFailed="Error: Failed to initialize database.";
 var gsNotAllDatabaseInited="Warning: Not all databases have been loaded. Some topics will not be found.";

@@ -1,27 +1,19 @@
 ﻿<?xml version='1.0' encoding='utf-8' ?>
-<!-- saved from url=(0014)about:internet -->
 <tocdata>
-<item name="About scheduling appointments" url="Calendar/About_Appointments,_Meetings_and_Events.htm" />
-<item name="Using the scheduling tool to view attendee and location availability" url="Calendar/Using_the_Schedule_tab_when_creating_a_appointment.htm" />
-<item name="Scheduling an appointment" url="Calendar/Scheduling_meetings.htm" />
-<item name="Scheduling all-day events" url="Calendar/Scheduling_All_Day_events.htm" />
-<item name="Creating recurring appointments" url="Calendar/Creating_recurring_appointments.htm" />
-<item name="Creating an appointment from an existing appointment" url="Calendar/Creating_an_appointment_from_an_existing_appointment.htm" />
-<item name="Turning a message and contacts into meeting requests" url="Calendar/Turning_a_message_into_a_meeting_request.htm" />
-<item name="Using QuickAdd to create an appointment" url="Calendar/Using_QuickAdd_to_Create_an_Appointment.htm" />
-<item name="Identifying who can invite you to meetings" url="Calendar/Identifying_who_can_invite_you_to_meetings.htm" />
-<item name="Receiving a permission denied message" url="Calendar/Receiving_a_permission_denied_message.htm" />
-<item name="Setting permissions to see your free/busy information" url="Calendar/Setting_permissions_to_see_your_free_busy_information.htm" />
-<item name="Sending your free/busy status to others" url="Userspecific/Sending_your_free_busy_status_to_others.htm" />
-<item name="See free/busy times" url="Calendar/Seeing_free_busy_times.htm" />
-<item name="Marking an appointment as private" url="Calendar/Marking_an_appointment_as_private.htm" />
-<item name="Scheduling resources" url="Calendar/Scheduling_Resources.htm" />
-<item name="Change meeting details on your calendar" url="Calendar/editing_meetings_on_your_calendar.htm" />
-<item name="Responding to a meeting invitation" url="Calendar/Responding_to_an_invitation.htm" />
-<item name="Forwarding an appointment" url="Calendar/Forwarding_an_appointment.htm" />
-<item name="Replying from an appointment on my calendar" url="Calendar/Replying_from_an_appointment_on_my_calendar.htm" />
-<item name="Changing a meeting you organized" url="Calendar/Changing_a_meeting_.htm" />
-<item name="Changing recurring appointments" url="Calendar/Deleting_recurring_appointments.htm" />
-<item name="Deleting an appointment" url="Calendar/Deleting_an_appointment.htm" />
+<item name="Working with Calendars" url="zwc_help_files/7_calendars/working_with_calendars.htm" />
+<item name="Create a Calendar" url="zwc_help_files/7_calendars/create_a_calendar.htm" />
+<item name="Add Color to a Calendar" url="zwc_help_files/7_calendars/add_color_to_a_calendar.htm" />
+<item name="Setting your Calendar preferences" url="zwc_help_files/7_calendars/setting_your_calendar_preferences.htm" />
+<item name="Other Calendar Preferences to Configure" url="zwc_help_files/7_calendars/other_calendar_preferences_to_configure.htm" />
+<item name="View Multiple Calendars" url="zwc_help_files/7_calendars/view_multiple_calendars.htm" />
+<item name="Displaying All Day Appointments in Your Work Week View" url="zwc_help_files/7_calendars/displaying_all_day_appointments_in_your_work_week_view.htm" />
+<item name="Viewing Calendar Activities in a List" url="zwc_help_files/7_calendars/viewing_calendar_activities_in_a_list.htm" />
+<item name="Adding an iCalendar From an Email Message" url="zwc_help_files/7_calendars/adding_an_icalendar_from_an_email_message.htm" />
+<item name="Adding External Calendars" url="zwc_help_files/7_calendars/adding_external_calendars.htm" />
+<item name="Organize your Calendars into Groups" url="zwc_help_files/7_calendars/organize_your_calendars_into_groups.htm" />
+<item name="Print a Calendar" url="zwc_help_files/7_calendars/print_a_calendar.htm" />
+<item name="Delete a Calendar" url="zwc_help_files/7_calendars/delete_a_calendar.htm" />
+<item name="Import Your iCal Calendar" url="zwc_help_files/7_calendars/import_your_ical_calendar.htm" />
+<item name="Export Your iCal Calendar" url="zwc_help_files/7_calendars/export_your_ical_calendar.htm" />
 
 </tocdata>

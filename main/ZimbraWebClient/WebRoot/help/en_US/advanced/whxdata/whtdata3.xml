@@ -1,17 +1,17 @@
 ﻿<?xml version='1.0' encoding='utf-8' ?>
-<!-- saved from url=(0014)about:internet -->
 <tocdata>
-<item name="Using search" url="Search/using_the_search_feature.htm" />
-<item name="Quick search" url="Search/Quick_search.htm" />
-<item name="Using advanced search" url="Search/building_search_queries.htm" />
-<item name="Searching for messages" url="Search/_search__vs.__search_for_.htm" />
-<item name="Searching for messages sent to specific recipients" url="Search/Searching_for_Recipients_.htm" />
-<item name="Searching for messages sent to or received from a contact name" url="Search/Searching_for_messages_sent_to_or_received_from_a_contact_name.htm" />
-<item name="Searching for messages sent to or from the sender" url="Search/Searching_for_messages_sent_to_or_from_the_sender.htm" />
-<item name="Using * as a wildcard in search" url="Search/Using_Wildcard_in_Search.htm" />
-<item name="Saving search queries" url="Search/saving_search_queries.htm" />
-<item name="Query language description" url="Search/query_language_description.htm" />
-<item name="And versus Or type searches" url="Search/and_vs_or_searches.htm" />
-<item name="Search examples" url="Search/search_examples.htm" />
+<item name="Using Task Lists" url="zwc_help_files/9_tasks/using_task_lists.htm" />
+<item name="Creating a Task List" url="zwc_help_files/9_tasks/creating_a_task_list.htm" />
+<item name="Creating a Task" url="zwc_help_files/9_tasks/creating_a_task.htm" />
+<item name="Create a Detailed Task" url="zwc_help_files/9_tasks/create_a_detailed_task.htm" />
+<item name="Update a Task" url="zwc_help_files/9_tasks/update_a_task.htm" />
+<item name="Filter Tasks by Status" url="zwc_help_files/9_tasks/filter_tasks_by_status.htm" />
+<item name="Sorting Tasks within a Task List" url="zwc_help_files/9_tasks/sorting_tasks_within_a_task_list.htm" />
+<item name="Moving a Task to Another List" url="zwc_help_files/9_tasks/moving_a_task_to_another_list.htm" />
+<item name="Mark a Task Complete" url="zwc_help_files/9_tasks/mark_a_task_complete.htm" />
+<item name="Printing a Task or Task List" url="zwc_help_files/9_tasks/printing_a_task_or_task_list.htm" />
+<item name="Importing a Task Lists" url="zwc_help_files/9_tasks/importing_a_task_lists.htm" />
+<item name="Exporting a Task List" url="zwc_help_files/9_tasks/exporting_a_task_list.htm" />
+<item name="Deleting a Task or Task List" url="zwc_help_files/9_tasks/deleting_a_task_or_task_list.htm" />
 
 </tocdata>

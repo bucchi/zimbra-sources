@@ -1,322 +1,238 @@
 ﻿<?xml version='1.0' encoding='utf-8' ?>
-<!-- saved from url=(0014)about:internet -->
 <indexdata>
-<key name="accessing external accounts" >
-  <topic name="Accessing your external accounts" url="Userspecific/Managing_your_POP_Accounts.htm" />
+<key name="accept share" >
+  <topic name="Accepting an Invitation to Share Items" url="zwc_help_files/13_sharing/accepting_an_invitation_to_share_items.htm" />
 </key>
-<key name="account identities" >
-  <topic name="Managing your account identities" url="Userspecific/Mail_Identities.htm" />
+<key name="access privileges" >
+  <topic name="Access Privileges" url="zwc_help_files/13_sharing/access_privileges.htm" />
 </key>
-<key name="account, export" >
-  <topic name="Backing up the Content of Your Account" url="managing_your_account/Backing_up_the_Content_of_Your_Account.htm" />
+<key name="activity stream" >
+  <topic name="Moving Less Important Mail Out of the Inbox" url="zwc_help_files/2_manage_email/moving_less_important_mail_out_of_the_inbox.htm" />
+  <topic name="Working with Email Filters" url="zwc_help_files/4_filters/working_with_email_filters.htm" />
 </key>
-<key name="account, import" >
-  <topic name="Backing up the Content of Your Account" url="managing_your_account/Backing_up_the_Content_of_Your_Account.htm" />
+<key name="activity stream folder" >
+  <topic name="Moving Less Important Mail Out of the Inbox" url="zwc_help_files/2_manage_email/moving_less_important_mail_out_of_the_inbox.htm" />
 </key>
-<key name="add signature" >
-  <topic name="Using a signature" url="Userspecific/using_a_signature.htm" />
+<key name="add" >
+  <topic name="Create a Calendar" url="zwc_help_files/7_calendars/create_a_calendar.htm" />
+  <key name="calendar" >
+    <topic name="Create a Calendar" url="zwc_help_files/7_calendars/create_a_calendar.htm" />
+  </key>
 </key>
-<key name="adding appointment information to calendar" >
-  <topic name="Responding_to_an_invitation" url="Calendar/Responding_to_an_invitation.htm" />
+<key name="add external accounts" >
+  <topic name="Accessing Your External Accounts" url="zwc_help_files/1_setting_up/accessing_your_external_accounts.htm" />
+  <topic name="Using Other Account Identities When You Send an Email" url="zwc_help_files/3_compose/using_other_account_identities_when_you_send_an_email.htm" />
 </key>
-<key name="adding certificates to Address Book" >
-  <topic name="Adding certificates to contacts in Address Book" url="smime/Adding_certificates_to_contacts_in_Address_Book.htm" />
+<key name="add external calendar" >
+  <topic name="Adding External Calendars" url="zwc_help_files/7_calendars/adding_external_calendars.htm" />
 </key>
-<key name="adding contacts" >
-  <topic name="Creating a new contact" url="Contacts/creating_a_new_contact.htm" />
+<key name="add personas" >
+  <topic name="Add Personas" url="zwc_help_files/3_compose/add_personas.htm" />
 </key>
-<key name="adding existing accounts" >
-  <topic name="Adding POP accounts" url="Userspecific/Adding_POP_accounts.htm" />
+<key name="address book" >
+  <topic name="Adding Members to a Contact Group List" url="zwc_help_files/6_address_book/adding_members_to_a_contact_group_list.htm" />
+  <topic name="Exporting an Address Book" url="zwc_help_files/6_address_book/exporting_an_address_book.htm" />
+  <topic name="Automatically Add Contacts to Emailed Contacts List" url="zwc_help_files/6_address_book/automatically_add_contacts_to_emailed_contacts_list.htm" />
+  <topic name="Importing an Address Book" url="zwc_help_files/6_address_book/importing_an_address_book.htm" />
+  <topic name="Using Address Books" url="zwc_help_files/6_address_book/using_address_books.htm" />
+  <key name="exporting" >
+    <topic name="Exporting an Address Book" url="zwc_help_files/6_address_book/exporting_an_address_book.htm" />
+  </key>
+  <key name="importing" >
+    <topic name="Importing an Address Book" url="zwc_help_files/6_address_book/importing_an_address_book.htm" />
+  </key>
 </key>
-<key name="adding tables" >
-  <topic name="Adding a table to a document" url="Documents/Adding_a_table_to_a_Wiki_Notebook_Page.htm" />
+<key name="address bubbles work" >
+  <topic name="How Address Bubbles Work" url="zwc_help_files/2_manage_email/how_address_bubbles_work.htm" />
 </key>
-<key name="adding words to my dictionary" >
-  <topic name="Using Spell Check" url="Creating_Messages/Using_Spell_Check.htm" />
+<key name="advanced search" >
+  <topic name="Performing an Advanced Search" url="zwc_help_files/12_search/performing_an_advanced_search.htm" />
 </key>
-<key name="address book sharing" >
-  <topic name="Sharing your Address Book" url="Contacts/Sharing_your_Address_Book.htm" />
+<key name="advanced search criteria" >
+  <topic name="Advanced Search Criteria" url="zwc_help_files/12_search/advanced_search_criteria.htm" />
 </key>
-<key name="address book, editing shared access" >
-  <topic name="Sharing your Address Book" url="Contacts/Sharing_your_Address_Book.htm" />
-</key>
-<key name="address book, group contacts" >
-  <topic name="Creating Group Contact Lists" url="Contacts/Creating_Group_Contact_Lists.htm" />
-</key>
-<key name="address book, removing access" >
-  <topic name="Sharing your Address Book" url="Contacts/Sharing_your_Address_Book.htm" />
-</key>
-<key name="address books, importing" >
-  <topic name="Importing Contacts" url="Contacts/Importing_Contacts.htm" />
-</key>
-<key name="address completion in mail" >
-  <topic name="Using address lookup" url="Creating_Messages/Using_address_lookup.htm" />
-</key>
-<key name="admin role in calendar" >
-  <topic name="Admin rights for shared Calendars" url="Calendar/Admin_rights_for_shared_Calendars.htm" />
+<key name="advanced web client" >
+  <topic name="Using Advanced and Standard Clients" url="zwc_help_files/1_setting_up/using_advanced_and_standard_clients.htm" />
 </key>
 <key name="alerts" >
-  <topic name="Setting up desktop alerts" url="Userspecific/Setting_up_desktop_alerts.htm" />
+  <topic name="Setting Desktop Alerts For New Email Messages" url="zwc_help_files/2_manage_email/setting_desktop_alerts_for_new_email_messages.htm" />
 </key>
-<key name="all day appointment" >
-  <topic name="Scheduling All Day events" url="Calendar/Scheduling_All_Day_events.htm" />
+<key name="all day appointments" >
+  <topic name="Displaying All Day Appointments in Your Work Week View" url="zwc_help_files/7_calendars/displaying_all_day_appointments_in_your_work_week_view.htm" />
 </key>
-<key name="appointment reminder" >
-  <topic name="Setting your user preferences" url="Userspecific/Setting_your_user_preferences.htm" />
-</key>
-<key name="appointments" >
-  <topic name="About Appointments, Meetings and Events" url="Calendar/About_Appointments,_Meetings_and_Events.htm" />
-</key>
-<key name="archiving messages" >
-  <topic name="purging messages" url="reading_mail/archiving_old_messages.htm" />
-</key>
-<key name="atom feed" >
-  <topic name="Subscribe to RSS/Atom feeds" url="Navigation_folders_and_tips/b_Subscribe_to_RSS_Atom_feeds.htm" />
-</key>
-<key name="attaching files from Briefcase" >
-  <topic name="Attaching files to a mail message" url="Creating_Messages/attaching_files_to_a_mail_message.htm" />
-</key>
-<key name="attachment file types supported" >
-  <topic name="Attachment File Types Supported" url="Creating_Messages/Attachment_File_Types_Supported.htm" />
+<key name="always show search string" >
+  <topic name="Performing an Advanced Search" url="zwc_help_files/12_search/performing_an_advanced_search.htm" />
 </key>
 <key name="attachments" >
-  <topic name="Opening file attachments" url="reading_mail/opening_file_attachments.htm" />
+  <topic name="Opening Attachments to an Email Message" url="zwc_help_files/2_manage_email/opening_attachments_to_an_email_message.htm" />
+  <topic name="Adding Attachments" url="zwc_help_files/3_compose/adding_attachments.htm" />
 </key>
-<key name="attachments not found in search" >
-  <topic name="Search Issues with Non-Western Language Attachments" url="Search/Search_Issues_with_Non-Western_Language_Attachments.htm" />
+<key name="attachments using drag" >
+  <topic name="Adding Attachments" url="zwc_help_files/3_compose/adding_attachments.htm" />
 </key>
-<key name="auto-complete addresses" >
-  <topic name="Using address lookup" url="Creating_Messages/Using_address_lookup.htm" />
+<key name="automatically add received appointments" >
+  <topic name="Automatically add received appointments to calendar." url="zwc_help_files/7_calendars/automatically_add_received_appointments_to_calendar.htm" />
+  <topic name="Responding to a Meeting Invitation" url="zwc_help_files/8_scheduling/responding_to_a_meeting_invitation.htm" />
 </key>
-<key name="automatically adding signature" >
-  <topic name="Using a signature" url="Userspecific/using_a_signature.htm" />
+<key name="basic filters" >
+  <topic name="Advanced Search Criteria" url="zwc_help_files/12_search/advanced_search_criteria.htm" />
 </key>
-<key name="automatically moving mail to a folder" >
-  <topic name="How Filtering Works" url="filters/how_filtering_works.htm" />
+<key name="briefcase" >
+  <topic name="Delete a Document from Briefcase" url="zwc_help_files/10_briefcase/delete_a_document_from_briefcase.htm" />
+  <topic name="Move Files in Briefcase" url="zwc_help_files/10_briefcase/move_files_in_briefcase.htm" />
+  <topic name="Adding Files to Your Briefcase Folders" url="zwc_help_files/10_briefcase/adding_files_to_your_briefcase_folders.htm" />
 </key>
-<key name="backup account data" >
-  <topic name="Backing up the Content of Your Account" url="managing_your_account/Backing_up_the_Content_of_Your_Account.htm" />
+<key name="CalDAV" >
+  <topic name="Adding External Calendars" url="zwc_help_files/7_calendars/adding_external_calendars.htm" />
 </key>
-<key name="black list" >
-  <topic name="Filtering Junk Mail" url="filters/Filtering_Junk_Mail.htm" />
-</key>
-<key name="blocking junk mail" >
-  <topic name="Filtering Junk Mail" url="filters/Filtering_Junk_Mail.htm" />
-</key>
-<key name="briefcase, attaching files to email" >
-  <topic name="Attaching files to a mail message" url="Creating_Messages/attaching_files_to_a_mail_message.htm" />
-</key>
-<key name="briefcase, sending files from" >
-  <topic name="Send Files from your Briefcase" url="Briefcase/Send_Files_from_your_Briefcase.htm" />
-</key>
-<key name="briefcase, sharing" >
-  <topic name="Sharing your Briefcase" url="Briefcase/Sharing_your_Briefcase.htm" />
-</key>
-<key name="browsers" >
-  <topic name="Browser use with Zimbra" url="Navigation_folders_and_tips/browser_use_with_liquid_mail.htm" />
+<key name="calendar" >
+  <topic name="Other Calendar Preferences to Configure" url="zwc_help_files/7_calendars/other_calendar_preferences_to_configure.htm" />
+  <topic name="Print a Calendar" url="zwc_help_files/7_calendars/print_a_calendar.htm" />
+  <key name="print" >
+    <topic name="Print a Calendar" url="zwc_help_files/7_calendars/print_a_calendar.htm" />
+  </key>
 </key>
 <key name="calendar preferences" >
-  <topic name="Setting your Calendar preferences" url="Userspecific/Setting_your_Calendar_preferences.htm" />
+  <topic name="Setting your Calendar preferences" url="zwc_help_files/7_calendars/setting_your_calendar_preferences.htm" />
 </key>
-<key name="calendar view" >
-  <topic name="About Zimbra Calendar" url="Calendar/About_Calendar.htm" />
-  <topic name="Calendar_Views" url="Calendar/Calendar_Views.htm" />
+<key name="calendars into groups" >
+  <topic name="Organize your Calendars into Groups" url="zwc_help_files/7_calendars/organize_your_calendars_into_groups.htm" />
 </key>
-<key name="calendar views" >
-  <topic name="Calendar List View" url="Calendar/Calendar_List_View.htm" />
+<key name="certificates, adding to address book" >
+  <topic name="Adding certificates to contacts in Address Book" url="zwc_help_files/15_s_mime/adding_certificates_to_contacts_in_address_book.htm" />
 </key>
-<key name="calendar, about" >
-  <topic name="About Zimbra Calendar" url="Calendar/About_Calendar.htm" />
+<key name="change the message view" >
+  <topic name="Managing Your Email" url="zwc_help_files/2_manage_email/managing_your_email.htm" />
 </key>
-<key name="calendar, access permissions" >
-  <topic name="Delegating Calendar Access" url="Calendar/Delegating_Calendar_Access.htm" />
+<key name="changing your password" >
+  <topic name="Changing Your Password" url="zwc_help_files/1_setting_up/changing_your_password.htm" />
 </key>
-<key name="calendar, customize work week" >
-  <topic name="Calendar_Views" url="Calendar/Calendar_Views.htm" />
+<key name="check box" >
+  <topic name="Marking Multiple Messages for the Same Action" url="zwc_help_files/2_manage_email/marking_multiple_messages_for_the_same_action.htm" />
 </key>
-<key name="calendar, events" >
-  <topic name="Scheduling All Day events" url="Calendar/Scheduling_All_Day_events.htm" />
+<key name="checking in files" >
+  <topic name="Checking Out and Checking In Files to Briefcase" url="zwc_help_files/10_briefcase/checking_out_and_checking_in_files_to_briefcase.htm" />
+  <key name="briefcase" >
+    <topic name="Checking Out and Checking In Files to Briefcase" url="zwc_help_files/10_briefcase/checking_out_and_checking_in_files_to_briefcase.htm" />
+  </key>
 </key>
-<key name="calendar, forwarding an appointment" >
-  <topic name="Forwarding an appointment" url="Calendar/Forwarding_an_appointment.htm" />
+<key name="checks for new mail" >
+  <topic name="Changing How Often Your Account Checks for New Mail" url="zwc_help_files/2_manage_email/changing_how_often_your_account_checks_for_new_mail.htm" />
 </key>
-<key name="calendar, free/busy" >
-  <topic name="Seeing free/busy times" url="Calendar/Seeing_free_busy_times.htm" />
+<key name="color coding your calendars" >
+  <topic name="Add Color to a Calendar" url="zwc_help_files/7_calendars/add_color_to_a_calendar.htm" />
 </key>
-<key name="calendar, identifying who can invite you to meetings" >
-  <topic name="Identifying who can invite you to meetings" url="Calendar/Identifying_who_can_invite_you_to_meetings.htm" />
+<key name="compose right to left" >
+  <topic name="Personalizing the View of Your Account" url="zwc_help_files/1_setting_up/personalizing_the_view_of_your_account.htm" />
 </key>
-<key name="calendar, printing" >
-  <topic name="Printing a calendar" url="Calendar/Printing_a_calendar.htm" />
+<key name="compose s/mime message" >
+  <topic name="Compose and send a digitally signed message" url="zwc_help_files/15_s_mime/compose_and_send_a_digitally_signed_message.htm" />
 </key>
-<key name="calendar, reply to" >
-  <topic name="Editing meetings on your calendar" url="Calendar/editing_meetings_on_your_calendar.htm" />
+<key name="composing messages" >
+  <topic name="Customizing Your Options for Composing Messages" url="zwc_help_files/3_compose/customizing_your_options_for_composing_messages.htm" />
 </key>
-<key name="calendar, replying from" >
-  <topic name="Replying from an appointment on my calendar" url="Calendar/Replying_from_an_appointment_on_my_calendar.htm" />
+<key name="configure your default meeting duration" >
+  <topic name="Configure Your Default Meeting Duration" url="zwc_help_files/8_scheduling/configure_your_default_meeting_duration.htm" />
 </key>
-<key name="calendar, shared with admin role" >
-  <topic name="Admin rights for shared Calendars" url="Calendar/Admin_rights_for_shared_Calendars.htm" />
-</key>
-<key name="cancel meetings" >
-  <topic name="deleting an appointment" url="Calendar/Deleting_an_appointment.htm" />
-</key>
-<key name="changing a meeting you organized" >
-  <topic name="Changing a meeting" url="Calendar/Changing_a_meeting_.htm" />
-</key>
-<key name="changing an appointment" >
-  <topic name="Changing recurring appointments" url="Calendar/Deleting_recurring_appointments.htm" />
-</key>
-<key name="changing default client type" >
-  <topic name="Setting your general preferences" url="Userspecific/Setting_your_general_preferences.htm" />
-</key>
-<key name="changing options" >
-  <topic name="Setting your user preferences" url="Userspecific/Setting_your_user_preferences.htm" />
-</key>
-<key name="changing shared task list" >
-  <topic name="Share your Task list" url="Tasks/Share_your_Task_folder.htm" />
-</key>
-<key name="check mail" >
-  <topic name="How to tell when you've got new mail" url="reading_mail/how_to_tell_when_you_ve_got_new_mail.htm" />
-</key>
-<key name="check out" >
-  <topic name="Working with files in Briefcase" url="Briefcase/Working_with_files_in_Briefcase.htm" />
-</key>
-<key name="checking for new messages" >
-  <topic name="How to tell when you've got new mail" url="reading_mail/how_to_tell_when_you_ve_got_new_mail.htm" />
-</key>
-<key name="checking meeting response" >
-  <topic name="Using the Schedule tab when creating a appointment" url="Calendar/Using_the_Schedule_tab_when_creating_a_appointment.htm" />
-</key>
-<key name="client type" >
-  <topic name="Setting your general preferences" url="Userspecific/Setting_your_general_preferences.htm" />
+<key name="configures" >
+  <topic name="Mobile Security Features" url="zwc_help_files/11_mobile/mobile_security_features.htm" />
+  <key name="PIN" >
+    <topic name="Mobile Security Features" url="zwc_help_files/11_mobile/mobile_security_features.htm" />
+  </key>
 </key>
 <key name="contact" >
-  <topic name="Editing a contact" url="Contacts/editing_a_contact.htm" />
-  <topic name="Contacts" url="Contacts/contacts.htm" />
-  <topic name="Creating a new contact" url="Contacts/creating_a_new_contact.htm" />
+  <topic name="Moving a Contact to Another Address Book" url="zwc_help_files/6_address_book/moving_a_contact_to_another_address_book.htm" />
+  <key name="moving" >
+    <topic name="Moving a Contact to Another Address Book" url="zwc_help_files/6_address_book/moving_a_contact_to_another_address_book.htm" />
+  </key>
 </key>
-<key name="contact, printing list" >
-  <topic name="Printing Contacts" url="Contacts/Printing_Contacts.htm" />
+<key name="contact group" >
+  <topic name="Creating a Contact Group" url="zwc_help_files/6_address_book/creating_a_contact_group.htm" />
 </key>
-<key name="contacts List" >
-  <topic name="Contacts" url="Contacts/contacts.htm" />
+<key name="contact group list" >
+  <topic name="Adding Members to a Contact Group List" url="zwc_help_files/6_address_book/adding_members_to_a_contact_group_list.htm" />
 </key>
-<key name="contacts, adding automatically" >
-  <topic name="Adding a contactAutomatically" url="Contacts/importing_a_contact_from_the_company_directory.htm" />
+<key name="content pane" >
+  <topic name="Navigating the Zimbra Web Client" url="zwc_help_files/1_setting_up/navigating_the_zimbra_web_client.htm" />
 </key>
-<key name="contacts, adding deleted contact back to list" >
-  <topic name="Deleting a contact" url="Contacts/deleting_a_contact.htm" />
+<key name="conversation" >
+  <topic name="Managing Your Email" url="zwc_help_files/2_manage_email/managing_your_email.htm" />
 </key>
-<key name="contacts, creating custom fields on form" >
-  <topic name="Creating a new contact" url="Contacts/creating_a_new_contact.htm" />
+<key name="create" >
+  <topic name="Create a Folder" url="zwc_help_files/5_organize_account/create_a_folder.htm" />
+  <key name="folder" >
+    <topic name="Create a Folder" url="zwc_help_files/5_organize_account/create_a_folder.htm" />
+  </key>
 </key>
-<key name="contacts, importing" >
-  <topic name="Importing Contacts" url="Contacts/Importing_Contacts.htm" />
+<key name="creating" >
+  <topic name="Working in Briefcase" url="zwc_help_files/10_briefcase/working_in_briefcase.htm" />
+  <topic name="Creating a Filter" url="zwc_help_files/4_filters/creating_a_filter.htm" />
+  <key name="briefcase folders" >
+    <topic name="Working in Briefcase" url="zwc_help_files/10_briefcase/working_in_briefcase.htm" />
+  </key>
+  <key name="filter" >
+    <topic name="Creating a Filter" url="zwc_help_files/4_filters/creating_a_filter.htm" />
+  </key>
 </key>
-<key name="content pane, changing column header" >
-  <topic name="Customize your view" url="Navigation_folders_and_tips/Customize_your_view.htm" />
+<key name="default mail search" >
+  <topic name="Customizing Your Mailbox Initial View" url="zwc_help_files/2_manage_email/customizing_your_mailbox_initial_view.htm" />
 </key>
-<key name="conversation view" >
-  <topic name="Managing your email message view" url="conversations/conversation_list_view.htm" />
+<key name="default time zone" >
+  <topic name="Change Your Default Time Zone" url="zwc_help_files/1_setting_up/change_your_default_time_zone.htm" />
 </key>
-<key name="conversation, printing" >
-  <topic name="Printing a conversation" url="conversations/printing_a_conversation.htm" />
+<key name="delete" >
+  <topic name="Delete a Folder" url="zwc_help_files/5_organize_account/delete_a_folder.htm" />
+  <key name="folder" >
+    <topic name="Delete a Folder" url="zwc_help_files/5_organize_account/delete_a_folder.htm" />
+  </key>
 </key>
-<key name="conversations" >
-  <topic name="Conversations can span folders" url="conversations/conversations_can_span_folders.htm" />
-</key>
-<key name="copy appointments" >
-  <topic name="Creating an appointment from an existing appointment" url="Calendar/Creating_an_appointment_from_an_existing_appointment.htm" />
-</key>
-<key name="corporate address book" >
-  <topic name="Using the corporate address book" url="Contacts/using_the_corporate_address_book.htm" />
-</key>
-<key name="creating new mail messages" >
-  <topic name="Creating a new mail message" url="Creating_Messages/Creating_a_new_mail_message.htm" />
-</key>
-<key name="creating new pages" >
-  <topic name="Create a new page" url="Documents/Create_a_new_page.htm" />
-</key>
-<key name="creating tags" >
-  <topic name="Using tags to classify mail messages" url="Tags_and_flags/Using_tags_to_classify_mail_messages.htm" />
-</key>
-<key name="custom contact field" >
-  <topic name="Creating a new contact" url="Contacts/creating_a_new_contact.htm" />
-</key>
-<key name="custom folders" >
-  <topic name="Creating custom folders" url="Navigation_folders_and_tips/creating_custom_folders.htm" />
-</key>
-<key name="customize work week" >
-  <topic name="Calendar_Views" url="Calendar/Calendar_Views.htm" />
-</key>
-<key name="customizing your view" >
-  <topic name="Customize your view" url="Navigation_folders_and_tips/Customize_your_view.htm" />
-</key>
-<key name="declining a calendar share request" >
-  <topic name="Declining a Calendar Share Request" url="Calendar/Declining_a_Calendar_Share_Request.htm" />
-</key>
-<key name="delegate access to your calendar" >
-  <topic name="Delegating Calendar Access" url="Calendar/Delegating_Calendar_Access.htm" />
-</key>
-<key name="delete a meeting" >
-  <topic name="Deleting_an_appointment" url="Calendar/Deleting_an_appointment.htm" />
-</key>
-<key name="deleted messages, recover" >
-  <topic name="Empty Trash " url="Navigation_folders_and_tips/trash_folder.htm" />
+<key name="deleting" >
+  <topic name="Deleting a Message" url="zwc_help_files/2_manage_email/deleting_a_message.htm" />
+  <key name="message" >
+    <topic name="Deleting a Message" url="zwc_help_files/2_manage_email/deleting_a_message.htm" />
+  </key>
 </key>
 <key name="deleting contacts" >
-  <topic name="Deleting a contact" url="Contacts/deleting_a_contact.htm" />
+  <topic name="Deleting Contacts" url="zwc_help_files/6_address_book/deleting_contacts.htm" />
 </key>
-<key name="deleting recurring appointments" >
-  <topic name="Changing recurring appointments" url="Calendar/Deleting_recurring_appointments.htm" />
+<key name="desktop alerts" >
+  <topic name="Setting Desktop Alerts For New Email Messages" url="zwc_help_files/2_manage_email/setting_desktop_alerts_for_new_email_messages.htm" />
 </key>
-<key name="dictionary, adding words to" >
-  <topic name="Using Spell Check" url="Creating_Messages/Using_Spell_Check.htm" />
+<key name="digitally signed messages, compose" >
+  <topic name="Compose and send a digitally signed message" url="zwc_help_files/15_s_mime/compose_and_send_a_digitally_signed_message.htm" />
 </key>
-<key name="disable Zimlets" >
-  <topic name="Managing your Zimlets" url="Zimlets/Managing_your_Zimlets.htm" />
+<key name="disable" >
+  <topic name="Disable a Zimlet" url="zwc_help_files/14_zimlets/disable_a_zimlet.htm" />
+  <key name="zimlet" >
+    <topic name="Disable a Zimlet" url="zwc_help_files/14_zimlets/disable_a_zimlet.htm" />
+  </key>
 </key>
-<key name="display heading information in reply messages" >
-  <topic name="Setting your preferences for the email compose window" url="Userspecific/Setting_your_preferences_for_the_email_compose_window.htm" />
+<key name="display images" >
+  <topic name="Turn Off Preference to Display Images in Messages" url="zwc_help_files/2_manage_email/turn_off_preference_to_display_images_in_messages.htm" />
 </key>
-<key name="draft message" >
-  <topic name="Saving a draft message" url="Creating_Messages/saving_a_draft_message.htm" />
+<key name="draft" >
+  <topic name="Save a Message as a Draft" url="zwc_help_files/3_compose/save_a_message_as_a_draft.htm" />
 </key>
-<key name="drag and drop" >
-  <topic name="Zimbra Web Client Workspace" url="Navigation_folders_and_tips/navigating_through_the_user_interface.htm" />
+<key name="editing" >
+  <topic name="Editing Contact Information" url="zwc_help_files/6_address_book/editing_contact_information.htm" />
+  <key name="contact information" >
+    <topic name="Editing Contact Information" url="zwc_help_files/6_address_book/editing_contact_information.htm" />
+  </key>
 </key>
-<key name="edit as new" >
-  <topic name="Right-click menus" url="Navigation_folders_and_tips/right-click_menus.htm" />
+<key name="email filters" >
+  <topic name="Working with Email Filters" url="zwc_help_files/4_filters/working_with_email_filters.htm" />
 </key>
-<key name="edit mail folder permissions" >
-  <topic name="Revoking a access to a shared folder" url="Delegated_mailboxes/Revoking_a_access_to_a_shared_folder.htm" />
+<key name="email messages" >
+  <topic name="Replying to Email Messages" url="zwc_help_files/3_compose/replying_to_email_messages.htm" />
+  <key name="replying" >
+    <topic name="Replying to Email Messages" url="zwc_help_files/3_compose/replying_to_email_messages.htm" />
+  </key>
 </key>
-<key name="editing contacts" >
-  <topic name="Editing a contact" url="Contacts/editing_a_contact.htm" />
+<key name="email replies" >
+  <topic name="Set Preferences for Email Replies" url="zwc_help_files/3_compose/set_preferences_for_email_replies.htm" />
 </key>
-<key name="email message" >
-  <topic name="Parts of an Email Message" url="Creating_Messages/parts_of_an_email_message.htm" />
-</key>
-<key name="email message view" >
-  <topic name="Managing your email message view" url="conversations/conversation_list_view.htm" />
-</key>
-<key name="email notification" >
-  <topic name="Setting up desktop alerts" url="Userspecific/Setting_up_desktop_alerts.htm" />
-  <topic name="Setting Email and SMS Reminder Notification" url="Userspecific/Setting_Email_and_SMS_Reminder_Notification.htm" />
-</key>
-<key name="encrypted message, send" >
-  <topic name="Compose and send an encrypted message" url="smime/Compose_and_send_an_encrypted_message.htm" />
-</key>
-<key name="equipment, reserving" >
-  <topic name="Scheduling Resources" url="Calendar/Scheduling_Resources.htm" />
-</key>
-<key name="EUC-JP" >
-  <topic name="Search Issues with Non-Western Language Attachments" url="Search/Search_Issues_with_Non-Western_Language_Attachments.htm" />
-</key>
-<key name="events" >
-  <topic name="Scheduling All Day events" url="Calendar/Scheduling_All_Day_events.htm" />
-  <topic name="About Appointments, Meetings and Events" url="Calendar/About_Appointments,_Meetings_and_Events.htm" />
+<key name="email, send later" >
+  <topic name="Composing and Sending Email" url="zwc_help_files/3_compose/composing_and_sending_email.htm" />
 </key>
 
 </indexdata>
