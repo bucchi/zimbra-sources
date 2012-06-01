@@ -85,6 +85,8 @@ public class ScheduleViewModel: BaseViewModel
          *  proc.Start();
          * }
          */
+        const int TR_MAX_SIZE = 261;
+
         if ((m_configFile.Length == 0) || (m_usermapFile.Length == 0))
         {
             MessageBox.Show("There must be a config file and usermap file", "Zimbra Migration",
@@ -117,9 +119,20 @@ public class ScheduleViewModel: BaseViewModel
         proc.StartInfo.Arguments += @"""";
         proc.StartInfo.Arguments += " ";
 
-        proc.StartInfo.Arguments += "ConfigxmlFile=" + "'"+ m_configFile +"'"+ " ";
-        proc.StartInfo.Arguments += "Users=" + "'" + m_usermapFile + "'";
+        // FBS bug 74232 -- 6/1/12 -- have to put \" around arguments since they might have spaces
+        proc.StartInfo.Arguments += "\\\"" + "ConfigxmlFile="  + m_configFile + "\\\"" + " ";
+        proc.StartInfo.Arguments += "\\\"" + "Users=" + m_usermapFile + "\\\"";
         proc.StartInfo.Arguments += @"""";
+
+        // FBS bug 74232 -- make sure value for /TR option does not exceed 261 characters
+        int trLen = proc.StartInfo.Arguments.Length - 21;  // 21 is length of "/Create /SC ONCE /TR "
+        if (trLen > TR_MAX_SIZE)
+        {
+            MessageBox.Show("Taskrun argument string exceeds 261 characters.  Please use config files with smaller path sizes.",
+                "Zimbra Migration", MessageBoxButton.OK, MessageBoxImage.Error);
+            return;
+        }
+
         if (v.Major >= 6)
             proc.StartInfo.Arguments += " /F /Z /V1";
         proc.StartInfo.Arguments += " /TN " + dtName + " /SD " + dtStr + " /ST " + dtTime;
@@ -903,6 +916,12 @@ public class ScheduleViewModel: BaseViewModel
                     ar.CurrentItemNum++;
                     ar.PBValue = (int)Math.Round(((Decimal)ar.CurrentItemNum /
                         (Decimal)ar.TotalItemsToMigrate) * 100);
+
+                    // FBS bug 74960 -- 6/1/12
+                    string msg2 = "{0} of {1} ({2}%)";
+                    string msgG = String.Format(msg2, ar.CurrentItemNum, ar.TotalItemsToMigrate, ar.PBValue);
+                    ar.GlobalAcctProgressMsg = msgG;
+
                     bgwlist[tnum].ReportProgress(ar.PBValue, f.AccountNum);
                 }
             }

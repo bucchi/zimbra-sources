@@ -265,7 +265,7 @@ function(response, contact) {
 
     attrs = attrs || contact && contact.attr || {};
 
-    attrs["fullName"] =  attrs["fullName"] || this.emailZimlet.fullName;
+    attrs["fullName"] =  attrs["fullName"] || contact && contact._fileAs || this.emailZimlet.fullName;
     this._presentity = attrs["email"] = attrs["email"] || this.emailZimlet.emailAddress;        // email is the presence identity
 
     var image = attrs[ZmContact.F_image];
@@ -322,8 +322,12 @@ UnknownPersonSlide.prototype._handlePresence =
         if (!obj) {
             obj = this._presenceCache[this._presentity] = [];
         }
-        obj["IM"] = presenceObject.imStatus;
-        obj["Phone"] = presenceObject.phoneStatus;
+		if (presenceObject.imStatus) {
+        	obj["IM"] = presenceObject.imStatus;
+		}
+		if (presenceObject.phoneStatus) {
+        	obj["Phone"] = presenceObject.phoneStatus;
+		}
         obj["timestamp"] = new Date();
         this._setPresenceUI();
     }
@@ -525,8 +529,10 @@ UnknownPersonSlide.prototype._setPresenceUI =
                             };
         */
 
-        if (presenceObj) {
+        if (presenceObj && presenceObj["IM"]) {
             this._setIMPresenceUI(presenceObj["IM"]);
+		}
+		if (presenceObj && presenceObj["Phone"]) {
             this._setPhonePresenceUI(presenceObj["Phone"]);
         }
         return;
