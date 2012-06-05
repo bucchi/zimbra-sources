@@ -74,8 +74,13 @@ function(conv, force) {
 		if (conv.msgs) {
 			conv.msgs.addChangeListener(this._listChangeListener);
 			var clv = this._controller.getListView();
-			if (clv && clv.isZmConvListView  && clv.isExpanded(conv)) {
+			if (clv && clv.isZmConvListView) {
 				conv.msgs.addChangeListener(clv._listChangeListener);
+				if (clv.isExpanded(conv)) {
+					// bug 74730 - rerender expanded conv's msg rows
+					clv._removeMsgRows(conv.id);
+					clv._expand(conv, null, true);
+				}
 			}
 		}
 	}
@@ -240,10 +245,6 @@ function(noClear) {
 		this._item.removeChangeListener(this._convChangeHandler);
 		if (this._item.msgs) {
 			this._item.msgs.removeChangeListener(this._listChangeListener);
-			var clv = this._controller.getListView();
-			if (clv) {
-				this._item.msgs.removeChangeListener(clv._listChangeListener);
-			}
 		}
 		this._item = null;
 	}
@@ -473,6 +474,7 @@ function(params) {
 	var msg = params.msg = params.msg || (this._replyView && this._replyView.getMsg());
 	if (!msg) { return; }
 	
+	params.hideView = params.sendNow;
 	var composeCtlr = AjxDispatcher.run("GetComposeController", params.hideView ? ZmApp.HIDDEN_SESSION : null);
 	params.composeMode = composeCtlr._getComposeMode(msg, composeCtlr._getIdentity(msg));
 	var htmlMode = (params.composeMode == DwtHtmlEditor.HTML);
@@ -482,7 +484,6 @@ function(params) {
 	if (value) {
 		params.extraBodyText = htmlMode ? AjxStringUtil.htmlEncode(value) : value;
 	}
-	params.hideView = params.sendNow;
 
 	var what = appCtxt.get(ZmSetting.REPLY_INCLUDE_WHAT);
 	if (msg && (what == ZmSetting.INC_BODY || what == ZmSetting.INC_SMART)) {
