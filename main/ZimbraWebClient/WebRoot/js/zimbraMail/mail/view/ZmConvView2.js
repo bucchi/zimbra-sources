@@ -765,9 +765,12 @@ function() {
 	
 	if (!this._replyToolbar) {
 		var buttons = [ZmOperation.SEND, ZmOperation.CANCEL];
+		var overrides = {};
+		overrides[ZmOperation.CANCEL] = {tooltipKey: "cancel", shortcut: null};
 		var tbParams = {
 			parent:				this,
 			buttons:			buttons,
+			overrides:			overrides,
 			posStyle:			DwtControl.STATIC_STYLE,
 			buttonClassName:	"DwtToolbarButton",
 			context:			ZmId.VIEW_CONV2,
@@ -1215,8 +1218,16 @@ function(msg, container) {
 	linkInfo[ZmOperation.ACTIONS_MENU]	= {key: "moreActions",	handler: this._handleMoreActionsLink};
 
 	var links;
+	var folder = appCtxt.getById(msg.folderId);
 
-	if (msg.isDraft) {
+	if (folder && folder.isFeed()) {
+		links = [
+			ZmOperation.SHOW_ORIG,
+			ZmOperation.FORWARD,
+			ZmOperation.ACTIONS_MENU
+		];
+	}
+	else if (msg.isDraft) {
 		links = [
 			ZmOperation.DRAFT,
 			ZmOperation.SHOW_ORIG,
