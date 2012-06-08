@@ -165,13 +165,16 @@ function(ev) {
 	} else if(el.id == "UnknownPersonSlide_NameAnchorId") {
 		this.emailZimlet._contactListener(true);
 	}
-    else if (el.id == "UnknownPersonSlide_mobilePhoneAnchorId") {
+    else if (el.id == "UnknownPersonSlide_mobilePhoneAnchorId" &&
+        appCtxt.getSettings()._hasVoiceFeature()) {
         this.emailZimlet._phoneListener(this.attribs && this.attribs.mobilePhone);
     }
-    else if (el.id == "UnknownPersonSlide_workPhoneAnchorId") {
+    else if (el.id == "UnknownPersonSlide_workPhoneAnchorId" &&
+        appCtxt.getSettings()._hasVoiceFeature()) {
         this.emailZimlet._phoneListener(this.attribs && this.attribs.workPhone);
     }
-    else if (el.id == "UnknownPersonSlide_imAnchorId") {
+    else if (el.id == "UnknownPersonSlide_imAnchorId" &&
+        appCtxt.getSettings()._hasVoiceFeature()) {
         ZmZimbraMail.unloadHackCallback();
         location.href = this.imURI;
         this.emailZimlet._imListener(this.imURI);
@@ -370,7 +373,7 @@ function(attrs) {
         imParts = im.split(":");
         if (imParts.length == 2){
             im = im.split(":")[1];
-            im = "<a  id='UnknownPersonSlide_imAnchorId' href='" + "im:" + im + "'>" + im.substring(2) + "</a>" ;
+            im = "<a  id='UnknownPersonSlide_imAnchorId' href='" + "xmpp:" + im + "'>" + AjxStringUtil.htmlEncode(im.substring(2)) + "</a>" ;
             this.imURI = attrs["imURI"] = im;
         }
     }

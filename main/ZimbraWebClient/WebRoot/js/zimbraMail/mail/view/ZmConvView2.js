@@ -645,6 +645,7 @@ ZmConvView2.prototype.isActiveQuickReply = function() {
 ZmConvReplyView = function(params) {
 
 	params.className = params.className || "Conv2Reply";
+	params.id = params.parent._htmlElId + "_reply";
 	DwtComposite.call(this, params);
 	
 	this._convView = params.parent;
@@ -843,7 +844,7 @@ function(msg, msgView, op) {
 		if (addrs && addrs.length > 0) {
 			addressTypes.push(type);
 			var prefix = AjxStringUtil.htmlEncode(ZmMsg[AjxEmailAddress.TYPE_STRING[type]]);
-			var addressInfo = msgView.getAddressesFieldInfo(addrs, options, type);
+			var addressInfo = msgView.getAddressesFieldInfo(addrs, options, type, this._htmlElId);
 			participants[type] = {
 				addresses:	addrs,
 				prefix:		prefix,
@@ -1788,10 +1789,6 @@ function() {
 		var iePos = AjxEnv.isIE ? "position: static" : null;
 		readCell.innerHTML = AjxImg.getImageHtml(this._msg.getReadIcon(), isExpanded ? iePos : "display:inline-block", attrs);
 	}
-	var readIcon = document.getElementById(this._readIconId);
-	if (readIcon) {
-		Dwt.setHandler(readIcon, DwtEvent.ONMOUSEDOWN, this._handleMarkRead.bind(this));
-	}
 };
 
 ZmMailMsgCapsuleViewHeader.prototype._getFragment =
@@ -1800,20 +1797,21 @@ function() {
 	return AjxStringUtil.htmlEncode(fragment);
 };
 
-ZmMailMsgCapsuleViewHeader.prototype._handleMarkRead =
-function() {
-	this._controller._doMarkRead([this._msg], this._msg.isUnread);
-};
-
 ZmMailMsgCapsuleViewHeader.prototype._mouseUpListener =
 function(ev) {
 	
 	var msgView = this._msgView;
 	var convView = msgView._convView;
 
-	// ignore event if an internal control should handle it
-	var t = DwtUiEvent.getTargetWithProp(ev, "notoggle");
-	if (t) { return false; }
+	var target = DwtUiEvent.getTarget(ev);
+	if (target && target.id == this._readIconId) {
+		this._controller._doMarkRead([this._msg], this._msg.isUnread);
+		return true;
+	}
+	else if (DwtUiEvent.getTargetWithProp(ev, "notoggle")) {
+		// ignore event if an internal control should handle it
+		return false;
+	}
 	
 	if (ev.button == DwtMouseEvent.LEFT) {
 		return msgView._selectionListener(ev);
