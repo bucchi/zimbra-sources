@@ -526,7 +526,7 @@ public class CSMigrationWrapper
                                 //Log.debug("Contact Firstname: ", dict["firstName"]);
                                 if (dict["tags"].Length > 0)
                                 {
-                                    // change the tag names into tag numbers for AddMessage
+                                    // change the tag names into tag numbers for CreateContact
                                     string tagsNumstrs = DealWithTags(dict["tags"], Acct, api);
                                     bool bRet = dict.Remove("tags");
                                     dict.Add("tags", tagsNumstrs);
@@ -566,6 +566,13 @@ public class CSMigrationWrapper
                                 {
                                     try
                                     {
+                                        if (dict["tags"].Length > 0)
+                                        {
+                                            // change the tag names into tag numbers for AddAppointment
+                                            string tagsNumstrs = DealWithTags(dict["tags"], Acct, api);
+                                            bool bRet = dict.Remove("tags");
+                                            dict.Add("tags", tagsNumstrs);
+                                        }
                                         dict.Add("accountNum", Acct.AccountNum.ToString());
                                         stat = api.AddAppointment(dict, path);
                                         if (stat != 0)
@@ -607,6 +614,13 @@ public class CSMigrationWrapper
                                 }
                                 if (!bSkipMessage)
                                 {
+                                    if (dict["tags"].Length > 0)
+                                    {
+                                        // change the tag names into tag numbers for AddTask
+                                        string tagsNumstrs = DealWithTags(dict["tags"], Acct, api);
+                                        bool bRet = dict.Remove("tags");
+                                        dict.Add("tags", tagsNumstrs);
+                                    }
                                     try
                                     {
                                         stat = api.AddTask(dict, path);
@@ -751,6 +765,14 @@ public class CSMigrationWrapper
         Log.info("Acct.TotalItems=", Acct.TotalItems.ToString());
 
         ZimbraAPI api = new ZimbraAPI(isServer);
+        api.AccountID = Acct.AccountID;
+        api.AccountName = Acct.AccountName;
+
+        api.GetTags();
+        foreach (TagInfo taginfo in ZimbraValues.GetZimbraValues().Tags)
+        {
+            Acct.tagDict.Add(taginfo.TagName, taginfo.TagID);
+        }
 
         foreach (dynamic folder in folders)
         {
@@ -764,9 +786,6 @@ public class CSMigrationWrapper
             Log.info("Processing folder", folder.Name);
             if (folder.Id == 0)
             {
-                api.AccountID = Acct.AccountID;
-                api.AccountName = Acct.AccountName;
-
                 string ViewType = GetFolderViewType(folder.ContainerClass);
                 try
                 {
