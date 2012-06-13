@@ -590,7 +590,7 @@ public class Mailbox {
 
     private MailboxMaintenance maintenance;
     private volatile boolean open = false;
-    private boolean isGalSyncMailbox = false;
+    private boolean galSyncMailbox = false;
 
     protected Mailbox(MailboxData data) {
         mId = data.id;
@@ -601,8 +601,12 @@ public class Mailbox {
         // index init done in open()
     }
 
-    public void setGalSyncMailbox(boolean isGalSync) {
-        isGalSyncMailbox = isGalSync;
+    public void setGalSyncMailbox(boolean galSyncMailbox) {
+        this.galSyncMailbox = galSyncMailbox;
+    }
+
+    public boolean isGalSyncMailbox() {
+        return galSyncMailbox;
     }
 
     boolean isOpen() {
@@ -7703,7 +7707,7 @@ public class Mailbox {
                 acct.getMailSpamLifetimeAsString(),
                 acct.getMailMessageLifetimeAsString(),
                 acct.getMailDumpsterLifetimeAsString());
-            ZimbraLog.purge.debug("User-specified retention policy: Inbox read=%s, Inbox unread=%s, Sent=%s, Junk=%s, Trash=%s, Versions=%s, VersionsEnabled=%d" ,
+            ZimbraLog.purge.debug("User-specified retention policy: Inbox read=%s, Inbox unread=%s, Sent=%s, Junk=%s, Trash=%s, Versions=%s, VersionsEnabled=%s" ,
                 acct.getPrefInboxReadLifetimeAsString(),
                 acct.getPrefInboxUnreadLifetimeAsString(),
                 acct.getPrefSentLifetimeAsString(),
@@ -8748,7 +8752,7 @@ public class Mailbox {
     private void trimItemCache() {
         try {
             int sizeTarget = mListeners.isEmpty() ? MAX_ITEM_CACHE_WITHOUT_LISTENERS : MAX_ITEM_CACHE_WITH_LISTENERS;
-            if (isGalSyncMailbox) {
+            if (galSyncMailbox) {
                 sizeTarget = MAX_ITEM_CACHE_FOR_GALSYNC_MAILBOX;
             }
 
