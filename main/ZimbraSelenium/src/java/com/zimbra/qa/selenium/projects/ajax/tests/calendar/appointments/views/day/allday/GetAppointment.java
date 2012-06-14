@@ -8,13 +8,10 @@ import com.zimbra.qa.selenium.framework.core.Bugs;
 import com.zimbra.qa.selenium.framework.items.AppointmentItem;
 import com.zimbra.qa.selenium.framework.ui.Button;
 import com.zimbra.qa.selenium.framework.util.*;
-import com.zimbra.qa.selenium.projects.ajax.core.AjaxCommonTest;
+import com.zimbra.qa.selenium.projects.ajax.core.CalendarWorkWeekTest;
 
+public class GetAppointment extends CalendarWorkWeekTest {
 
-public class GetAppointment extends AjaxCommonTest {
-
-	
-	@SuppressWarnings("serial")
 	public GetAppointment() {
 		logger.info("New "+ GetAppointment.class.getCanonicalName());
 		
@@ -22,77 +19,58 @@ public class GetAppointment extends AjaxCommonTest {
 		super.startingPage = app.zPageCalendar;
 
 		// Make sure we are using an account with message view
-		super.startingAccountPreferences = new HashMap<String, String>() {{
+		super.startingAccountPreferences = new HashMap<String, String>() {
+			private static final long serialVersionUID = -2913827779459595178L;
+		{
 		    put("zimbraPrefCalendarInitialView", "day");
 		}};
-
-
 	}
 	
 	@Bugs(ids = "69132")
-	@Test(	description = "View a basic appointment in the day view",
-			groups = { "functional" })
-	public void GetAppointment_01() throws HarnessException {
-		
-		
-		//-- Data Setup
-		
+	@Test(	description = "View a basic all-day appointment in day view",
+			groups = { "smoke" })
+	public void GetAllDayAppointment_01() throws HarnessException {
 		
 		// Create the appointment on the server
-		// Create the message data to be sent
-		String subject = "appointment" + ZimbraSeleniumProperties.getUniqueString();
-		
+		String apptSubject = "appointment" + ZimbraSeleniumProperties.getUniqueString();
+		String apptLocation = "location" + ZimbraSeleniumProperties.getUniqueString();
+		String apptBody = "content" + ZimbraSeleniumProperties.getUniqueString();
 		
 		// Absolute dates in UTC zone
-		Calendar now = Calendar.getInstance();
+		Calendar now = this.calendarWeekDayUTC;
 		ZDate startUTC = new ZDate(now.get(Calendar.YEAR), now.get(Calendar.MONTH) + 1, now.get(Calendar.DAY_OF_MONTH), 12, 0, 0);
 		ZDate endUTC   = new ZDate(now.get(Calendar.YEAR), now.get(Calendar.MONTH) + 1, now.get(Calendar.DAY_OF_MONTH), 14, 0, 0);
 		
 		// EST timezone string
 		String tz = ZTimeZone.TimeZoneEST.getID();
 
-		// Create an appointment
-		app.zGetActiveAccount().soapSend(
-					"<CreateAppointmentRequest xmlns='urn:zimbraMail'>"
-				+		"<m>"
-				+			"<inv>"
-				+				"<comp status='CONF' fb='B' class='PUB' transp='O' allDay='1' name='"+ subject +"' >"
-				+					"<s d='"+ startUTC.toTimeZone(tz).toYYYYMMDDTHHMMSS() +"' tz='"+ tz +"'/>"
-				+					"<e d='"+ endUTC.toTimeZone(tz).toYYYYMMDDTHHMMSS() +"' tz='"+ tz +"'/>"
-				+					"<or a='"+ app.zGetActiveAccount().EmailAddress + "'/>"
-				+				"</comp>"
-				+			"</inv>"
-				+			"<su>"+ subject + "</su>"
-				+			"<mp ct='text/plain'>"
-				+				"<content>content</content>"
-				+			"</mp>"
-				+		"</m>"
-				+	"</CreateAppointmentRequest>");
+		// Create a meeting request from AccountA to the test account
+		ZimbraAccount.AccountA().soapSend(
+					"<CreateAppointmentRequest xmlns='urn:zimbraMail'>" +
+						"<m>" +
+							"<inv>" +
+								"<comp status='CONF' fb='B' class='PUB' transp='O' allDay='1' name='"+ apptSubject +"' loc='"+ apptLocation +"'>" +
+									"<s d='"+ startUTC.toTimeZone(tz).toYYYYMMDDTHHMMSS() +"' tz='"+ tz +"'/>" +
+									"<e d='"+ endUTC.toTimeZone(tz).toYYYYMMDDTHHMMSS() +"' tz='"+ tz +"'/>" +
+									"<at role='REQ' ptst='NE' rsvp='1' a='"+ app.zGetActiveAccount().EmailAddress +"'/>" +
+									"<or a='"+ ZimbraAccount.AccountA().EmailAddress + "'/>" +
+								"</comp>" +
+							"</inv>" +
+							"<e a='"+ app.zGetActiveAccount().EmailAddress +"' t='t'/>" +
+							"<su>"+ apptSubject + "</su>" +
+							"<mp ct='text/plain'>" +
+							"<content>"+ apptBody +"</content>" +
+							"</mp>" +
+						"</m>" +
+					"</CreateAppointmentRequest>");
 		
-		
-		//-- GUI Steps
+		AppointmentItem appt = AppointmentItem.importFromSOAP(app.zGetActiveAccount(), "subject:("+ apptSubject +")", startUTC.addDays(-7), endUTC.addDays(7));
+		ZAssert.assertNotNull(appt, "Verify the new appointment is created");
 
-		
-		// Refresh the current view
 		app.zPageCalendar.zToolbarPressButton(Button.B_REFRESH);
 		
-		// Get a list of currently visible appointments
-		List<AppointmentItem> items = app.zPageCalendar.zListGetAppointments();
-
-		
-		//-- Verification
-		
-		boolean found = false;
-		for (AppointmentItem item : items ) {
-			if (item.getName().equals(subject)) {
-				found = true;
-				break;
-			}
-		}
-		
-		ZAssert.assertTrue(found, "Verify the appointment exists in the view");
+		//wait for the appointment displayed in the view
+		ZAssert.assertEquals(app.zPageCalendar.sIsElementPresent(app.zPageCalendar.zGetReadOnlyAllDayApptLocator(apptSubject)), true, "Verify all-day appointment is deleted");
 	    
 	}
-
-
 }
