@@ -1283,10 +1283,13 @@ sub setDefaults {
   foreach (<INTS>) {
     chomp;
     if ($_ =~ /inet6/) {
+      next if ($_ =~ /Link/);
       s/.*inet6 //;
       s/.*addr: //;
       s/\/.*//;
-      $ipv6found=1;
+      if ($_ ne "::1") {
+        $ipv6found=1;
+      }
     } else {
       s/.*inet //;
       s/\s.*//;
@@ -1301,17 +1304,20 @@ sub setDefaults {
   }
   close INTS;
   if (-x "/sbin/ip") {
-    open INTS, "/sbin/ip addr| grep ' addr' |";
+    open INTS, "/sbin/ip addr| grep ' scope ' |";
     foreach (<INTS>) {
       chomp;
       if ($_ =~ /inet6/) {
+        next if ($_ =~ /link/);
         s/.*inet6 //;
         s/.*addr: //;
         s/\/.*//;
-        $ipv6found=1;
+        if ($_ ne "::1") {
+          $ipv6found=1;
+        }
       } else {
-        s/\s.*//;
-        s/\/\d+$//;
+        s/.*inet //;
+        s/\/.*//;
         s/[a-zA-Z:]//g;
         s/^\n//g;
         next if ($_ eq "");
@@ -6336,8 +6342,9 @@ sub configCreateDefaultDomainGALSyncAcct {
   if (isEnabled("zimbra-store")) {
     progress("Creating galsync account for default domain...");
     my $zimbra_server = getLocalConfig ("zimbra_server_hostname");
-    my $galsyncacct = "galsync." . lc(genRandomPass()) . '@' . $config{zimbraDefaultDomainName};
-    my $rc = runAsZimbra("/opt/zimbra/bin/zmgsautil createAccount -a $galsyncacct -n InternalGAL --domain $main::config{zimbraDefaultDomainName} -s $zimbra_server -t zimbra -f _InternalGAL"); 
+    my $default_domain = (($newinstall) ? "$config{CREATEDOMAIN}" : "$config{zimbraDefaultDomainName}");
+    my $galsyncacct = "galsync." . lc(genRandomPass()) . '@' . $default_domain ;
+    my $rc = runAsZimbra("/opt/zimbra/bin/zmgsautil createAccount -a $galsyncacct -n InternalGAL --domain $default_domain -s $zimbra_server -t zimbra -f _InternalGAL"); 
     progress(($rc == 0) ? "done.\n" : "failed.\n");
     configLog("configCreateDefaultDomainGALSyncAcct") if ($rc == 0);
   }
