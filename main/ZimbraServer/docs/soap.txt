@@ -704,7 +704,7 @@ import and export of addressbook.
 
  </SearchGalRequest>
 
- <SearchGalResponse more="{more}" sortBy="sort-by" offset="..." [tokenizeKey="{tokenize-key-op}"]>
+ <SearchGalResponse more="{more}" sortBy="sort-by" offset="..." [tokenizeKey="{tokenize-key-op}"] [paginationSupported="1|0"]>
    <cn [exp="1|0"] [isOwner="1|0"] [isMember="1|0"] ref="{gal-entry-ref}">
      <a n="...">...</a>+
    </cn>*
@@ -742,6 +742,12 @@ import and export of addressbook.
   {gal-entry-ref}: a unigue reference id for the GAL entry.  This is the ref id to be used for the value
                    of type="G" contact group members.  See CreateContactRequest and ModifyContactRequest.
 
+
+  paginationSupported:
+     1 - limit and offset in the request was honored
+     0 - the underlying search does not support pagination
+         limit and offset in the request was not honored
+         
   exp: if the user can (has right to) expand group members
        returned only if needExp is 1 in the request and only on group entries (type=group in attrs on a <cn>).
 
@@ -3263,7 +3269,6 @@ emailAddress="changed-phoebe@google.com"
     [defaultSignature="{default-signature-id}"]
     [forwardReplySignature="{forward-reply-signature-id}"]
     [fromDisplay="{from-display}"]
-    [fromAddress="{from-address}"]
     [replyToAddress="{replyto-address}"]
     [replyToDisplay="{replyto-display}"]/>
 
@@ -3276,7 +3281,6 @@ emailAddress="changed-phoebe@google.com"
     [useAddressForForwardReply="0|1"]
     [defaultSignature="{default-signature-id}"]
     [fromDisplay="{from-display}"]
-    [fromAddress="{from-address}"]
     [replyToAddress="{replyto-address}"]
     [replyToDisplay="{replyto-display}"]/>
 </CreateDataSourceRequest>
@@ -3300,7 +3304,6 @@ the POP3 or IMAP protocol.  Only one data source is allowed per request.
     [defaultSignature="{default-signature-id}"]
     [forwardReplySignature="{forward-reply-signature-id}"]
     [fromDisplay="{from-display}"]
-    [fromAddress="{from-address}"]
     [replyToAddress="{replyto-address}"]
     [replyToDisplay="{replyto-display}"]
     [failingSince="{timestamp}">]
@@ -3313,7 +3316,6 @@ the POP3 or IMAP protocol.  Only one data source is allowed per request.
     [defaultSignature="{default-signature-id}"]
     [forwardReplySignature="{forward-reply-signature-id}"]
     [fromDisplay="{from-display}"]
-    [fromAddress="{from-address}"]
     [replyToAddress="{replyto-address}"]
     [replyToDisplay="{replyto-display}"]>
     [failingSince="{timestamp}">]
@@ -3343,7 +3345,6 @@ failingSince: if the most recent sync(s) failed, this attribute specifies
     [defaultSignature="{default-signature-id}"]
     [forwardReplySignature="{forward-reply-signature-id}"]
     [fromDisplay="{from-display}"]
-    [fromAddress="{from-address}"]
     [replyToAddress="{replyto-address}"]
     [replyToDisplay="{replyto-display}"]/>
   *[<imap name="My IMAP Account" isEnabled="0|1" host="imap.myisp.com" port="143"
@@ -3354,7 +3355,6 @@ failingSince: if the most recent sync(s) failed, this attribute specifies
     [defaultSignature="{default-signature-id}"]
     [forwardReplySignature="{forward-reply-signature-id}"]
     [fromDisplay="{from-display}"]
-    [fromAddress="{from-address}"]
     [replyToAddress="{replyto-address}"]
     [replyToDisplay="{replyto-display}"]/>
 </ModifyDataSourceRequest>
