@@ -84,8 +84,8 @@ public class DialogWarning extends AbsDialog {
 		return (zGetDisplayedText(locator));
 	}
 	
-	public String zGetWarningContent() throws HarnessException {
-		String locator = "css=td[id=MessageDialog_1_Msg]";
+	public String zGetWarningContent() throws HarnessException {	
+		String locator = "css=div[id='YesNoCancel_content']";
 		return (zGetDisplayedText(locator));
 	}
 	
