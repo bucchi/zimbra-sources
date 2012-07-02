@@ -119,7 +119,7 @@ function(msg) {
 			// logic for showing calendar/folder chooser
 			var cc = AjxDispatcher.run("GetCalController");
 			var msgAcct = msg.getAccount();
-			var calendars = ac.get(ZmSetting.CALENDAR_ENABLED, null, msgAcct)
+			var calendars = ac.get(ZmSetting.CALENDAR_ENABLED, null, msgAcct) && (!msg.cif)
 				? cc.getCalendars({includeLinks:true, account:msgAcct, onlyWritable:true}) : [];
 
 			if (appCtxt.multiAccounts) {
@@ -373,7 +373,7 @@ function(reset) {
                     if (bodyDiv) Dwt.setScrollStyle(bodyDiv, Dwt.CLIP);
                     if (el) {
                         Dwt.setScrollStyle(el, Dwt.SCROLL);
-                        var yOffset = this.parent.getBounds().y;
+                        var yOffset = this.parent.getBounds().y || 0;
                         el.style.height = (mvHeight - yOffset) + "px";
                     }
                 }
