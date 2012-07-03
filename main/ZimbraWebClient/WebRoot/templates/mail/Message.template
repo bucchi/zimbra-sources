@@ -27,7 +27,7 @@
 								<td>&nbsp;</td>
 							</tr>
 						</table>
-						<table id='${hdrTableId}'>
+						<table id='${hdrTableId}' class='ZPropertySheet' cellspacing='6' style='margin:0 7px;'>
 							<tr id='${expandRowId}'>
 								<td>
 									<table align=right>
@@ -36,35 +36,16 @@
 										</tr>
 									</table>
 								</td>
-								<td class='LabelColValue' valign=top colspan=10>
+								<td valign=top colspan=10>
 									<table>
 										<tr id="OBJ_PREFIX_<$=Dwt.getNextId()$>_from">
-											<td id="OBJ_PREFIX_<$=Dwt.getNextId()$>_from">${sentBy}</td>
-											<$ var useObo = data.obo && (data.oboAddr != data.sentByAddr); $>
-											<$ var useBwo = data.bwo && (data.bwoAddr != data.sentByAddr); $>
-											<$ if (useObo && useBwo) { $>
-												<td colspan=10>
-													<table>
-														<tr>
-															<td id='OBJ_PREFIX_obo_label' class='LabelColName' style='padding:0 .5em;'><$= ZmMsg.onBehalfOfMidLabel $></td>
-															<td id='OBJ_PREFIX_obo' class='LabelColValue'><$= data.obo $></td>
-															<td id='OBJ_PREFIX_bwo_label' class='LabelColName' style='padding:0 .5em;'><$= ZmMsg.byWayOfMidLabel $></td>
-															<td id='OBJ_PREFIX_bwo' class='LabelColValue'><$= data.bwo $></td>
-														</tr>
-													</table>
-												</td>
-											<$ } else if (useObo) { $>
-												<td id='OBJ_PREFIX_obo_label' class='LabelColName' style='padding:0 .5em;'><$= ZmMsg.onBehalfOfMidLabel $></td>
-												<td id='OBJ_PREFIX_obo' colspan=10><$= data.obo $></td>
-											<$ } else if (useBwo) { $>
-												<td id='OBJ_PREFIX_bwo_label' class='LabelColName' style='padding:0 .5em;'><$= ZmMsg.byWayOfMidLabel $></td>
-												<td id='OBJ_PREFIX_bwo' colspan=10><$= data.bwo $></td>
-											<$ } $>
+											<td id="OBJ_PREFIX_<$=Dwt.getNextId()$>_from" class='LabelColValue' style='white-space:nowrap'>
+												<$= AjxTemplate.expand("#SentBy", data) $>
+											</td>
 										</tr>
 									</table>
 								</td>
 							</tr>
-
 
 							<$ for (var i = 0; i < data.addressTypes.length; i++) { 
 									var participants = data.participants[data.addressTypes[i]]; $>
@@ -97,12 +78,28 @@
 	</div>
 </template>
 
+<template id='mail.Message#SentBy'>
+	<span>${sentBy}</span>
+	<$
+		var useObo = data.obo && (data.oboAddr != data.sentByAddr);
+		var useBwo = data.bwo && (data.bwoAddr != data.sentByAddr);
+		if (useObo) {
+			$><span style='margin:0 .5em;'><$= ZmMsg.onBehalfOfMidLabel $></span>
+			<span><$= data.obo $></span><$
+		}
+		if (useBwo) {
+			$><span style='margin:0 .5em;'><$= ZmMsg.byWayOfMidLabel $></span>
+			<span><$= data.bwo $></span><$
+		}
+	$>
+</template>
+
+
 <template id='mail.Message#InviteNotCurrent'>
 	<div class="InviteOutDated">
-		<table>
+		<table class='ZPropertySheet' cellspacing='6'>
 			<tr>
 				<td><$= AjxImg.getImageHtml("Warning") $></td>
-				<td>&nbsp;</td>
 				<td><$= ZmMsg.inviteNotCurrent $></td>
 			</tr>
 		</table>
@@ -166,40 +163,17 @@
 		<table class='InvHeaderTable' id='${id}_headerElement'>
 			<tr>
 				<td>
-					<div id="${ptstMsgBannerId}" class="${ptstClassName}" <$ if (!data.ptstMsg) { $> style="display:none;" <$ } $> >
-						<table>
-							<tr>
-								<td id="${ptstMsgIconId}"><$= AjxImg.getImageHtml(data.ptstIcon) $></td>
-								<td>&nbsp;</td>
-								<td id="${ptstMsgId}">${ptstMsg}</td>
-							</tr>
-						</table>
-					</div>
-					<$ if (data.intendedForMsg) { $>
-						<div class="${intendedForClassName}">
-							<table>
-								<tr>
-								    <td><$= AjxImg.getImageHtml("Information") $></td>
-									<td>&nbsp;</td>
-									<td>${intendedForMsg}</td>
-								</tr>
-							</table>
-						</div>
-					<$ } $>
 					<div class='InvHeaderDiv'>
 						<$ if (!data.noTopHeader) { $>
-						<table width=100%>
+						<table width=100% class='ZPropertySheet' cellspacing='6'>
 							<tr id='${hdrTableTopRowId}'>
-								<$ if (data.closeBtnCellId) { $>
-									<td>&nbsp;</td>
-									<td id='${closeBtnCellId}'></td>
-									<td>&nbsp;</td>
-								<$ } $>
+							<$ if (data.closeBtnCellId) { $>
+								<td id='${closeBtnCellId}'></td>
+							<$ } $>
 								<td class='LabelColValue SubjectCol ${subjChangeClass}' valign=top width=100%>
 									<$= data.subject $>
 								</td>
 								<td class='LabelColValue DateCol' align=right>${dateString}</td>
-								<td>&nbsp;</td>
 							</tr>
 						</table>
 						<$ } $>
@@ -207,9 +181,9 @@
 						<table id='${hdrTableId}' width=100% class='ZPropertySheet' cellspacing='6'>
 							<$ if (data.counterInvMsg) { $>
 								<tr>
-									<td class='LabelColValue' colspan=11>
+									<td class='LabelColValue' colspan=2>
 										<div class='InvCounter'>
-											<table width="100%">
+											<table width='100%' class='ZPropertySheet' cellspacing='6'>
 												<tr>
 													<td width=20><$= AjxImg.getImageHtml("Information") $></td>
 													<td class='LabelColValue'><$= data.counterInvMsg $></td>
@@ -296,6 +270,24 @@
 							</div>
 						<$ } $>
 					</div>
+					<div id='${ptstMsgBannerId}' class='${ptstClassName}' <$ if (!data.ptstMsg) { $> style='display:none;' <$ } $> >
+						<table class='ZPropertySheet' cellspacing='6'>
+							<tr>
+								<td id="${ptstMsgIconId}"><$= AjxImg.getImageHtml(data.ptstIcon) $></td>
+								<td id="${ptstMsgId}">${ptstMsg}</td>
+							</tr>
+						</table>
+					</div>
+				<$ if (data.intendedForMsg) { $>
+					<div class="${intendedForClassName}">
+						<table class='ZPropertySheet' cellspacing='6'>
+							<tr>
+								<td><$= AjxImg.getImageHtml("Information") $></td>
+								<td>${intendedForMsg}</td>
+							</tr>
+						</table>
+					</div>
+				<$ } $>
 				</td>
 				<td id='${id}_contactArea' class='ContactArea'>
 					<!-- Area reserved zimlets to add to message views. -->
@@ -304,6 +296,7 @@
 		</table>
 		<div id='${infoBarId}'></div>
 	</div>
+	<div class='separator'></div>
 </template>
 
 <template id='mail.Message#InviteHeaderPtst'>
@@ -760,21 +753,7 @@
 			<tr>
 			<td class='LabelColName'><$= ZmMsg.fromLabel $></td>
 			<td class='LabelColValue' style='white-space:nowrap'>
-				<span>${sentBy}</span>
-				<$ var useObo = data.obo && (data.oboAddr != data.sentByAddr); $>
-				<$ var useBwo = data.bwo && (data.bwoAddr != data.sentByAddr); $>
-				<$ if (useObo && useBwo) { $>
-					<span  style='margin:0 .5em;'><$= ZmMsg.onBehalfOfMidLabel $></span>
-					<span><$= data.obo $></span>
-					<span style='margin:0 .5em;'><$= ZmMsg.byWayOfMidLabel $></span>
-					<span><$= data.bwo $></span>
-				<$ } else if (useObo) { $>
-					<span style='margin:0 .5em;'><$= ZmMsg.onBehalfOfMidLabel $></span>
-					<span colspan=10><$= data.obo $></span>
-				<$ } else if (useBwo) { $>
-					<span style='margin:0 .5em;'><$= ZmMsg.byWayOfMidLabel $></span>
-					<span colspan=10><$= data.bwo $></span>
-				<$ } $>
+				<$= AjxTemplate.expand("#SentBy", data) $>
 			</td>
 			</tr>
 
