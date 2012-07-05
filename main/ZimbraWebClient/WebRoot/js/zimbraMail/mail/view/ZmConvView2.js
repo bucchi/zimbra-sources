@@ -392,11 +392,21 @@ function(loaded) {
 	return list;
 };
 
+/**
+ * Expands or collapses the conv view as a whole by expanding or collapsing each of its message views. If
+ * at least one message view is collapsed, then expansion is done.
+ * 
+ * @param {boolean}		expanded		if true, expand message views; otherwise, collapse them
+ * @param {boolean}		force			if true, do not check for unsent quick reply content
+ */
 ZmConvView2.prototype.setExpanded =
-function(expanded) {
+function(expanded, force) {
 	
 	var list = this.getExpanded(!expanded);
 	if (list.length && !expanded) {
+		if (!force && !this._controller.popShield(null, this.setExpanded.bind(this, expanded, true))) {
+			return;
+		}
 		for (var i = 0; i < this._msgViewList.length; i++) {
 			var msgView = this._msgViews[this._msgViewList[i]];
 			msgView._setExpansion(false);
@@ -732,9 +742,11 @@ ZmConvView2Header = function(params) {
 	this._convView = this.parent;
 	this._conv = this.parent._item;
 	this._controller = this.parent._controller;
-	this._dblClickIsolation = true;	// ignore single click that is part of dbl click
 	
-	this.addListener(DwtEvent.ONDBLCLICK, this._dblClickListener.bind(this));
+	if (!this._convView._isStandalone()) {
+		this._dblClickIsolation = true;	// ignore single click that is part of dbl click
+		this.addListener(DwtEvent.ONDBLCLICK, this._dblClickListener.bind(this));
+	}
 	this.addListener(DwtEvent.ONMOUSEUP, this._mouseUpListener.bind(this));
 	
 	this._createHtml();
@@ -827,6 +839,7 @@ function(ev) {
 // Open a msg into a tabbed view
 ZmConvView2Header.prototype._dblClickListener =
 function(ev) {
+	if (this._convView._isStandalone()) { return; }
 	var conv = ev.dwtObj && ev.dwtObj.parent && ev.dwtObj.parent._item;
 	if (conv) {
 		AjxDispatcher.run("GetConvController", conv.id).show(conv, this._controller);
@@ -1595,7 +1608,10 @@ function(id, op, ev) {
 };
 
 ZmMailMsgCapsuleView.prototype._handleReplyLink =
-function(id, op, ev) {
+function(id, op, ev, force) {
+	if (!force && !this._controller.popShield(null, this._handleReplyLink.bind(this, id, op, ev, true))) {
+		return;
+	}
 	this._convView.setReply(this._msg, this, op);
 	var linkInfo = this._linkInfo && this._linkInfo[id];
 	var link = linkInfo && linkInfo.linkId && document.getElementById(linkInfo.linkId);
