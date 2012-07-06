@@ -931,7 +931,7 @@ function(type) {
  */
 ZmConvReplyView.prototype.getValue =
 function() {
-	return this._input.value;
+	return this._input ? this._input.value : "";
 };
 
 /**
@@ -950,7 +950,9 @@ function() {
  */
 ZmConvReplyView.prototype.setValue =
 function(value) {
-	this._input.value = value;
+	if (this._input) {
+		this._input.value = value;
+	}
 };
 
 /**
@@ -1002,42 +1004,10 @@ function() {
 };
 
 // Returns lists of To: and Cc: addresses to reply to, based on the msg
-// TODO: look at refactoring out of ZmComposeView?
 ZmConvReplyView.prototype._getReplyAddressInfo =
 function(msg, msgView, op) {
 	
-	// Prevent user's login name and aliases from going into To: or Cc:
-	var used = {};
-	var ac = window.parentAppCtxt || window.appCtxt;
-	var account = ac.multiAccounts && msg.getAccount();
-	var uname = ac.get(ZmSetting.USERNAME, null, account);
-	if (uname) {
-		used[uname.toLowerCase()] = true;
-	}
-	var aliases = ac.get(ZmSetting.MAIL_ALIASES, null, account);
-	for (var i = 0, count = aliases.length; i < count; i++) {
-		used[aliases[i].toLowerCase()] = true;
-	}
-
-	var addresses = {};
-	addresses[AjxEmailAddress.TO] = [];
-	var addrVec = msg.isSent ? msg.getAddresses(AjxEmailAddress.TO) : msg.getReplyAddresses(op);
-	this._addAddresses(addresses, AjxEmailAddress.TO, addrVec, used);
-	if (addresses[AjxEmailAddress.TO].length == 0) {
-		// try again without dropping user's address(es)
-		this._addAddresses(addresses, AjxEmailAddress.TO, addrVec);
-	}
-
-	if (op == ZmOperation.REPLY_ALL) {
-		addresses[AjxEmailAddress.CC] = [];
-		var ccAddrs = new AjxVector();
-		ccAddrs.addList(msg.getAddresses(AjxEmailAddress.CC));
-		var toAddrs = msg.getAddresses(AjxEmailAddress.TO);
-		if (!msg.isSent) {
-			ccAddrs.addList(toAddrs);
-		}
-		this._addAddresses(addresses, AjxEmailAddress.CC, ccAddrs, used);
-	}
+	var addresses = ZmComposeView.getReplyAddresses(op, msg, msg);
 	
 	var options = {};
 	options.addrBubbles = appCtxt.get(ZmSetting.USE_ADDR_BUBBLES);
@@ -1106,7 +1076,8 @@ function(addresses, type, addrs, used) {
  */
 ZmMailMsgCapsuleView = function(params) {
 
-	params.className = params.className || "ZmMailMsgCapsuleView" + (params.isDraft ? " draft" : "");
+	this._normalClass = "ZmMailMsgCapsuleView";
+	params.className = params.className || this._normalClass;
 	this._msgId = params.msgId;
 	params.id = this._getViewId(params.sessionId);
 	ZmMailMsgView.call(this, params);
@@ -1117,6 +1088,7 @@ ZmMailMsgCapsuleView = function(params) {
 	this._forceCollapse = params.forceCollapse;
 	this._actionsMenu = params.actionsMenu;
 	this._forceOriginal = params.forceOriginal && !(DBG && DBG.getDebugLevel() == "orig");
+	this._isDraft = params.isDraft;
 	this._showingCalendar = false;
 	this._infoBarId = this._htmlElId;
 	
@@ -1155,6 +1127,16 @@ function() {
 	return this._container;
 };
 
+ZmMailMsgCapsuleView.prototype._setHeaderClass =
+function() {
+	var classes = [this._normalClass];
+	classes.push(this._expanded ? "Expanded" : "Collapsed");
+	if (this._isDraft) {
+		classes.push("draft");
+	}
+	this.setClassName(classes.join(" "));
+};
+
 /**
  * We override this function to ignore notifying Zimlets as onMsgView is
  * not supported in this view @see http://bugzilla.zimbra.com/show_bug.cgi?id=68170
@@ -1174,6 +1156,7 @@ function(msg, force) {
 	else {
 		this._expanded = this._forceExpand || (!this._forceCollapse && msg.isUnread);
 	}
+	this._setHeaderClass();
 
 	var dayViewCallback = null;
     if (this._expanded && appCtxt.get(ZmSetting.CONV_SHOW_CALENDAR)) {
@@ -1682,6 +1665,7 @@ function(expanded) {
 		}
 		this._convView._header._setExpandIcon();
 	}
+	this._setHeaderClass();
 
 	if (this._expanded) {
 		// create bubbles
@@ -1993,7 +1977,6 @@ function() {
 
 	var msg = this._msg;
 	var classes = [this._normalClass];
-	classes.push(this._state);
 	var folder = appCtxt.getById(msg.folderId);
 	if (folder && folder.isInTrash()) {
 		classes.push("Trash");
