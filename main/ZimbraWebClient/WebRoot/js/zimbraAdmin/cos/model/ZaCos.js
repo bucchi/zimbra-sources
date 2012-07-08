@@ -172,6 +172,8 @@ ZaCos.A_zimbraFeatureMailForwardingEnabled = "zimbraFeatureMailForwardingEnabled
 ZaCos.A_zimbraFeatureMailSendLaterEnabled = "zimbraFeatureMailSendLaterEnabled";
 //ZaCos.A_zimbraFeatureFreeBusyViewEnabled = "zimbraFeatureFreeBusyViewEnabled";
 ZaCos.A_zimbraFeatureSharingEnabled="zimbraFeatureSharingEnabled";
+ZaCos.A_zimbraExternalSharingEnabled = "zimbraExternalSharingEnabled";
+ZaCos.A_zimbraPublicSharingEnabled = "zimbraPublicSharingEnabled";
 ZaCos.A_zimbraFeatureCalendarReminderDeviceEmailEnabled = "zimbraFeatureCalendarReminderDeviceEmailEnabled";
 //ZaCos.A_zimbraFeatureNotebookEnabled="zimbraFeatureNotebookEnabled"
 ZaCos.A_zimbraFeatureBriefcasesEnabled="zimbraFeatureBriefcasesEnabled";
@@ -403,24 +405,36 @@ function (mods) {
 	soapDoc.set("id", this.id);
 	for (var aname in mods) {
 		gotSomething = true;
-		//multy value attribute
+		//multi value attribute
 		if(mods[aname] instanceof Array) {
 			var cnt = mods[aname].length;
 			if(cnt) {
+				var nonemptyElements = false;
 				for(var ix=0; ix <cnt; ix++) {
 					var attr = null;
-					if(mods[aname][ix] instanceof String)
+					if(mods[aname][ix] instanceof String || AjxUtil.isString(mods[aname][ix])) {
+						if(AjxUtil.isEmpty(mods[aname][ix])) {
+							continue;
+						} else {
+							nonemptyElements = true;
+						}
 						var attr = soapDoc.set("a", mods[aname][ix].toString());
-					else if(mods[aname][ix] instanceof Object)
+					} else if(mods[aname][ix] instanceof Object) {
 						var attr = soapDoc.set("a", mods[aname][ix].toString());
-					else if(mods[aname][ix])
+						nonemptyElements = true;
+					} else {
 						var attr = soapDoc.set("a", mods[aname][ix]);
-						
+						nonemptyElements = true;
+					}
+					
 					if(attr)
 						attr.setAttribute("n", aname);
 				}
+				if(!nonemptyElements) {
+					var attr = soapDoc.set("a", "");
+					attr.setAttribute("n", aname);
+				}
 			} else {
-				//set empty values
 				var attr = soapDoc.set("a", "");
 				attr.setAttribute("n", aname);
 			}
@@ -749,6 +763,8 @@ ZaCos.myXModel = {
         {id:ZaCos.A_zimbraImapEnabled, choices:ZaModel.BOOLEAN_CHOICES, ref:"attrs/"+ZaCos.A_zimbraImapEnabled, type:_ENUM_},
         {id:ZaCos.A_zimbraPop3Enabled, choices:ZaModel.BOOLEAN_CHOICES, ref:"attrs/"+ZaCos.A_zimbraPop3Enabled, type:_ENUM_},
         {id:ZaCos.A_zimbraFeatureSharingEnabled, choices:ZaModel.BOOLEAN_CHOICES, ref:"attrs/"+ZaCos.A_zimbraFeatureSharingEnabled, type:_ENUM_},
+        {id:ZaCos.A_zimbraExternalSharingEnabled, choices:ZaModel.BOOLEAN_CHOICES, ref:"attrs/"+ZaCos.A_zimbraExternalSharingEnabled, type:_ENUM_},
+        {id:ZaCos.A_zimbraPublicSharingEnabled, choices:ZaModel.BOOLEAN_CHOICES, ref:"attrs/"+ZaCos.A_zimbraPublicSharingEnabled, type:_ENUM_},
         {id:ZaCos.A_zimbraFeatureOutOfOfficeReplyEnabled, choices:ZaModel.BOOLEAN_CHOICES, ref:"attrs/"+ZaCos.A_zimbraFeatureOutOfOfficeReplyEnabled, type:_ENUM_},
         {id:ZaCos.A_zimbraFeatureNewMailNotificationEnabled, choices:ZaModel.BOOLEAN_CHOICES, ref:"attrs/"+ZaCos.A_zimbraFeatureNewMailNotificationEnabled, type:_ENUM_},
         {id:ZaCos.A_zimbraFeatureMailPollingIntervalPreferenceEnabled, choices:ZaModel.BOOLEAN_CHOICES, ref:"attrs/"+ZaCos.A_zimbraFeatureMailPollingIntervalPreferenceEnabled, type:_ENUM_},
