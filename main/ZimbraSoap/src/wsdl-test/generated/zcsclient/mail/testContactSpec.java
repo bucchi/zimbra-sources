@@ -21,7 +21,7 @@ import javax.xml.bind.annotation.XmlType;
  *       &lt;sequence>
  *         &lt;element name="vcard" type="{urn:zimbraMail}vCardInfo" minOccurs="0"/>
  *         &lt;element name="a" type="{urn:zimbraMail}newContactAttr" maxOccurs="unbounded" minOccurs="0"/>
- *         &lt;element name="m" type="{urn:zimbraMail}contactGroupMember" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element name="m" type="{urn:zimbraMail}newContactGroupMember" maxOccurs="unbounded" minOccurs="0"/>
  *       &lt;/sequence>
  *       &lt;attribute name="id" type="{http://www.w3.org/2001/XMLSchema}int" />
  *       &lt;attribute name="l" type="{http://www.w3.org/2001/XMLSchema}string" />
@@ -44,7 +44,7 @@ public class testContactSpec {
 
     protected testVCardInfo vcard;
     protected List<testNewContactAttr> a;
-    protected List<testContactGroupMember> m;
+    protected List<testNewContactGroupMember> m;
     @XmlAttribute(name = "id")
     protected Integer id;
     @XmlAttribute(name = "l")
@@ -125,13 +125,13 @@ public class testContactSpec {
      * 
      * <p>
      * Objects of the following type(s) are allowed in the list
-     * {@link testContactGroupMember }
+     * {@link testNewContactGroupMember }
      * 
      * 
      */
-    public List<testContactGroupMember> getM() {
+    public List<testNewContactGroupMember> getM() {
         if (m == null) {
-            m = new ArrayList<testContactGroupMember>();
+            m = new ArrayList<testNewContactGroupMember>();
         }
         return this.m;
     }

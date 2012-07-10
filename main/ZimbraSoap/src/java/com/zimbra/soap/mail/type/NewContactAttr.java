@@ -42,7 +42,7 @@ public final class NewContactAttr {
 
     /**
      * @zm-api-field-tag item-id
-     * @zm-api-field-description Item ID.  Used in combination with <b>subpart-name}</b>
+     * @zm-api-field-description Item ID.  Used in combination with <b>subpart-name</b>
      */
     @XmlAttribute(name=MailConstants.A_ID /* id */, required=false)
     private Integer id;
@@ -53,14 +53,6 @@ public final class NewContactAttr {
      */
     @XmlAttribute(name=MailConstants.A_PART /* part */, required=false)
     private String part;
-
-    // See ParsedContact.FieldDelta.Op - values "+" or "-"
-    /**
-     * @zm-api-field-tag operation-+|-
-     * @zm-api-field-description Operation - <b>+|-</b>
-     */
-    @XmlAttribute(name=MailConstants.A_OPERATION /* op */, required=false)
-    private String operation;
 
     /**
      * @zm-api-field-tag attr-data
@@ -85,13 +77,11 @@ public final class NewContactAttr {
     public void setAttachId(String attachId) { this.attachId = attachId; }
     public void setId(Integer id) { this.id = id; }
     public void setPart(String part) { this.part = part; }
-    public void setOperation(String operation) { this.operation = operation; }
     public void setValue(String value) { this.value = value; }
     public String getName() { return name; }
     public String getAttachId() { return attachId; }
     public Integer getId() { return id; }
     public String getPart() { return part; }
-    public String getOperation() { return operation; }
     public String getValue() { return value; }
 
     public Objects.ToStringHelper addToStringInfo(Objects.ToStringHelper helper) {
@@ -100,7 +90,6 @@ public final class NewContactAttr {
             .add("attachId", attachId)
             .add("id", id)
             .add("part", part)
-            .add("operation", operation)
             .add("value", value);
     }
 

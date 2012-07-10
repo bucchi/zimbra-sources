@@ -79,7 +79,7 @@ public class ContactSpec {
      * (has attribute type="group")
      */
     @XmlElement(name=MailConstants.E_CONTACT_GROUP_MEMBER /* m */, required=false)
-    private List<ContactGroupMember> contactGroupMembers = Lists.newArrayList();
+    private List<NewContactGroupMember> contactGroupMembers = Lists.newArrayList();
 
     public ContactSpec() {
     }
@@ -93,23 +93,22 @@ public class ContactSpec {
     public void setAttrs(Iterable <NewContactAttr> attrs) {
         this.attrs.clear();
         if (attrs != null) {
-            Iterables.addAll(this.attrs,attrs);
+            Iterables.addAll(this.attrs, attrs);
         }
     }
 
-    public ContactSpec addAttr(NewContactAttr attr) {
+    public void addAttr(NewContactAttr attr) {
         this.attrs.add(attr);
-        return this;
     }
 
-    public void setContactGroupMembers(Iterable <ContactGroupMember> contactGroupMembers) {
+    public void setContactGroupMembers(Iterable <NewContactGroupMember> contactGroupMembers) {
         this.contactGroupMembers.clear();
         if (contactGroupMembers != null) {
-            Iterables.addAll(this.contactGroupMembers,contactGroupMembers);
+            Iterables.addAll(this.contactGroupMembers, contactGroupMembers);
         }
     }
 
-    public void addContactGroupMember(ContactGroupMember contactGroupMember) {
+    public void addContactGroupMember(NewContactGroupMember contactGroupMember) {
         this.contactGroupMembers.add(contactGroupMember);
     }
 
@@ -120,22 +119,25 @@ public class ContactSpec {
     public String getTagNames() { return tagNames; }
     public VCardInfo getVcard() { return vcard; }
     public List<NewContactAttr> getAttrs() {
-        return Collections.unmodifiableList(attrs);
+        return attrs;
     }
-
-    public List<ContactGroupMember> getContactGroupMembers() {
+    public List<NewContactGroupMember> getContactGroupMembers() {
         return contactGroupMembers;
     }
 
-    @Override
-    public String toString() {
-        return Objects.toStringHelper(this)
+    public Objects.ToStringHelper addToStringInfo(Objects.ToStringHelper helper) {
+        return helper
             .add("id", id)
             .add("folder", folder)
             .add("tags", tags)
             .add("tagNames", tagNames)
             .add("vcard", vcard)
             .add("attrs", attrs)
-            .toString();
+            .add("contactGroupMembers", contactGroupMembers);
+    }
+
+    @Override
+    public String toString() {
+        return addToStringInfo(Objects.toStringHelper(this)).toString();
     }
 }
