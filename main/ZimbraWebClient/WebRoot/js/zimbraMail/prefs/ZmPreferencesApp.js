@@ -731,7 +731,8 @@ function() {
 	
 	ZmPref.registerPref("USE_ADDR_BUBBLES", {
 		displayName:		ZmMsg.useAddressBubbles,
-		displayContainer:	ZmPref.TYPE_CHECKBOX
+		displayContainer:	ZmPref.TYPE_CHECKBOX,
+		validationFunction: ZmPref.validateBubbles
 	});
 
 	if (appCtxt.isOffline) {
@@ -996,5 +997,5 @@ function(outgoing) {
 
 ZmPreferencesApp.prototype.getNewButtonProps =
 function (){
-    return {disabled:true};
+    return {hidden:true};
 }

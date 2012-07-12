@@ -21,17 +21,13 @@
 **/
 ZaCertsServerListController = function(appCtxt, container) {
 	ZaListViewController.call(this, appCtxt, container, "ZaCertsServerListController");
-   	this._toolbarOperations = new Array();
    	this._popupOperations = new Array();			
-	
-	//TODO helpURL needs to be changed
 	this._helpURL = location.pathname + "help/admin/html/tools/creating_certificates.htm?locid=" + AjxEnv.DEFAULT_LOCALE;	
 }
 
 ZaCertsServerListController.prototype = new ZaListViewController();
 ZaCertsServerListController.prototype.constructor = ZaCertsServerListController;
-
-ZaController.initToolbarMethods["ZaCertsServerListController"] = new Array();
+ZaController.changeActionsStateMethods["ZaCertsServerListController"] = new Array();
 ZaController.initPopupMenuMethods["ZaCertsServerListController"] = new Array();
 
 /**
@@ -52,20 +48,10 @@ function(list, openInNewTab) {
 	this.changeActionsState();	
 }
 
-ZaCertsServerListController.initToolbarMethod =
-function () {
-    this._toolbarOperations.push(new ZaOperation(ZaOperation.VIEW, com_zimbra_cert_manager.TBB_view_cert, com_zimbra_cert_manager.TBB_view_cert_tt, "ViewCertificate", "ViewCertificate", new AjxListener(this, ZaCertsServerListController.prototype.viewCertListener)));	
-   	this._toolbarOperations.push(new ZaOperation(ZaOperation.NEW, com_zimbra_cert_manager.TBB_launch_cert_wizard, com_zimbra_cert_manager.TBB_launch_cert_wizard_tt, "InstallCertificate", "InstallCertificate", 
-   			new AjxListener(this, ZaCertsServerListController.prototype._newCertListener)));				
-	this._toolbarOperations.push(new ZaOperation(ZaOperation.NONE));
-	this._toolbarOperations.push(new ZaOperation(ZaOperation.HELP, com_zimbra_cert_manager.TBB_Help, com_zimbra_cert_manager.TBB_Help_tt, "Help", "Help", new AjxListener(this, this._helpButtonListener)));				
-}
-ZaController.initToolbarMethods["ZaCertsServerListController"].push(ZaCertsServerListController.initToolbarMethod);
-
 ZaCertsServerListController.initPopupMenuMethod =
 function () {
-   	this._popupOperations.push(new ZaOperation(ZaOperation.VIEW, com_zimbra_cert_manager.TBB_view_cert, com_zimbra_cert_manager.TBB_view_cert_tt, "ViewCertificate", "ViewCertificate", new AjxListener(this, ZaCertsServerListController.prototype.viewCertListener)));	
-   	this._popupOperations.push(new ZaOperation(ZaOperation.NEW, com_zimbra_cert_manager.TBB_launch_cert_wizard, com_zimbra_cert_manager.TBB_launch_cert_wizard_tt, "InstallCertificate", "InstallCertificate", new AjxListener(this, ZaCertsServerListController.prototype._newCertListener)));				
+   	this._popupOperations[ZaOperation.VIEW] = new ZaOperation(ZaOperation.VIEW, com_zimbra_cert_manager.TBB_view_cert, com_zimbra_cert_manager.TBB_view_cert_tt, "ViewCertificate", "ViewCertificate", new AjxListener(this, ZaCertsServerListController.prototype.viewCertListener));	
+   	this._popupOperations[ZaOperation.NEW] = new ZaOperation(ZaOperation.NEW, com_zimbra_cert_manager.TBB_launch_cert_wizard, com_zimbra_cert_manager.TBB_launch_cert_wizard_tt, "InstallCertificate", "InstallCertificate", new AjxListener(this, ZaCertsServerListController.prototype._newCertListener));				
 }
 ZaController.initPopupMenuMethods["ZaCertsServerListController"].push(ZaCertsServerListController.initPopupMenuMethod);
 
@@ -73,28 +59,12 @@ ZaCertsServerListController.prototype._createUI = function () {
 	try {
 		var elements = new Object();
 		this._contentView = new ZaCertsServerListView(this._container);
-		this._initToolbar();
-		if(this._toolbarOperations && this._toolbarOperations.length) {
-			this._toolbar = new ZaToolBar(this._container, this._toolbarOperations);
-		}
 		this._initPopupMenu();
 		if(this._popupOperations && this._popupOperations.length) {
 			this._actionMenu =  new ZaPopupMenu(this._contentView, "ActionMenu", null, this._popupOperations);
 		}
 		elements[ZaAppViewMgr.C_APP_CONTENT] = this._contentView;
-		//ZaApp.getInstance().createView(ZaZimbraAdmin._SERVERS_LIST_VIEW, elements);
-        if (!appNewUI) {
-            if (this._toolbar)
-                elements[ZaAppViewMgr.C_TOOLBAR_TOP] = this._toolbar;
-            var tabParams = {
-                openInNewTab: false,
-                tabId: this.getContentViewId(),
-                tab: this.getMainTab()
-            }
-            ZaApp.getInstance().createView(this.getContentViewId(), elements, tabParams) ;
-        } else {
-            ZaApp.getInstance().getAppViewMgr().createView(this.getContentViewId(), elements);
-        }
+        ZaApp.getInstance().getAppViewMgr().createView(this.getContentViewId(), elements);
 		this._contentView.addSelectionListener(new AjxListener(this, this._listSelectionListener));
 		this._contentView.addActionListener(new AjxListener(this, this._listActionListener));			
 		this._removeConfirmMessageDialog = new ZaMsgDialog(ZaApp.getInstance().getAppCtxt().getShell(), null, [DwtDialog.YES_BUTTON, DwtDialog.NO_BUTTON], ZaApp.getInstance());					
@@ -126,13 +96,9 @@ function(ev) {
                                     
 ZaCertsServerListController.prototype.viewCertListener = function (ev) {
 	if(window.console && window.console.log) console.log("View the certificates ... ") ;
-	ZaApp.getInstance().getCertViewController().show(
-		ZaCert.getCerts(ZaApp.getInstance(), this._selectedItem.id),
-		this._selectedItem.id) ;
-    if (appNewUI) {
-                var parentPath = ZaTree.getPathByArray([ZaMsg.OVP_home, ZaMsg.OVP_configure, com_zimbra_cert_manager.OVP_certs]);
-                ZaZimbraAdmin.getInstance().getOverviewPanelController().addObjectItem(parentPath, this._selectedItem.name, null, false, false, this._selectedItem);
-            }
+	ZaApp.getInstance().getCertViewController().show(ZaCert.getCerts(ZaApp.getInstance(), this._selectedItem.id),this._selectedItem.id);
+    var parentPath = ZaTree.getPathByArray([ZaMsg.OVP_home, ZaMsg.OVP_configure, com_zimbra_cert_manager.OVP_certs]);
+    ZaZimbraAdmin.getInstance().getOverviewPanelController().addObjectItem(parentPath, this._selectedItem.name, null, false, false, this._selectedItem);
 }
 
 /**
@@ -142,19 +108,18 @@ ZaCertsServerListController.prototype.viewCertListener = function (ev) {
 ZaCertsServerListController.prototype._listSelectionListener =
 function(ev) {
 	if(ev.item) {
-			this._selectedItem = ev.item;
+		this._selectedItem = ev.item;
 	}
 	if (ev.detail == DwtListView.ITEM_DBL_CLICKED) {
 			ZaApp.getInstance().getCertViewController().show(
 				ZaCert.getCerts(ZaApp.getInstance(), this._selectedItem.id),
 				this._selectedItem.id);
-            if (appNewUI) {
-                var parentPath = ZaTree.getPathByArray([ZaMsg.OVP_home, ZaMsg.OVP_configure, com_zimbra_cert_manager.OVP_certs]);
-                ZaZimbraAdmin.getInstance().getOverviewPanelController().addObjectItem(parentPath, ev.item.name, null, false, false, ev.item);
-            }
+            var parentPath = ZaTree.getPathByArray([ZaMsg.OVP_home, ZaMsg.OVP_configure, com_zimbra_cert_manager.OVP_certs]);
+            ZaZimbraAdmin.getInstance().getOverviewPanelController().addObjectItem(parentPath, ev.item.name, null, false, false, ev.item);
 	} else {
 		this.changeActionsState();	
 	}
+
 }
 
 ZaCertsServerListController.prototype._listActionListener =
@@ -163,18 +128,19 @@ function (ev) {
 	this._actionMenu.popup(0, ev.docX, ev.docY);
 }
 
-ZaCertsServerListController.prototype.changeActionsState = 
+ZaCertsServerListController.changeActionsStateMethod = 
 function () {
 	if(this._contentView) {
+		if(this._popupOperations[ZaOperation.NEW]) {
+			this._popupOperations[ZaOperation.NEW].enabled = true;		
+		}
 		var cnt = this._contentView.getSelectionCount();
-		if(cnt == 1) {
-			var opsArray = [ZaOperation.VIEW, ZaOperation.NEW];
-			this._toolbar.enable(opsArray, true);
-			this._actionMenu.enable(opsArray, true);
-		} else {
-			var opsArray = [ZaOperation.VIEW];
-			this._toolbar.enable(opsArray, false);
-			this._actionMenu.enable(opsArray, false);
+		if(this._popupOperations[ZaOperation.VIEW]) {
+			this._popupOperations[ZaOperation.VIEW].enabled = (cnt == 1);		
 		}
 	}
+}
+
+if(ZaController.changeActionsStateMethods["ZaCertsServerListController"]) {
+    ZaController.changeActionsStateMethods["ZaCertsServerListController"].push(ZaCertsServerListController.changeActionsStateMethod);
 }

@@ -253,7 +253,7 @@ ZaAccount.A_zimbraFeatureOutOfOfficeReplyEnabled = "zimbraFeatureOutOfOfficeRepl
 ZaAccount.A_zimbraFeatureNewMailNotificationEnabled = "zimbraFeatureNewMailNotificationEnabled";
 ZaAccount.A_zimbraFeatureMailPollingIntervalPreferenceEnabled = "zimbraFeatureMailPollingIntervalPreferenceEnabled" ;
 ZaAccount.A_zimbraHideInGal = "zimbraHideInGal";
-//ZaAccount.A_zimbraMailCanonicalAddress = "zimbraMailCanonicalAddress";
+ZaAccount.A_zimbraMailCanonicalAddress = "zimbraMailCanonicalAddress";
 ZaAccount.A_zimbraMailCatchAllAddress = "zimbraMailCatchAllAddress" ;
 ZaAccount.A_zimbraFeatureOptionsEnabled = "zimbraFeatureOptionsEnabled";
 //ZaAccount.A_zimbraFeatureShortcutAliasesEnabled = "zimbraFeatureShortcutAliasesEnabled" ;
@@ -896,11 +896,11 @@ function(tmpObj) {
 **/
 ZaAccount.createMethod = 
 function (tmpObj, account) {
-	tmpObj.attrs[ZaAccount.A_mail] = tmpObj.name;	
+	tmpObj.attrs[ZaAccount.A_mail] = tmpObj.name.replace(/[\s]+/g,"");	
 	var resp;	
 	//create SOAP request
 	var soapDoc = AjxSoapDoc.create("CreateAccountRequest", ZaZimbraAdmin.URN, null);
-	soapDoc.set(ZaAccount.A_name, tmpObj.name);
+	soapDoc.set(ZaAccount.A_name, tmpObj.attrs[ZaAccount.A_mail]);
 	if(tmpObj.attrs[ZaAccount.A_password] && tmpObj.attrs[ZaAccount.A_password].length > 0)
 		soapDoc.set(ZaAccount.A_password, tmpObj.attrs[ZaAccount.A_password]);
 		
@@ -1804,7 +1804,7 @@ ZaAccount.myXModel = {
         {id:ZaAccount.A_zip, type:_STRING_, ref:"attrs/"+ZaAccount.A_zip},
         {id:ZaAccount.A_state, type:_STRING_, ref:"attrs/"+ZaAccount.A_state},
         {id:ZaAccount.A_mailDeliveryAddress, type:_EMAIL_ADDRESS_, ref:"attrs/"+ZaAccount.A_mailDeliveryAddress},
-//        {id:ZaAccount.A_zimbraMailCanonicalAddress, type:_EMAIL_ADDRESS_, ref:"attrs/"+ZaAccount.A_zimbraMailCanonicalAddress},
+        {id:ZaAccount.A_zimbraMailCanonicalAddress, type:_EMAIL_ADDRESS_, ref:"attrs/"+ZaAccount.A_zimbraMailCanonicalAddress},
         {id:ZaAccount.A_accountStatus, type:_STRING_, ref:"attrs/"+ZaAccount.A_accountStatus},
         {id:ZaAccount.A_notes, type:_STRING_, ref:"attrs/"+ZaAccount.A_notes},
         {id:ZaAccount.A_zimbraMailQuota, type:_COS_MAILQUOTA_, ref:"attrs/"+ZaAccount.A_zimbraMailQuota},
