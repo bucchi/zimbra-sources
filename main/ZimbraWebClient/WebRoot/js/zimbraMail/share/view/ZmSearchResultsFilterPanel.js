@@ -861,6 +861,7 @@ function(menu) {
 			parent:			input,
 			id:		DwtId.makeId(ZmId.WIDGET_COMBOBOX, this._viewId, this.id, type+ZmSizeSearchFilter.UNIT),
 			inputParams:	{size: ZmSizeSearchFilter.COMBO_INPUT_WIDTH},
+			useLabel: true,
 			posStyle:DwtControl.ABSOLUTE_STYLE,
 			className: this.toString() + "Combobox"
 		});
@@ -868,7 +869,6 @@ function(menu) {
 		comboBox.addChangeListener(this._unitChangeListener.bind(this, type, comboBox));
 		comboBox.add(ZmMsg.kb,"KB",true); //select kb as default value
 		comboBox.add(ZmMsg.mb,"MB");
-		comboBox.input.setReadOnly(true);
 	}
 };
 
@@ -917,7 +917,7 @@ function(menu) {
 					parent:	menu,
 					id:		ZmId.getMenuItemId(this._viewId, this.id, value)
 				}); 
-		menuItem.setText(value);
+		menuItem.setText(ZmMsg["QUERY_IS_" + value]);
 		menuItem.setData(ZmSearchFilter.DATA_KEY, value);
 	}
 	menu.addSelectionListener(this._selectionListener.bind(this));

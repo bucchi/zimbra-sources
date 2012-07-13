@@ -1188,7 +1188,7 @@ TODO - add support for multi-line values in globalConfigValue and defaultCOSValu
 
 <attr id="198" name="zimbraMtaMaxMessageSize" type="long" min="0" cardinality="single" optionalIn="globalConfig" flags="accountInfo" requiresRestart="mta">
   <globalConfigValue>10240000</globalConfigValue>
-  <desc>Value for postconf message_size_limit</desc>
+  <desc>Maximum total size of a mail message. Enforced in mailbox server and also used as value for postconf message_size_limit</desc>
 </attr>
 
 <attr id="199" name="zimbraMtaRelayHost" type="astring" max="256" cardinality="multi" optionalIn="globalConfig,server" flags="serverInherited" requiresRestart="mta" callback="MtaRelayHost">
@@ -6764,6 +6764,7 @@ TODO: delete them permanently from here
 
 <attr id="1360" name="zimbraReverseProxySSLToUpstreamEnabled" type="boolean" cardinality="single" optionalIn="globalConfig,server" flags="serverInherited" since="8.0.0">
   <globalConfigValue>TRUE</globalConfigValue>
+  <globalConfigValueUpgrade>FALSE</globalConfigValueUpgrade>
   <desc>If set as TRUE, proxy will use SSL to connect to the upstream mail servers for web and mail proxy. Note admin console proxy always use https no matter how this attr is set.</desc>
 </attr>
 

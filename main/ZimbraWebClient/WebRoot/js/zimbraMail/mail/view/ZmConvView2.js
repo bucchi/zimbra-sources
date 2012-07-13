@@ -313,13 +313,6 @@ function(scrollMsgView) {
 				    msgView._inviteMsgView.convResize();
 				    msgView._inviteMsgView.scrollToInvite();
 
-				    // bug 73963: ensure that the day view starts out
-				    // hidden on IE
-				    if (msgView._inviteMsgView._dayView) {
-				        var shouldshow =
-				            appCtxt.get(ZmSetting.CONV_SHOW_CALENDAR);
-				        msgView._inviteMsgView._dayView.setVisible(shouldshow);
-				    }
 				}
 			}
 		}
@@ -1182,10 +1175,22 @@ function(msg, force) {
 	this._setHeaderClass();
 
 	var dayViewCallback = null;
-    if (this._expanded && appCtxt.get(ZmSetting.CONV_SHOW_CALENDAR)) {
+	var showCalInConv = appCtxt.get(ZmSetting.CONV_SHOW_CALENDAR);
+    if (this._expanded && showCalInConv) {
 		dayViewCallback = this._handleShowCalendarLink.bind(this, ZmOperation.SHOW_ORIG, true);
 	}
+	else if (!showCalInConv) {
+		dayViewCallback = this._hideCal.bind(this);
+	}
 	ZmMailMsgView.prototype.set.apply(this, [msg, force, dayViewCallback]);
+};
+
+ZmMailMsgCapsuleView.prototype._hideCal =
+function() {
+	if (!(this._isCalendarInvite && this._inviteMsgView && this._inviteMsgView._dayView)) {
+		return;
+	}
+	this._inviteMsgView._dayView.setVisible(false);
 };
 
 ZmMailMsgCapsuleView.prototype.reset =
@@ -1292,8 +1297,6 @@ function(msg, container, callback, index) {
 	if (!this._beenHere) {
 		this._addLine();
 	}
-	
-	this._hasOrigContent = false;
 	
 	this._msgBodyDivId = [this._htmlElId, ZmId.MV_MSG_BODY].join("_");
 	var autoSendTime = AjxUtil.isDate(msg.autoSendTime) ? AjxDateFormat.getDateTimeInstance(AjxDateFormat.FULL, AjxDateFormat.MEDIUM).format(msg.autoSendTime) : null;
@@ -1428,10 +1431,10 @@ function(msg, container) {
 	var linkInfo = this._linkInfo = {};
     var isExternalAccount = appCtxt.isExternalAccount();
 	linkInfo[ZmOperation.SHOW_ORIG] 	= {key: showTextKey,	handler: showTextHandler,  disabled: isExternalAccount};
-	linkInfo[ZmOperation.DRAFT]			= {key: "editDraft",	handler: this._handleEditDraftLink, op: ZmOperation.DRAFT,  disabled: isExternalAccount};
-	linkInfo[ZmOperation.REPLY]			= {key: "reply",		handler: this._handleReplyLink, 	op: ZmOperation.REPLY,  disabled: isExternalAccount};
-	linkInfo[ZmOperation.REPLY_ALL]		= {key: "replyAll",		handler: this._handleReplyLink, 	op: ZmOperation.REPLY_ALL,  disabled: isExternalAccount};
-	linkInfo[ZmOperation.FORWARD]		= {key: "forward",		handler: this._handleForwardLink,  disabled: isExternalAccount};
+	linkInfo[ZmOperation.DRAFT]			= {key: "editDraft",	handler: this._handleEditDraftLink, op: ZmOperation.DRAFT,		disabled: isExternalAccount};
+	linkInfo[ZmOperation.REPLY]			= {key: "reply",		handler: this._handleReplyLink, 	op: ZmOperation.REPLY,		disabled: isExternalAccount};
+	linkInfo[ZmOperation.REPLY_ALL]		= {key: "replyAll",		handler: this._handleReplyLink, 	op: ZmOperation.REPLY_ALL,	disabled: isExternalAccount};
+	linkInfo[ZmOperation.FORWARD]		= {key: "forward",		handler: this._handleForwardLink,	op: ZmOperation.FORWARD,	disabled: isExternalAccount};
 	linkInfo[ZmOperation.ACTIONS_MENU]	= {key: "moreActions",	handler: this._handleMoreActionsLink};
 
 	var links;
@@ -1525,22 +1528,10 @@ function(op) {
 // TODO: something more efficient than a re-render
 ZmMailMsgCapsuleView.prototype._handleShowTextLink =
 function(id, op, ev) {
-
+	var msg = this._msg;
+	this.reset();
 	this._showingQuotedText = !this._showingQuotedText;
-	if (this._ifw) {
-		this._ifw.dispose();
-	}
-	else if (this._containerEl) {
-		this._containerEl.parentNode.removeChild(this._containerEl);
-	}
-	
-	this._renderMessageBody(this._msg, null, null, 2);	// index of 2 to put rerendered body below header and HR
-	var showTextLink = this._linkInfo && document.getElementById(this._linkInfo[ZmOperation.SHOW_ORIG].linkId);
-	if (showTextLink) {
-		showTextLink.innerHTML = this._showingQuotedText ? ZmMsg.hideQuotedText : ZmMsg.showQuotedText;
-	}
-	
-	this._resetIframeHeightOnTimer();
+	this.set(msg, true);
 };
 
 ZmMailMsgCapsuleView.prototype._handleShowCalendarLink =

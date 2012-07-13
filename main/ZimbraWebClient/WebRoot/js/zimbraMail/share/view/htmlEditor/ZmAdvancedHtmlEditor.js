@@ -194,11 +194,22 @@ function(insertFontStyle, onlyInnerContent) {
 
 	var content = "";
 	if (this._mode == DwtHtmlEditor.HTML) {
-		var editor = this.getEditor();
-        var params = {};
+		var editor = this.getEditor(),
+            params = {},
+            content1 = "";
         params.format ='raw';
-		var content1 = editor ? editor.getContent(params) : (field.value || "");
-		if (content1 && (/\S+/.test(AjxStringUtil.convertHtml2Text(content1)) || content1.match(/<img/i)) ) {
+        if (editor) {
+            try {
+                content1 = editor.getContent();
+            }
+            catch (e) {
+                content1 = editor.getContent(params);
+            }
+        }
+        else {
+            content1 = field.value || "";
+        }
+        if (content1 && (/\S+/.test(AjxStringUtil.convertHtml2Text(content1)) || content1.match(/<img/i)) ) {
 			content = this._embedHtmlContent(content1, insertFontStyle, onlyInnerContent);
 		}
 	}
@@ -580,7 +591,7 @@ function(id, content) {
         // General options
 		mode :  (this._mode == DwtHtmlEditor.HTML)? "exact" : "none",
 		elements:  id,
-        plugins : "advlist,inlinepopups,table,paste,directionality,media,-zimbraplugin" + (AjxEnv.isIE ? "" : ",autolink"),
+        plugins : "advlist,inlinepopups,table,paste,directionality,media,-zimbraplugin,-zbreakquote" + (AjxEnv.isIE ? "" : ",autolink"),
 		theme : "advanced",
         theme_advanced_buttons1 : "fontselect,fontsizeselect,forecolor,backcolor,|,bold,italic,underline,strikethrough,|,bullist,numlist,|,outdent,indent,|,justifyleft,justifycenter,justifyright,|,image,link,unlink,|,ltr,rtl,|,toggle",
         theme_advanced_buttons2 : "formatselect,undo,redo,|,removeformat,|,pastetext,pasteword,|,tablecontrols,|,blockquote,hr,charmap,media",
@@ -597,7 +608,7 @@ function(id, content) {
         content_css : false,
 		editor_css: editorCSS,
         dialog_type : "modal",
-        forced_root_block : false,
+        forced_root_block : "div",
         width: "100%",
         height: "auto",
         table_default_cellpadding : 3,

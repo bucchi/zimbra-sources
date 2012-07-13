@@ -572,7 +572,9 @@ function(htmlArr, idx, headerCol, i, numCols, id, defaultColumnSort) {
 		// item count text
 		htmlArr[idx++] = "<td align=right class='itemCountText' id='";
 		htmlArr[idx++] = textTdId;
-		htmlArr[idx++] = "'></td></tr></table></div></td>";
+		htmlArr[idx++] = "'></td></tr></table></td>";
+
+		return idx;
 	} else {
 		return DwtListView.prototype._createHeader.apply(this, arguments);
 	}
@@ -719,7 +721,7 @@ function(params) {
 		var addr;
 		if (!item.getAddress) { return; }
 		if (field == ZmItem.F_FROM) { 
-			addr = item.getAddress(AjxEmailAddress.FROM);
+			addr = item.getAddress(this._isOutboundFolder() ? AjxEmailAddress.TO : AjxEmailAddress.FROM);
 		} else if (field == ZmItem.F_PARTICIPANT) {
 			var matchIndex = (matchIndex != null) ? parseInt(matchIndex) : 0;
 			addr = item.participants && item.participants.get(matchIndex);
@@ -729,7 +731,7 @@ function(params) {
 		}
 		
 		var ttParams = {
-			address:	item.getAddress(AjxEmailAddress.FROM),
+			address:	addr,
 			ev:			params.ev
 		}
 		var ttCallback = new AjxCallback(this,
@@ -1326,6 +1328,11 @@ function(ev) {
        ev.item.setChecked(true, ev, true);
    }
    this._sortColumn(hdr, this._bSortAsc);
+   //Hack: we don't re-fetch search results when list is size of 1; but if user changes their group let's re-render
+   var list = this.getList();
+   if (list && list.size() == 1 && this._sortByString) {
+	   this._renderList(list);
+   }
 };
 
 ZmMailListView.prototype._sortByActionListener =
