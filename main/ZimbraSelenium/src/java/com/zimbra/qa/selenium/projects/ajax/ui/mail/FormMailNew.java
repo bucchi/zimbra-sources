@@ -969,7 +969,12 @@ public class FormMailNew extends AbsForm {
 		this.zWaitForBusyOverlay();
 
 		// Instead of sType() use zKeyboard
-		this.zKeyboard.zTypeCharacters(value);
+		// this.zKeyboard.zTypeCharacters(value);
+		
+		// workaround
+		sType(locator, value);
+		sTypeKeys(locator, "39");
+		sKeyPressNative("32");
 		
 		this.zWaitForBusyOverlay();
 
