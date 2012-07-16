@@ -22,16 +22,18 @@
 * @param h
 * @param title
 **/
-ZaFlushCacheXDialog = function(parent) {
+ZaFlushCacheXDialog = function(parent, server) {
 	if (arguments.length == 0) return;
 	this._standardButtons = [DwtDialog.OK_BUTTON];	
-	ZaXDialog.call(this, parent,null, ZaMsg.FlushCacheDlgTitle, "480px", "380px","ZaFlushCacheXDialog");
+	ZaXDialog.call(this, parent,null, ZaMsg.FlushCacheDlgTitle + " (" + server.name + ")", "480px", "380px","ZaFlushCacheXDialog", ZaId.FLUSH_SERVER_CACHE + server.id);
 	this._containedObject = {};
 	this.initForm(ZaServer.volumeObjModel,this.getMyXForm());
     this._helpURL = location.pathname + ZaUtil.HELP_URL + "managing_servers/flushing_the_server_cache.htm?locid="+AjxEnv.DEFAULT_LOCALE;
+    ZaApp.getInstance().dialogs["ZaFlushCacheXDialog_"+ server.id] = this;
 }
 
 ZaFlushCacheXDialog.prototype = new ZaXDialog;
+ZaFlushCacheXDialog.prototype.supportMinimize = true;
 ZaFlushCacheXDialog.prototype.constructor = ZaFlushCacheXDialog;
 
 ZaFlushCacheXDialog.flushingServerModel = {

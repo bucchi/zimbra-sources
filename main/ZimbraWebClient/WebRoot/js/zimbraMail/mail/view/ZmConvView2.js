@@ -40,6 +40,8 @@ ZmConvView2 = function(params) {
 
 	this.addControlListener(this._scheduleResize.bind(this));
 	this._setAllowSelection();
+	this._setMouseEventHdlrs(); // needed by object manager
+	this._objectManager = true;
 };
 
 ZmConvView2.prototype = new ZmMailItemView;
@@ -738,6 +740,20 @@ ZmConvView2.prototype.isActiveQuickReply = function() {
 	return this._replyView && this._replyView._input == document.activeElement;
 };
 
+/**
+ * Creates an object manager and returns findObjects content
+ * @param view    {Object} the view used by ZmObjectManager to set mouse events
+ * @param content {String} content to scan
+ * @param htmlEncode {boolean} 
+ */
+ZmConvView2.prototype.renderObjects = 
+function(view, content, htmlEncode) {
+	if (this._objectManager) {
+		this._lazyCreateObjectManager(view || this);
+		return this._objectManager.findObjects(content, htmlEncode);
+	}
+	return content;
+};
 
 
 ZmConvView2Header = function(params) {
@@ -820,7 +836,8 @@ function() {
 
 ZmConvView2Header.prototype._setSubject =
 function() {
-	this._subjectSpan.innerHTML = AjxStringUtil.htmlEncode(ZmMailMsg.stripSubjectPrefixes(this._item.subject || ZmMsg.noSubject));
+	var subject = this._convView.renderObjects(this, ZmMailMsg.stripSubjectPrefixes(this._item.subject ||ZmMsg.noSubject), true);
+	this._subjectSpan.innerHTML = subject;
 };
 
 ZmConvView2Header.prototype._setInfo =
@@ -1546,6 +1563,7 @@ function(id, op, ev) {
 	var msg = this._msg;
 	this.reset();
 	this._showingQuotedText = !this._showingQuotedText;
+	this._forceExpand = true;
 	this.set(msg, true);
 };
 
