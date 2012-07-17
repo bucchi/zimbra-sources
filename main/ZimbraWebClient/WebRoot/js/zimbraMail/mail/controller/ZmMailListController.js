@@ -1041,7 +1041,7 @@ function(params) {
 	}
 
 	if (params.msg) {
-		this._handleResponseDoAction(params, params.msg, true);
+		this._handleResponseDoAction(params, params.msg);
 	}
 	else {
 		var respCallback = this._handleResponseDoAction.bind(this, params);
@@ -1063,18 +1063,22 @@ function(params, msg, finalChoice) {
         msg.list.markRead({items:[msg], value:true});
     }
 
-	// special handling for multiple forward action
-	// this is really weird. I debugged and till it got here I was so mind boggled, how it loads just one message or conv. Apparantly for no reason
-	// if this is the case. Why go through the request, that gets only part of the info at most? Very strange, but probably not easy to change - Eran
+	// check to see if we're forwarding multiple msgs, in which case we do them as attachments;
+	// also check to see if we're forwarding an invite; if so, go to appt compose
 	var action = params.action;
-	//finalChoice - see ZmMailListController.prototype._doAction which is called from ZmMailMsgCapsuleView.prototype._handleForwardLink
-	if (!finalChoice && (action == ZmOperation.FORWARD_ATT || action == ZmOperation.FORWARD_INLINE)) {
-		var cview = this._listView[this._currentViewId];
-		if (cview) {
-			var selection = cview.getSelection();
-			var selCount = selection.length;
+	if (action == ZmOperation.FORWARD_ATT || action == ZmOperation.FORWARD_INLINE) {
+		var selection, selCount;
+		if (params.msg) {
+			selCount = 1
 		}
-		// bug 43428 - invitation should be forwarded using apt forward view
+		else {
+			var cview = this._listView[this._currentViewId];
+			if (cview) {
+				selection = cview.getSelection();
+				selCount = selection.length;
+			}
+		}
+		// bug 43428 - invitation should be forwarded using appt forward view
 		if (selCount == 1 && msg.forwardAsInvite()) {
 			var ac = window.parentAppCtxt || window.appCtxt;
 			if (ac.get(ZmSetting.CALENDAR_ENABLED)) {
@@ -1087,12 +1091,10 @@ function(params, msg, finalChoice) {
 			}
 		}
 
-		var forwardAsAttachments = selCount > 1;
-
-		// reset the action if user is forwarding multiple mail items inline
-		if (forwardAsAttachments) {
+		// forward multiple msgs as attachments
+		if (selCount > 1) {
 			action = params.action = ZmOperation.FORWARD_ATT;
-			// get msg Id's for each conversation selected
+			// get msg IDs for each conversation selected
 			var batchCmd = new ZmBatchCommand(false, null, true);
 			var callback = new AjxCallback(this, this._handleLoadMsgs, [params, selection]);
 			for (var i = 0; i < selCount; i++) {
@@ -1248,7 +1250,7 @@ function(msg) {
 ZmMailListController.prototype._doMarkRead =
 function(items, on, callback, forceCallback) {
 
-	var params = {items:items, value:on, callback:callback};
+	var params = {items:items, value:on, callback:callback, noBusyOverlay: true};
 	var list = params.list = this._getList(params.items);
     params.forceCallback = forceCallback;
 	this._setupContinuation(this._doMarkRead, [on, callback], params);

@@ -91,6 +91,9 @@ ZmConvListController.prototype.switchView =
 function(view, force) {
 
 	if (view == ZmSearch.DATE_DESC || view == ZmSearch.DATE_ASC) {
+		if (!force && !this.popShield(null, this.switchView.bind(this, view, true))) {
+			return;
+		}
 		if ((appCtxt.get(ZmSetting.CONVERSATION_ORDER) != view) || force) {
 			appCtxt.set(ZmSetting.CONVERSATION_ORDER, view);
 			if (this._currentViewType == ZmId.VIEW_CONVLIST) {
@@ -801,6 +804,13 @@ function(msg) {
 	}
 	// don't think a draft conv is ever expandable, but try anyway
 	lv.redrawItem(msg);
+};
+
+// override to do nothing if we are deleting/moving a msg within conv view in the reading pane
+ZmConvListController.prototype._getNextItemToSelect =
+function(omit) {
+	var lv = this._listView[this._currentViewId];
+	return (lv && lv._selectedMsg) ? null : ZmDoublePaneController.prototype._getNextItemToSelect.apply(this, arguments);
 };
 
 /**
