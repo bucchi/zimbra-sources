@@ -954,13 +954,16 @@ class State:
 		return str(val)
 
 	def transform(self, line):
+		 if(line.count('@') < 2 and line.count('%') < 2):
+			return line
+
 		line = re.sub(r"@@([^@]+)@@", self.xformLocalConfig, line)
 
 		# If the line begins and ends with %%, then we are asking a special action be done
 		# Howewver, before we do that action, we need to do variable substitution in the line
 		# and then evaluate the action
 		line = line.rstrip()
-		if(line.startswith("%%") and line.endswith("%%")):
+		if(line.startswith("%%") and line.endswith("%%") and line.count('%') is 4):
 			line = line.strip("%%")
 			line = re.sub(r"%%([^%]+)%%", self.xformConfigVariable, line)
 			line = line + "%%"

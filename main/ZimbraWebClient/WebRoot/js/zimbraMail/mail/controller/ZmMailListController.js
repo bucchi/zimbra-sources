@@ -69,8 +69,8 @@ ZmMailListController = function(container, mailApp, type, sessionId, searchResul
 		this._listeners[ZmOperation.FORWARD] = this._forwardListener.bind(this);
 	}
 	this._listeners[ZmOperation.REDIRECT] = new AjxListener(this, this._redirectListener);
-	this._listeners[ZmOperation.EDIT] = this._editListener.bind(this);
-	this._listeners[ZmOperation.EDIT_AS_NEW] = this._editListener.bind(this);
+	this._listeners[ZmOperation.EDIT] = this._editListener.bind(this, false);
+	this._listeners[ZmOperation.EDIT_AS_NEW] = this._editListener.bind(this, true);
 	this._listeners[ZmOperation.MUTE_CONV] = this._muteConvListener.bind(this);
 	this._listeners[ZmOperation.UNMUTE_CONV] = this._unmuteConvListener.bind(this);
 
@@ -175,10 +175,21 @@ function(view, force) {
 			this._app.setGroupMailBy(ZmMailListController.GROUP_BY_SETTING[view]);
 		}
 
-		var sortBy = appCtxt.get(ZmSetting.SORTING_PREF, view);
+		var folderId = this._currentSearch && this._currentSearch.folderId;
+		
+		var sortBy = appCtxt.get(ZmSetting.SORTING_PREF, folderId || view);
+		if (view == ZmId.VIEW_CONVLIST && (sortBy == ZmSearch.NAME_DESC || sortBy == ZmSearch.NAME_ASC)) {
+			sortBy =  appCtxt.get(ZmSetting.SORTING_PREF, view); //go back to sortBy for view
+			appCtxt.set(ZmSetting.SORTING_PREF, sortBy, folderId); //force folderId sorting
+		}
 		if (this._mailListView && !appCtxt.isExternalAccount()) {
 			//clear the groups to address "from" grouping for conversation
-			this._mailListView.setGroup(ZmId.GROUPBY_NONE);
+			if (folderId) {
+				var currentGroup = this._mailListView.getGroup(folderId);
+				if (currentGroup && currentGroup.id == ZmId.GROUPBY_FROM) {
+					this._mailListView.setGroup(ZmId.GROUPBY_NONE);
+				}
+			}		
 		}
 		
 		this._currentSearch.clearCursor();
@@ -1871,8 +1882,8 @@ function(ev) {
 };
 
 ZmMailListController.prototype._editListener =
-function(ev) {
-	this._doAction({ev:ev, action:ZmOperation.DRAFT});
+function(isEditAsNew, ev) {
+    this._doAction({ev:ev, action:ZmOperation.DRAFT, isEditAsNew:isEditAsNew});
 };
 
 ZmMailListController.prototype._muteUnmuteConvListener =
