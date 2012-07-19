@@ -1,5 +1,4 @@
 ﻿<?xml version='1.0' encoding='utf-8' ?>
-<!-- saved from url=(0014)about:internet -->
 <resource>
 <item name="Hide" value="非表示" />
 <item name="Prev" value="&lt;&lt;" />
@@ -19,6 +18,7 @@
 <item name="ToolBarSearchBtnText" value="移動" />
 <item name="nls_body_instruction" value="上のテキストボックスに質問を入力し、「移動」をクリックします。" />
 <item name="MergeError2" value="は、マスターヘルプシステムとは別の言語を使用しているため、索引および全文検索機能が無効になります。" />
+<item name="ContentCategoryList" value="コンテンツカテゴリを選択" />
 <item name="CompletingContents" value="コンテンツを完了しています…" />
 <item name="Definition" value="定義 :" />
 <item name="LoadingContentsData" value="読み込んでいます。キャンセルするにはここをクリックしてください…" />
@@ -26,7 +26,6 @@
 <item name="Title" value="タイトル" />
 <item name="FtsBtnText" value="移動" />
 <item name="Hide_Navigation_Component" value="ナビゲーションコンポーネントを非表示" />
-<item name="MergeError3" value="は、マスターヘルプシステムとは異なるweb設定マークを利用しています。これに伴い、ヘルプシステムにおけるマージ機能が無効となります。" />
 <item name="Seperate" value="|" />
 <item name="IndexAlphabetBookmarks" value="あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよわをん" />
 <item name="PoweredBy" value="Powered by" />
@@ -35,7 +34,7 @@
 <item name="JS_alert_NotAllDatabaseInited" value="警告 : 一部のデータベースが読み込まれていません。一部のトピックが見つからない可能性があります。" />
 <item name="IndexSelectTopicLabel" value="トピックを選択してから「表示」をクリックします" />
 <item name="Search" value="検索" />
-<item name="Glossary" value="glos" />
+<item name="Glossary" value="用語集" />
 <item name="Disabled Prev" value="&lt;&lt;" />
 <item name="LoadingData" value="データを読み込んでいます。お待ちください…" />
 <item name="LoadingIndex" value="索引を読み込み中..." />
@@ -214,67 +213,67 @@
 
 
 	<paneskin>
-		<background color="#e9e9e9" img="" />
-		<font name="Arial" size="10pt" color="#000000" style="Normal" weight="Normal" decoration="none" />
+		<background color="#dddddd" img="" />
+		<font name="Tahoma" size="8pt" color="#000000" style="Normal" weight="Normal" decoration="none" />
 		<toc>
-			<background color="#eeeeee" img="" />
+			<background color="#ffffff" img="" />
 			<icons>
-				<book open="navpane_opennode.gif" close="navpane_closednode.gif" />
-				<item  local="navpane_page.gif" remote="navpane_web.gif" />
+				<book open="bookopen.gif" close="book_closed.gif" />
+				<item  local="navpane_page.gif" remote="urls.gif" />
 				<newbook open="" close="" />
 				<newitem  local="" remote="" />
 			</icons>
 			<fonts>
-				<normal name="Arial" size="10pt" color="#000000" style="Normal" weight="Normal" decoration="none" />
-				<hover name="Arial" size="10pt" color="#666666" style="Normal" weight="Normal" decoration="underline" />
+				<normal name="Tahoma" size="8pt" color="#000000" style="Normal" weight="Normal" decoration="none" />
+				<hover name="Tahoma" size="8pt" color="#0075a6" style="Normal" weight="Normal" decoration="underline" />
 			</fonts>
-			<activebackgroundcolor attr="#c3c3c3" />
+			<activebackgroundcolor attr="#cce4fd" />
 			<margin attr="" />
 			<indent attr="" />
 		</toc>
 		<index>
 			<form>
 				<fonts>
-					<title name="Arial" size="10pt" color="#000000" style="Normal" weight="Normal" decoration="none" />
+					<title name="Tahoma" size="8pt" color="#000000" style="Normal" weight="Normal" decoration="none" />
 				</fonts>
 				<button normal="" hover="" />
 				<editwith value="20" />
 			</form>
-			<background color="#eeeeee" img="" />
+			<background color="#ffffff" img="" />
 			<fonts>
-				<normal name="Arial" size="10pt" color="#000000" style="Normal" weight="Normal" decoration="none" />
-				<hover name="Arial" size="10pt" color="#666666" style="Normal" weight="Normal" decoration="underline" />
-				<empty name="" size="10pt" color="" style="" weight="" decoration="" />
+				<normal name="Tahoma" size="8pt" color="#000000" style="Normal" weight="Normal" decoration="none" />
+				<hover name="Tahoma" size="8pt" color="#0075a6" style="Normal" weight="Normal" decoration="underline" />
+				<empty name="" size="8pt" color="" style="" weight="" decoration="" />
 			</fonts>
-			<activebackgroundcolor attr="#c3c3c3" />
+			<activebackgroundcolor attr="#cce4fd" />
 			<margin attr="" />
 			<indent attr="" />
 		</index>
 		<fts>
 			<form>
 				<fonts>
-					<title name="Arial" size="10pt" color="#000000" style="Normal" weight="Normal" decoration="none" />
+					<title name="Tahoma" size="8pt" color="#000000" style="Normal" weight="Normal" decoration="none" />
 				</fonts>
 				<button normal="" hover="" />
 				<editwith value="20" />
 			</form>
-			<background color="#eeeeee" img="" />
+			<background color="#ffffff" img="" />
 			<fonts>
-				<normal name="Arial" size="10pt" color="#000000" style="Normal" weight="Normal" decoration="none" />
-				<hover name="Arial" size="10pt" color="#666666" style="Normal" weight="Normal" decoration="underline" />
-				<error name="Arial" size="10pt" color="#000000" style="Normal" weight="Normal" decoration="none" />
+				<normal name="Tahoma" size="8pt" color="#000000" style="Normal" weight="Normal" decoration="none" />
+				<hover name="Tahoma" size="8pt" color="#0075a6" style="Normal" weight="Normal" decoration="underline" />
+				<error name="Tahoma" size="8pt" color="#000000" style="Normal" weight="Normal" decoration="none" />
 			</fonts>
-			<activebackgroundcolor attr="#c3c3c3" />
+			<activebackgroundcolor attr="#cce4fd" />
 			<margin attr="" />
 			<indent attr="" />
 		</fts>
 		<glossary>
-			<background color="#eeeeee" img="" />
+			<background color="#ffffff" img="" />
 			<fonts>
-				<normal name="Arial" size="10pt" color="#000000" style="Normal" weight="Normal" decoration="none" />
-				<hover name="Arial" size="10pt" color="#666666" style="Normal" weight="Normal" decoration="underline" />
+				<normal name="Tahoma" size="8pt" color="#000000" style="Normal" weight="Normal" decoration="none" />
+				<hover name="Tahoma" size="8pt" color="#0075a6" style="Normal" weight="Normal" decoration="underline" />
 			</fonts>
-			<activebackgroundcolor attr="#c3c3c3" />
+			<activebackgroundcolor attr="#cce4fd" />
 			<margin attr="" />
 			<indent attr="" />
 		</glossary>
