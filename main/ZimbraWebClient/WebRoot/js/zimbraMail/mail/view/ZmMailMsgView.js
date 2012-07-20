@@ -113,7 +113,7 @@ ZmMailMsgView.UNTRUSTED_ATTRS = ["id", "class", "name", "profile"];
 
 // styles that we don't want to appear in HTML displayed in a div
 // for example, some clown may try to mess with us using absolute positioning
-ZmMailMsgView.BAD_STYLES = ["position:absolute"];
+ZmMailMsgView.BAD_STYLES = ["position:absolute", "font-"];
 
 
 // Public methods
@@ -171,7 +171,8 @@ function() {
 
 ZmMailMsgView.prototype.set =
 function(msg, force, dayViewCallback) {
-	if (!force && this._msg && msg && (this._msg.id == msg.id)) { return; }
+	
+	if (!force && this._msg && msg && (this._msg == msg)) { return; }
 
 	var oldMsg = this._msg;
 	this.reset();
