@@ -975,18 +975,16 @@ function(composeMode, switchPreface, dontReplaceContent) {
 		var sig = this.getSignatureContent(sigId);
 		var sigSep = this._getSignatureSeparator();
 		var sigId = this._controller._currentSignatureId;
-		var content = this._htmlEditor.getContent();
 		var account = appCtxt.multiAccounts && this.getFromAccount();
 		
-		if (!htmlMode) {
-			this.applySignature(content, sigId, account, null, true); // Remove the signature before switching
-		}
+		this.applySignature(this._htmlEditor.getContent(), sigId, account, null, true); // Remove the signature before switching
 		
 		this._composeMode = composeMode;
 		if (!htmlMode && switchPreface) {
 			this._switchPreface();
 		}
 
+		var content = this._htmlEditor.getContent();
 
 		if (htmlMode) {
 
@@ -999,16 +997,6 @@ function(composeMode, switchPreface, dontReplaceContent) {
 				if (preface) {
 					var incMsgRe = new RegExp(AjxStringUtil.regExEscape(preface)+anyChar+"*$");
 					baseContent = content.replace(incMsgRe, "");
-				}
-			}
-
-			// Strip away signature
-			if (sig) {
-				if (sig) {
-					var sigSepRE = AjxStringUtil.regExEscape(sigSep);
-					var sigRE = AjxStringUtil.regExEscape(sig.replace(/[\n\r]*$/,""));
-					var sigRe = new RegExp(sigSepRE + sigRE.replace(/\\n/g,"\\s?\\n") + anyChar + "*$");
-					baseContent = baseContent.replace(sigRe, "");
 				}
 			}
 
@@ -1521,8 +1509,12 @@ function(content, oldSignatureId, account, newSignatureId, skipSave) {
 			var sigContent = this.getSignatureContent(oldSignatureId);
 			var oldSignature = this.getSignatureById(oldSignatureId);
 			replaceSignature = (oldSignature && (oldSignature.getContentType() == ZmMimeTable.TEXT_HTML)) ?
-				AjxStringUtil.convertHtml2Text(oldSignature.value, {"#text": ZmComposeView._convertTextNode}) : sigContent;
+				AjxStringUtil.convertHtml2Text(oldSignature.value) : sigContent;
 			var sigIndex = content.indexOf(replaceSignature);
+			if (sigIndex == -1 && AjxEnv.isWindows) {
+				replaceSignature = replaceSignature.replace(/\n/g, "\r\n");
+				sigIndex = content.indexOf(replaceSignature);
+			}
 			var sigLength = replaceSignature && replaceSignature.length || 0;
 
 			if (replaceSignature && (sigIndex != -1)) {
@@ -1637,23 +1629,6 @@ function(oldSigContent, newSigContent) {
 						oldSigContent.substring(lastIdx + ZmComposeView.SIG_KEY.length);
 	}
 	return newSigContent;
-};
-
-/*
- * Convertor for text nodes that, unlike the one in AjxStringUtil._traverse, doesn't append spaces to the results
-*/
-ZmComposeView._convertTextNode =
-function(el, ctxt) {
-	if (el.nodeValue.search(AjxStringUtil._NON_WHITESPACE) != -1) {
-		if (ctxt.lastNode == "ol" || ctxt.lastNode == "ul") {
-			return "\n";
-		}
-		if (ctxt.isPreformatted) {
-			return AjxStringUtil.trim(el.nodeValue);
-		} else {
-			return AjxStringUtil.trim(el.nodeValue.replace(AjxStringUtil._LF, ""));
-		}
-	}
 };
 
 ZmComposeView.prototype.getSignatureContent =
