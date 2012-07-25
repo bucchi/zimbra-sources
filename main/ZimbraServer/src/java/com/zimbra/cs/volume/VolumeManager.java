@@ -170,6 +170,9 @@ public final class VolumeManager {
                 synchronized (this) {
                     id2volume.put(update.getId(), update);
                     updateSweptDirectories();
+                    if (isCurrent(vol)) {
+                        updateCurrentVolumeRefs(update, update.getType());
+                    }
                 }
             }
         }
@@ -336,27 +339,31 @@ public final class VolumeManager {
         DbConnection conn = DbPool.getConnection();
         try {
             DbVolume.updateCurrentVolume(conn, type, id);
-            synchronized (this) {
-                switch (type) {
-                    case Volume.TYPE_MESSAGE:
-                        currentMessageVolume = vol;
-                        break;
-                    case Volume.TYPE_MESSAGE_SECONDARY:
-                        currentSecondaryMessageVolume = vol;
-                        break;
-                    case Volume.TYPE_INDEX:
-                        currentIndexVolume = vol;
-                        break;
-                    default:
-                        throw new IllegalArgumentException("invalid volume type: " + type);
-                }
-            }
+            updateCurrentVolumeRefs(vol, type);
             success = true;
             if (!noRedo) {
                 redoRecorder.log();
             }
         } finally {
             endTransaction(success, conn, redoRecorder);
+        }
+    }
+
+    private void updateCurrentVolumeRefs(Volume vol, short type) {
+        synchronized (this) {
+            switch (type) {
+                case Volume.TYPE_MESSAGE:
+                    currentMessageVolume = vol;
+                    break;
+                case Volume.TYPE_MESSAGE_SECONDARY:
+                    currentSecondaryMessageVolume = vol;
+                    break;
+                case Volume.TYPE_INDEX:
+                    currentIndexVolume = vol;
+                    break;
+                default:
+                    throw new IllegalArgumentException("invalid volume type: " + type);
+            }
         }
     }
 
