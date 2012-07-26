@@ -605,8 +605,10 @@ function(params, ex) {
 
 ZmZimbraMail.prototype._isProtocolHandlerAccessed =
 function() {
-    if (!AjxEnv.isFirefox || !localStorage || localStorage['zimbra_mailto_init']) return true;
-    localStorage['zimbra_mailto_init'] = true;
+    if (AjxEnv.isFirefox){
+      if (!localStorage || localStorage['zimbra_mailto_init']) return true;
+      localStorage['zimbra_mailto_init'] = true;
+    }
     return false;
 };
 
@@ -1680,8 +1682,11 @@ function() {
 	try {
         if (this._pollInstantNotifications) {
             var method = soapDoc.getMethod();
-            method.setAttribute("wait", 1);
-            method.setAttribute("limitToOneBlocked", 1);
+			var sessionId = ZmCsfeCommand.getSessionId();
+			if (sessionId) {
+            	method.setAttribute("wait", 1);
+            	method.setAttribute("limitToOneBlocked", 1);
+			}
         }
 		var params = {
 			soapDoc: soapDoc,
