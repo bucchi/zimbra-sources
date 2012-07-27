@@ -541,11 +541,13 @@ function(ed, ev) {
     DwtOutsideMouseEventMgr.forwardEvent(ev);
 };
 
+/* commenting this code as focus is shifting during table edit operation 76446
 ZmAdvancedHtmlEditor.prototype._handleEditorMouseUpEvent =
 function(ed, ev) {
     var kbMgr = DwtShell.getShell(window).getKeyboardMgr();
     kbMgr.grabFocus(this._editorContainer);//This will finally call ZmEditorContainer.prototype._focus method which will call ZmAdvancedHtmlEditor.prototype.restoreFocus method
 };
+*/
 
 ZmAdvancedHtmlEditor.prototype.onLoadContent =
 function(ed) {
@@ -605,10 +607,10 @@ function(id, content) {
         // General options
 		mode :  (this._mode == DwtHtmlEditor.HTML)? "exact" : "none",
 		elements:  id,
-        plugins : "advlist,inlinepopups,table,paste,directionality,media,-zimbraplugin,-zbreakquote" + (AjxEnv.isIE ? "" : ",autolink"),
+        plugins : "advlist,inlinepopups,table,paste,directionality,-zimbraplugin,-zbreakquote" + (AjxEnv.isIE ? "" : ",autolink"),
 		theme : "advanced",
         theme_advanced_buttons1 : "fontselect,fontsizeselect,forecolor,backcolor,|,bold,italic,underline,strikethrough,|,bullist,numlist,|,outdent,indent,|,justifyleft,justifycenter,justifyright,|,image,link,unlink,|,ltr,rtl,|,toggle",
-        theme_advanced_buttons2 : "formatselect,undo,redo,|,removeformat,|,pastetext,pasteword,|,tablecontrols,|,blockquote,hr,charmap,media",
+        theme_advanced_buttons2 : "formatselect,undo,redo,|,removeformat,|,pastetext,pasteword,|,tablecontrols,|,blockquote,hr,charmap",
 		theme_advanced_buttons3 : "",
 		theme_advanced_buttons4 : "",
 		theme_advanced_toolbar_location : "top",
@@ -636,9 +638,8 @@ function(id, content) {
             ed.onPostRender.add(obj.onPostRender.bind(obj));
             ed.onInit.add(obj.onInit.bind(obj));
             ed.onKeyDown.add(obj._handleEditorKeyEvent.bind(obj));
-            ed.onMouseDown.add(obj._handleEditorMouseDownEvent.bind(obj));
-            if (AjxEnv.isIE) {
-                ed.onMouseUp.add(obj._handleEditorMouseUpEvent.bind(obj));
+            if (!AjxEnv.isIE) {
+                ed.onMouseDown.add(obj._handleEditorMouseDownEvent.bind(obj));
             }
             ed.onPaste.add(obj.onPaste.bind(obj));
             ed.onBeforeExecCommand.add(obj.onBeforeExecCommand.bind(obj));
@@ -954,6 +955,27 @@ function(id, src){
             img.removeAttribute("data-zim-uri");
         }
     }
+};
+
+/*
+This function will replace all the img elements matching src
+ */
+ZmAdvancedHtmlEditor.prototype.replaceImageSrc =
+function(src, newsrc){
+	var doc = this.getEditor().getDoc();
+	if(doc){
+		var images = doc.getElementsByTagName('img');
+		if (images && images.length > 0) {
+			AjxUtil.foreach(images,function(img) {
+				if (img && img.src == src) {
+					img.src = newsrc;
+					img.removeAttribute("id");
+					img.removeAttribute("data-mce-src");
+					img.removeAttribute("data-zim-uri");
+				}
+			});
+		}
+	}
 };
 
 ZmAdvancedHtmlEditor.prototype.addCSSForDefaultFontSize =
