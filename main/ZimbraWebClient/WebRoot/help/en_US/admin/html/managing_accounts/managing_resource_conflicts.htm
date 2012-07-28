@@ -1,14 +1,13 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <!-- saved from url=(0014)about:internet -->
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
  <meta name="generator" content="Adobe RoboHelp 9" />
-<title>Changing Mobile Device Password Policy</title>
+<title>Managing Resource Conflicts</title>
 <link rel="StyleSheet" href="../default.css" type="text/css" />
- <script type="text/javascript" language="JavaScript">
+<script type="text/javascript" language="JavaScript">
 //<![CDATA[
 function reDo() {
   if (innerWidth != origWidth || innerHeight != origHeight)
@@ -39,6 +38,7 @@ visibility:hidden; }
 <script type="text/javascript" language="javascript1.2" src="../whtopic.js"></script>
 
 </head>
+
 <body><script type="text/javascript" language="javascript1.2">//<![CDATA[
 <!--
 if (window.gbWhTopic)
@@ -81,28 +81,27 @@ else
 
 //-->
 //]]></script>
-<p>&#160;</p>
 
-<h1>Changing Mobile Device Password Policy</h1>
-<p>Once a mobile device is locked by the server password policy, to remove the PIN requirement on the device, the device sync relationship with the server must be deleted and then the PIN requirement for the device must be turned off. After the PIN requirement is turned off, the user re syncs the device to the Zimbra account.</p>
-<ol type="1">
-<li>
-<p>&#160;Open the user account to be modified.</p>
-</li>
-<li>
-<p>&#160;Open the <span style="font-weight: bold;"><b>Zimbra Mobile</b></span> tab and uncheck <span style="font-weight: bold;"><b>Force pin on device.</b></span></p>
-</li>
-<li>
-<p>Once the password policy has been turned off, notify users to resync their device to their Zimbra account as follows:</p>
-</li>
-</ol>
-<p style="margin-left: 40px;">• If the device is a WM6 device, the user syncs to the account. After the sync has completed, instruct the user to go to the Lock setting on the device and turn off the device PIN.</p>
-<p style="margin-left: 40px;">• If the device is an iPhone/iPod Touch 3.0 or above, the user syncs to the account. After the sync, instruct the user to go to the Settings&gt;General properties and turn off Passcode Lock.</p>
-<p class="note"><img src="../blue_right.jpg" alt="blue_right.jpg" style="border: none;" width="24" height="19" border="0" />If the iPhone/iPod Touch is prior to 3.0, an Apple software bug that prevents downloading new device policies to take effect. The user must delete the Zimbra account from the iPhone/iPod Touch, turn the PIN off, and then resetup sync with their account. Because the password requirement was turned off, a PIN is not asked for.</p>
-<hr style="color: #000000; background-color: #000000;" size="1" width="50%" 
-	 align="left" />
-<p>Copyright © 2012 
- VMware, Inc. All rights reserved.</p>
+<h1>Managing Resource Conflicts</h1>
+<p style="margin-left: 1px;">For accounts that include the auto decline 
+ on conflict value, you can configure Maximum allowed number of conflicts 
+ and/or Maximum allowed percent of conflicts to allow a recurring resource 
+ to be scheduled even if it is not available for all the requested recurring 
+ appointment dates.</p>
+<p style="margin-left: 1px;">The resource accepts appointments even if 
+ there are conflicts unless either the number of conflicts reaches the 
+ maximum allowed or the maximum percentage of conflicts allowed is reached. 
+ &#160;If you try to schedule an appointment with the resource and the 
+ number of times the resource is unavailable exceeds the rule, the entire 
+ appointment is rejected.</p>
+<p style="margin-left: 0px; font-weight: normal;">For example, if the maximum 
+ allowed conflicts is 3 and you try to schedule an appointment with a resource 
+ and more than 3 conflicting dates are found, the entire recurring appointment 
+ is rejected.</p>
+<p style="margin-left: 0px; font-weight: normal;">When a resource is invited 
+ to a single-instance appointment, if the resource scheduling policy is 
+ configured to auto decline, the single instance is always declined. The 
+ conflict rules do not apply.</p>
 <script type="text/javascript" language="javascript1.2">//<![CDATA[
 <!--
 if (window.writeIntopicBar)
