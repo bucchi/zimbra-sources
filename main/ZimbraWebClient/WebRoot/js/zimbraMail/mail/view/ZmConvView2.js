@@ -294,9 +294,9 @@ function() {
 ZmConvView2.prototype._resize =
 function(scrollMsgView) {
 
+	this._resizePending = false;
 	if (this.isDisposed()) { return; }
 
-	this._resizePending = false;
 	if (this._cleared) { return; }
 	if (!this._messagesDiv) { return; }
 	
@@ -343,8 +343,10 @@ function(scrollMsgView) {
 ZmConvView2.prototype._resizeMessages =
 function(scrollMsgView) {
 	
-	for (var i = 0; i < this._msgViewList.length; i++) {
-		this._msgViews[this._msgViewList[i]]._scheduleResize();
+	if (this._msgViewList) {
+		for (var i = 0; i < this._msgViewList.length; i++) {
+			this._msgViews[this._msgViewList[i]]._scheduleResize();
+		}
 	}
 
 	// see if we need to scroll to top or a particular msg view
@@ -372,8 +374,8 @@ ZmConvView2.prototype._scheduleResize =
 function(scrollMsgView) {
 	if (!this._resizePending) {
 		window.setTimeout(this._resize.bind(this, scrollMsgView), 100);
+		this._resizePending = true;
 	}
-	this._resizePending = true;
 };
 
 // re-render if reading pane moved between right and bottom
@@ -1252,18 +1254,23 @@ function() {
 ZmMailMsgCapsuleView.prototype._resize =
 function() {
 
-	if (!this._expanded || !this._usingIframe) { return; }
+	this._resizePending = false;
+	if (!this._expanded || !this._usingIframe || this._hasBeenSized) { return; }
 	
 	var body = this.getContentContainer();
 	if (body && body.childNodes) {
 		var height = 0;
 		for (var i = 0, len = body.childNodes.length; i < len; i++) {
-			height += Dwt.getSize(body.childNodes[i]).y;
+			var el = body.childNodes[i];
+			height += Dwt.getSize(el).y;
+			var styleObj = DwtCssStyle.getComputedStyleObject(el);
+			height += styleObj ? parseInt(styleObj.marginTop) + parseInt(styleObj.marginBottom) : 0;
 		}
 		if (height && height < 150) {
-			height += 8;	// fudge to make sure nothing is cut off
+			height += 12;	// fudge to make sure nothing is cut off
 			DBG.println(AjxDebug.DBG1, "resizing capsule msg view IFRAME height to " + height);
 			Dwt.setSize(this.getIframeElement(), Dwt.DEFAULT, height);
+			this._hasBeenSized = true;
 		}
 	}
 };
@@ -1272,8 +1279,8 @@ ZmMailMsgCapsuleView.prototype._scheduleResize =
 function() {
 	if (!this._resizePending) {
 		window.setTimeout(this._resize.bind(this), 100);
+		this._resizePending = true;
 	}
-	this._resizePending = true;
 };
 
 ZmMailMsgCapsuleView.prototype._renderMessage =
