@@ -818,6 +818,17 @@ INPUT[type="text"].search_input, INPUT[type="text"].search_input-expanded {
 	padding-right:10px;
 }
 
+.InvHeaderTable .Object {
+    @ActiveCursor@
+    @Anchor@
+    white-space: nowrap;
+}
+
+.InvHeaderTable .Object-hover {
+    @ActiveCursor@
+    @Anchor-hover@
+    white-space: nowrap;
+}
 
 .InvHeaderTable .InvChanged, 
 .InvHeaderTable .InvChanged .Object {
@@ -5720,7 +5731,7 @@ DIV.ZmSuggestLink {
 /* for displaying a msg without using an iframe (bug 66466) */
 @import url("msgview.css");
 #IFNDEF GECKO
-ruby > rt, rp {font-size: 80%;}
+rt, rp {font-size: 80%;}
 #ENDIF
 
 #IFDEF GECKO
