@@ -502,16 +502,17 @@ function(compNum) {
 	var desc = comp.descHtml;
 	var content = desc && desc[0]._content || null;
 	if (!content) {
-		var comment = this.getComponentComment();
-		content = comment && AjxStringUtil.convertToHtml(comment);
-	}
-	if (!content) {
 		var txtContent = comp.desc;
-		txtContent = (txtContent && txtContent[0]._content) || null;
-		if (!txtContent) {
+        txtContent = (txtContent && txtContent[0]._content) || null;
+        content = txtContent ? AjxStringUtil.convertToHtml(txtContent) : null;
+		if (!content) {
 			content = this.getApptSummary(true);
 		}
 	}
+    if (!content) {
+        var comment = this.getComponentComment();
+        content = comment && AjxStringUtil.convertToHtml(comment);
+    }
 	return content;
 };
 
@@ -980,7 +981,7 @@ function(isHtml) {
 	buf[i++] = isHtml ? "<div>" : "\n\n";
 	buf[i++] = ZmItem.NOTES_SEPARATOR;
 	// bug fix #7835 - add <br> after DIV otherwise Outlook lops off 1st char
-	buf[i++] = isHtml ? "</div><br>" : "";
+	buf[i++] = isHtml ? "</div><br>" : "\n\n";
 
 	return buf.join("");
 };
