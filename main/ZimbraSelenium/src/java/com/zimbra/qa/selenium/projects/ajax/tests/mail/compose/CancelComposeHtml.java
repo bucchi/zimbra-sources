@@ -45,8 +45,12 @@ public class CancelComposeHtml extends PrefGroupMailByMessageTest {
 		
 		
 		// Fill out the form with the data
-		mailform.zFillField(Field.Body, body);
-		
+		//mailform.zFillField(Field.Body, body);
+		String bodyLocator = "css=body[id=tinymce]";
+		boolean present = mailform.zWaitForElementPresent(bodyLocator, "30000");
+		ZAssert.assertTrue(present,"Verify the body field is available");
+		mailform.sClickAt(bodyLocator,"");
+		mailform.zTypeFormattedText("css=iframe[id*=ifr]", body);
 		// Cancel the message
 		// A warning dialog should appear regarding losing changes
 		AbsDialog warning = (AbsDialog)mailform.zToolbarPressButton(Button.B_CANCEL);
@@ -85,7 +89,12 @@ public class CancelComposeHtml extends PrefGroupMailByMessageTest {
 		
 		// Fill out the form with the data
 		mailform.zFillField(Field.Subject, Subject);
-		mailform.zFillField(Field.Body, body);		
+		//mailform.zFillField(Field.Body, body);
+		String bodyLocator = "css=body[id=tinymce]";
+		boolean present = mailform.zWaitForElementPresent(bodyLocator, "30000");
+		ZAssert.assertTrue(present,"Verify the body field is available");
+		mailform.sClickAt(bodyLocator,"");
+		mailform.zTypeFormattedText("css=iframe[id*=ifr]", body);
 		
 		DialogWarning warning =(DialogWarning)app.zPageMail.zKeyboardShortcut(shortcut);
 		ZAssert.assertNotNull(warning, "Verify the dialog is opened");
