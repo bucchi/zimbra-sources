@@ -290,6 +290,12 @@ function() {
 	ZmMailItemView.prototype.dispose.apply(this, arguments);
 };
 
+ZmConvView2.prototype._removeMessageView =
+function(msgId) {
+	AjxUtil.arrayRemove(this._msgViewList, msgId);
+	this._msgViews[msgId] = null;
+	delete this._msgViews[msgId];
+};
 
 ZmConvView2.prototype._resize =
 function(scrollMsgView) {
@@ -1251,10 +1257,15 @@ function() {
 	}
 };
 
-// Resize IFRAME to match its content. IFRAMEs have a default height of 150, so we need to
-// explicitly set the correct height if the content is smaller. The easiest way would be
-// to measure the height of the HTML or BODY element, but some browsers (mainly IE) report
-// that to be 150. So we add up the heights of the BODY's children instead.
+/**
+ * Resize IFRAME to match its content. IFRAMEs have a default height of 150, so we need to
+ * explicitly set the correct height if the content is smaller. The easiest way would be
+ * to measure the height of the HTML or BODY element, but some browsers (mainly IE) report
+ * that to be 150. So we end up trying these ways in order to get an accurate height:
+ *		- height of BODY
+ *		- height from BODY's computed style object
+ *		- cumulative height of BODY's child nodes
+ */
 ZmMailMsgCapsuleView.prototype._resize =
 function() {
 
@@ -1262,8 +1273,17 @@ function() {
 	if (!this._expanded || !this._usingIframe || this._hasBeenSized) { return; }
 	
 	var body = this.getContentContainer();
-	if (body && body.childNodes) {
-		var height = 0;
+	if (!body) { return; }
+	
+	var height = Dwt.getSize(body).y;
+	if (!height || height == 150) {
+		var styleObj = DwtCssStyle.getComputedStyleObject(body);
+		if (styleObj && styleObj.height) {
+			height = parseInt(styleObj.height);
+		}
+	}
+	if (!height || height == 150) {
+		height = 0;
 		for (var i = 0, len = body.childNodes.length; i < len; i++) {
 			var el = body.childNodes[i];
 			if (!el || el.nodeType != AjxUtil.ELEMENT_NODE) {
@@ -1273,17 +1293,16 @@ function() {
 			height += Dwt.getSize(el).y;
 			var styleObj = DwtCssStyle.getComputedStyleObject(el);
 			if (!styleObj) {
-				height = -1;
-				break;
+				return;
 			}
 			height += parseInt(styleObj.marginTop) + parseInt(styleObj.marginBottom);
 		}
-		if (height > 0 && height < 150) {
-			height += 12;	// fudge to make sure nothing is cut off
-			DBG.println(AjxDebug.DBG1, "resizing capsule msg view IFRAME height to " + height);
-			Dwt.setSize(this.getIframeElement(), Dwt.DEFAULT, height);
-			this._hasBeenSized = true;
-		}
+	}
+	if (height > 0 && height < 150) {
+		height += 12;	// fudge to make sure nothing is cut off
+		DBG.println(AjxDebug.DBG1, "resizing capsule msg view IFRAME height to " + height);
+		Dwt.setSize(this.getIframeElement(), Dwt.DEFAULT, height);
+		this._hasBeenSized = true;
 	}
 };
 
@@ -1741,6 +1760,8 @@ function() {
 ZmMailMsgCapsuleView.prototype._setExpansion =
 function(expanded) {
 
+	if (this.isDisposed()) { return; }
+
 	var showCalInConv = appCtxt.get(ZmSetting.CONV_SHOW_CALENDAR);
 	this._expanded = expanded;
 	if (this._expanded && !this._msgBodyCreated) {
@@ -1883,6 +1904,7 @@ function(ev) {
 	}
 	else if (ev.event == ZmEvent.E_DELETE) {
 		this.dispose();
+		this._convView._removeMessageView(this._msg.id);
 		this._convView._header._setInfo();
 	}
 	else if (ev.event == ZmEvent.E_MOVE) {
