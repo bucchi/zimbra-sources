@@ -17,7 +17,7 @@ public class CreateAppointment extends AjaxCommonTest {
 		// All tests start at the Calendar page
 		super.startingPage = app.zPageCalendar;
 
-		// Make sure we are using an account with message view
+		// Make sure we are using an account with day view
 		super.startingAccountPreferences = new HashMap<String, String>() {
 			private static final long serialVersionUID = -2913827779459595178L;
 		{
@@ -90,6 +90,7 @@ public class CreateAppointment extends AjaxCommonTest {
 		apptForm.zSubmit();
 			
 		// Verify appointment exists on the server
+		SleepUtil.sleepSmall(); //test fails here
 		AppointmentItem actual = AppointmentItem.importFromSOAP(app.zGetActiveAccount(), "subject:("+ appt.getSubject() +")", appt.getStartTime().addDays(-7), appt.getEndTime().addDays(7));
 		ZAssert.assertNotNull(actual, "Verify the new appointment is created");
 		ZAssert.assertEquals(actual.getSubject(), appt.getSubject(), "Subject: Verify the appointment data");

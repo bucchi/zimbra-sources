@@ -20,7 +20,7 @@ public class CreateAppointment extends CalendarWorkWeekTest {
 		// All tests start at the Calendar page
 		super.startingPage = app.zPageCalendar;
 
-		// Make sure we are using an account with message view
+		// Make sure we are using an account with week view
 		super.startingAccountPreferences = new HashMap<String, String>() {
 			private static final long serialVersionUID = -2913827779459595178L;
 		{
@@ -66,6 +66,7 @@ public class CreateAppointment extends CalendarWorkWeekTest {
 		//-- Data Verification
 		
 		// Verify the new appointment exists on the server
+		SleepUtil.sleepSmall(); //test fails without sleep
 		AppointmentItem actual = AppointmentItem.importFromSOAP(app.zGetActiveAccount(), "subject:("+ appt.getSubject() +")", appt.getStartTime().addDays(-7), appt.getEndTime().addDays(7));
 		ZAssert.assertNotNull(actual, "Verify the new appointment is created");
 		ZAssert.assertEquals(actual.getSubject(), appt.getSubject(), "Subject: Verify the appointment data");

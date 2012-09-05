@@ -1,6 +1,7 @@
 package com.zimbra.qa.selenium.projects.ajax.tests.calendar.appointments.views.workweek.singleday;
 
 import java.util.Calendar;
+import java.util.HashMap;
 
 import org.testng.annotations.Test;
 
@@ -15,13 +16,23 @@ import com.zimbra.qa.selenium.framework.util.ZDate;
 import com.zimbra.qa.selenium.framework.util.ZTimeZone;
 import com.zimbra.qa.selenium.framework.util.ZimbraSeleniumProperties;
 import com.zimbra.qa.selenium.projects.ajax.core.CalendarWorkWeekTest;
+import com.zimbra.qa.selenium.projects.ajax.tests.calendar.appointments.views.workweek.allday.CreateAppointment;
 import com.zimbra.qa.selenium.projects.ajax.ui.calendar.FormApptNew;
 
 public class ModifyAppointment extends CalendarWorkWeekTest {
 
 	public ModifyAppointment() {
-		logger.info("New " + ModifyAppointment.class.getCanonicalName());
+		logger.info("New "+ CreateAppointment.class.getCanonicalName());
 
+		// All tests start at the Calendar page
+		super.startingPage = app.zPageCalendar;
+
+		// Make sure we are using an account with work week view
+		super.startingAccountPreferences = new HashMap<String, String>() {
+			private static final long serialVersionUID = -2913827779459595178L;
+		{
+		    put("zimbraPrefCalendarInitialView", "workWeek");
+		}};
 	}
 
 	@Bugs(ids = "69132")
@@ -75,6 +86,7 @@ public class ModifyAppointment extends CalendarWorkWeekTest {
         apptForm.zToolbarPressButton(Button.B_SAVEANDCLOSE);
         
         // Use GetAppointmentRequest to verify the changes are saved
+        SleepUtil.sleepSmall(); //test fails without sleep
         app.zGetActiveAccount().soapSend("<GetAppointmentRequest  xmlns='urn:zimbraMail' id='"+ apptId +"'/>");
         ZAssert.assertEquals(app.zGetActiveAccount().soapMatch("//mail:GetAppointmentResponse//mail:comp", "name", editApptSubject), true, "");
         ZAssert.assertEquals(app.zGetActiveAccount().soapMatch("//mail:GetAppointmentResponse//mail:desc", null, editApptBody), true, "");
