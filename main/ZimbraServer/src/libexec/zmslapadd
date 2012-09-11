@@ -35,9 +35,9 @@ fi
 
 if [ x$1 = "x" -o x$1 = "x-h" -o x$1 = "x--help" ]; then
 	echo "USAGE: Imports LDAP databases"
-	echo "Main database: zmslapadd <DIR>"
-	echo "Config database: zmslapadd -c <DIR>"
-	echo "Accesslog database: zmslapadd -a <DIR>"
+	echo "Main database: zmslapadd <FILE>"
+	echo "Config database: zmslapadd -c <FILE>"
+	echo "Accesslog database: zmslapadd -a <FILE>"
 	exit 1
 fi
 
@@ -61,7 +61,7 @@ elif [ x$ALOG = "xyes" ]; then
 	${zimbra_home}/openldap/sbin/slapadd -q -F ${zimbra_home}/data/ldap/config -b "cn=accesslog" -l $SRC
 	RETVAL=$?
 else
-	${zimbra_home}/openldap/sbin/slapadd -q -F ${zimbra_home}/data/ldap/config -b "" -l $SRC
+	${zimbra_home}/openldap/sbin/slapadd -w -q -F ${zimbra_home}/data/ldap/config -b "" -l $SRC
 	RETVAL=$?
 fi
 
