@@ -43,6 +43,9 @@ public class SaveDraftMail extends PrefGroupMailByMessageTest {
 			window.zSetWindowTitle("Compose");
 			window.zWaitForActive();		// Make sure the window is there
 
+			/* TODO: ... debugging to be removed */
+			window.waitForComposeWindow();
+		
 			ZAssert.assertTrue(window.zIsActive(), "Verify the window is active");
 
 			// Fill out the form with the data
@@ -105,6 +108,9 @@ public class SaveDraftMail extends PrefGroupMailByMessageTest {
 			window.zSetWindowTitle("Compose");
 			window.zWaitForActive();		// Make sure the window is there
 
+			/* TODO: ... debugging to be removed */
+			window.waitForComposeWindow();
+		
 			ZAssert.assertTrue(window.zIsActive(), "Verify the window is active");
 
 			// Fill out the form with the data
@@ -131,6 +137,8 @@ public class SaveDraftMail extends PrefGroupMailByMessageTest {
 
 		FolderItem draftsFolder = FolderItem.importFromSOAP(app.zGetActiveAccount(), SystemFolder.Drafts);
 
+		SleepUtil.sleepMedium();
+		
 		// Get the message from the server
 		MailItem draft = MailItem.importFromSOAP(app.zGetActiveAccount(),"subject:(" + subject + ")");
 

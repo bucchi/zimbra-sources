@@ -24,6 +24,7 @@ public class PageCalendar extends AbsTab {
 		public static final String NewButton = "css=td#zb__CLWW__NEW_MENU_title";
 		public static final String CloseButton = "css=td[id$='__CANCEL_title']:contains('Close')";
 		public static final String ViewButton = "id=zb__CLD__VIEW_MENU_dropdown";
+		public static final String CalendarFolder = "id=zti__main_Calendar__10_textCell";
 
 		// Menus
 		public static final String ViewDayMenu = "css=div[id='zm__Calendar'] tr[id='POPUP_DAY_VIEW']";
@@ -733,13 +734,6 @@ public class PageCalendar extends AbsTab {
 				
 				optionLocator = Locators.CancelMenu;
 
-				this.zRightClickAt(locator, "");
-				this.zWaitForBusyOverlay();
-
-				this.zClickAt(optionLocator, "");
-				this.zWaitForBusyOverlay();
-
-
 				// Since we are not going to "wait for active", insert
 				// a small delay to make sure the dialog shows up
 				// before the zIsActive() method is called
@@ -775,12 +769,18 @@ public class PageCalendar extends AbsTab {
 				optionLocator = "css=div#zm__Calendar div#REINVITE_ATTENDEES td[id$='_title']";
 				page = null;
 				waitForPostfix = true;
+			
+			} else if ( option == Button.O_REPLY_MENU ) {
 				
-				this.zRightClickAt(locator, "");
-				this.zWaitForBusyOverlay();
-
-				this.zClickAt(optionLocator, "");
-				this.zWaitForBusyOverlay();
+				optionLocator = Locators.ReplyMenu;
+				page = null;
+				waitForPostfix = true;
+			
+			} else if ( option == Button.O_REPLY_TO_ALL_MENU ) {
+				
+				optionLocator = Locators.ReplyToAllMenu;
+				page = null;
+				waitForPostfix = true;
 				
 			} else if ( option == Button.O_FORWARD_MENU) {
 				
@@ -788,12 +788,6 @@ public class PageCalendar extends AbsTab {
 				
 				page = null;
 				waitForPostfix = true;
-				
-				this.zRightClickAt(locator, "");
-				this.zWaitForBusyOverlay();
-
-				this.zClickAt(optionLocator, "");
-				this.zWaitForBusyOverlay();
 				
 				// FALL THROUGH
 				
