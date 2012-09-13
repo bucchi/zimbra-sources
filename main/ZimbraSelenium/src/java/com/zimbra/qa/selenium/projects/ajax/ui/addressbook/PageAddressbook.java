@@ -61,7 +61,7 @@ public class PageAddressbook extends AbsTab {
 	public static class CONTEXT_SUB_MENU {
 				
 		public static final ContextMenuItem CONTACT_SUB_NEW_TAG = new ContextMenuItem("div#contacts_newtag","New Tag","div[class='ImgNewTag']",":contains('nt')");
-		public static final ContextMenuItem CONTACT_SUB_REMOVE_TAG = new ContextMenuItem("div[id='contacts_removetag']","Remove Tag","div[class='ImgDeleteTag']","");
+		public static final ContextMenuItem CONTACT_SUB_REMOVE_TAG = new ContextMenuItem("div[id*='contacts_removetag']","Remove Tag","div[class='ImgDeleteTag']","");
 		//public static final ContextMenuItem CONTACT_SUB_REMOVE_TAG = new ContextMenuItem("td#zmi__Contacts__TAG_MENU|MENU|REMOVETAG_title","Remove Tag","div[class='ImgDeleteTag']","");
 
 		
@@ -1140,8 +1140,13 @@ public class PageAddressbook extends AbsTab {
 				locator="css=td[id^=SEARCH__DWT][id$=_title]:contains('Received From Contact')";
 			}
        }		
+       		if (option == Button.O_TAG_REMOVETAG) {
+       		    ExecuteHarnessMain.ResultListener.captureScreen();
+       		}
+
     		sFocus(locator);
             sMouseOver(locator);
+            SleepUtil.sleepSmall();
             //jClick(locator);
             //zClickAt(locator, "0,0");
              sClickAt(locator, "0,0");
